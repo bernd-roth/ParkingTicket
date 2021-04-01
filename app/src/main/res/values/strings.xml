@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ParkingTicket</string>
+    <string name="main_menu">Main menu</string>
+    <string name="settings">Settings</string>
+</resources>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TimePicker
+            android:id="@+id/clockStartTimer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start time"/>
+
+        <TimePicker
+            android:id="@+id/clockEndTimer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="End time"/>
+
+        <CheckBox
+            android:id="@+id/checkBoxEndTimer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enable clock when to stop booking tickets" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/button_15_minute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="19dp"
+                android:text="15" />
+
+            <Button
+                android:id="@+id/button_30_minute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/button_15_minute"
+                android:layout_centerHorizontal="true"
+                android:text="30" />
+
+            <Button
+                android:id="@+id/button_60_minute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/button_30_minute"
+                android:layout_alignBottom="@+id/button_30_minute"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="21dp"
+                android:text="60" />
+
+            <Button
+                android:id="@+id/minute_90_minute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/button_15_minute"
+                android:layout_below="@+id/button_15_minute"
+                android:text="90" />
+
+            <Button
+                android:id="@+id/button_120_minute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/minute_90_minute"
+                android:layout_alignLeft="@+id/button_30_minute"
+                android:text="120" />
+
+            <Button
+                android:id="@+id/buttonFreeToChooseMinutes"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/button_60_minute"
+                android:layout_alignParentBottom="true"
+                android:layout_alignRight="@+id/button_60_minute"
+                android:text="..." />
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/btStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start booking"/>
+    </LinearLayout>
+</ScrollView>
