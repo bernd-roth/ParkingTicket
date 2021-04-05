@@ -2,4 +2,5 @@
     <string name="app_name">ParkingTicket</string>
     <string name="main_menu">Main menu</string>
     <string name="settings">Settings</string>
+    <string name="permission_denied">Until you grant the permission, we cannot proceed further</string>
 </resources>
