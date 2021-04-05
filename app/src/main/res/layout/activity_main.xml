@@ -29,6 +29,11 @@
             android:layout_height="wrap_content"
             android:text="Enable clock when to stop booking tickets" />
 
+        <NumberPicker
+            android:id="@+id/timerIntervall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
@@ -41,7 +46,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="19dp"
-                android:onClick="button_minutes"
+                android:onClick="control_handler"
                 android:text="15" />
 
             <Button
@@ -50,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/button_15_minute"
                 android:layout_centerHorizontal="true"
-                android:onClick="button_minutes"
+                android:onClick="control_handler"
                 android:text="30" />
 
             <Button
@@ -61,25 +66,25 @@
                 android:layout_alignBottom="@+id/button_30_minute"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="21dp"
-                android:onClick="button_minutes"
+                android:onClick="control_handler"
                 android:text="60" />
 
             <Button
-                android:id="@+id/minute_90_minute"
+                android:id="@+id/button_90_minute"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/button_15_minute"
                 android:layout_below="@+id/button_15_minute"
-                android:onClick="button_minutes"
+                android:onClick="control_handler"
                 android:text="90" />
 
             <Button
                 android:id="@+id/button_120_minute"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/minute_90_minute"
+                android:layout_alignBottom="@+id/button_90_minute"
                 android:layout_alignLeft="@+id/button_30_minute"
-                android:onClick="button_minutes"
+                android:onClick="control_handler"
                 android:text="120" />
 
             <Button
@@ -90,7 +95,7 @@
                 android:layout_alignLeft="@+id/button_60_minute"
                 android:layout_alignParentBottom="true"
                 android:layout_alignRight="@+id/button_60_minute"
-                android:onClick="button_minutes"
+                android:onClick="control_handler"
                 android:text="..." />
 
         </RelativeLayout>
@@ -99,6 +104,8 @@
             android:id="@+id/btStart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Start booking"/>
+            android:text="Start booking"
+            android:onClick="control_handler"
+            />
     </LinearLayout>
 </ScrollView>
