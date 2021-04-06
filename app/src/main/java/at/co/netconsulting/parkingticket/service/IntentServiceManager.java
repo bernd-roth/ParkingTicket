@@ -1,21 +1,33 @@
 package at.co.netconsulting.parkingticket.service;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.JobIntentService;
+import androidx.core.app.NotificationCompat;
+
 import java.util.Calendar;
 import java.util.TreeMap;
 
 import at.co.netconsulting.parkingticket.BroadcastReceiver.SMSBroadcastReceiver;
 import at.co.netconsulting.parkingticket.CalculateBookings.CalculateBookings;
 import at.co.netconsulting.parkingticket.MainActivity;
+import at.co.netconsulting.parkingticket.R;
+import at.co.netconsulting.parkingticket.statics.StaticVariables;
 
 import static at.co.netconsulting.parkingticket.statics.StaticVariables.JOB_ID;
 import static at.co.netconsulting.parkingticket.statics.StaticVariables.KEY;
 import static at.co.netconsulting.parkingticket.statics.StaticVariables.VALUE;
+import static java.lang.Thread.*;
 
 public class IntentServiceManager extends JobIntentService {
 
@@ -30,12 +42,41 @@ public class IntentServiceManager extends JobIntentService {
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
+        createNotificationChannel();
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,0, notificationIntent, 0);
+        Notification notification = new NotificationCompat.Builder(this, StaticVariables.CHANNEL_ID)
+                .setContentTitle(getResources().getString(R.string.app_name))
+                .setContentText(getResources().getString(R.string.message_notification_booking))
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentIntent(pendingIntent)
+                .build();
+        startForeground(1, notification);
+
         return START_STICKY;
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    StaticVariables.CHANNEL_ID,
+                    getResources().getString(R.string.app_name),
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
         //check whether map is exactly 1 entry, if yes, book it immediately
+        //we do not need to check whether the current clock has already passed the booking
         if(CalculateBookings.getTreeMap().size()==1) {
             prepareSendingSMS(CalculateBookings.getTreeMap().firstKey(), CalculateBookings.getTreeMap().get(CalculateBookings.getTreeMap().firstKey()));
         } else if(CalculateBookings.getTreeMap().size()>1){
@@ -46,41 +87,44 @@ public class IntentServiceManager extends JobIntentService {
             while (!usersTreemap.isEmpty()) {
                 currentMillisecs = getCurrentCalendarHourMinuteInMilliseconds();
 
-                //If currentMillisecs are equal firstKeyFromDictionary, then it is better to book it one minute later
-                //so that no interference will occur
-                //Furthermore, we will clear the Treemap and build a new one from scratch
-                if (currentMillisecs >= firstKeyFromDictionary) {
-                    buildDictionryFromScratch(currentMillisecs);
+                //If currentMillisecs are equal or greater than firstKeyFromDictionary or there is no 2 minutes gap at least, then it is better to do nothing and show user an alert message
+                //we do not want to fiddle around with clock time
+                if (currentMillisecs >= firstKeyFromDictionary || (firstKeyFromDictionary-currentMillisecs)<=120000) {
+                    usersTreemap.clear();
+                    final ResultReceiver receiver = intent.getParcelableExtra("receiver");
+                    Bundle bundle = new Bundle();
+                    bundle.putString("RESULT", String.valueOf(StaticVariables.BOOKING_ERROR));
+                    receiver.send(StaticVariables.BOOKING_ERROR, bundle);
+                } else {
+                    //calculate for how long to sleep until next SMS must be sent
+                    long howLongThreadToSleep = getCalculateSleepTime();
+                    sleepThread(howLongThreadToSleep);
+
                     prepareSendingSMS(firstKeyFromDictionary, firstDictionaryValue);
+                    //now after sending SMS, we poll the first entry of your dictionary
+                    usersTreemap.pollFirstEntry();
                 }
             }
         }
     }
 
-    private void buildDictionryFromScratch(long currentMillisecs) {
-        //1. we have to find out which sequence the user has chosen (15/30 minutes or 30/15 minutes)
-        //if 15/30 minutes, than we have to rearrange the minutes
-        //take the user´s dictionary and guess what the user`s intention is
-        TreeMap<Long, Integer> cloneMap = (TreeMap<Long, Integer>) usersTreemap.clone();
-        Long firstClonedTreemapKey = cloneMap.firstKey();
-        Integer firstClonedTreemapValue = cloneMap.get(firstClonedTreemapKey);
-
-        if(firstClonedTreemapValue == 15)
-            //add 1 minute so that we have no interference
-            firstClonedTreemapKey=currentMillisecs+60000;
-
-        //Delete first entry
-        cloneMap.pollFirstEntry();
-        //Get second entry
-        Long secondClonedTreemapKey = cloneMap.firstKey();
-        Integer secondClonedTreemapValue = cloneMap.get(secondClonedTreemapKey);
-        //If 30 minutes were booked, then we do not need to change anything
-        //If 15 minutes were booked again, we have to adapt the time, too
-        if(secondClonedTreemapKey==15) {
-            long differenceToNextBooking = secondClonedTreemapKey-firstClonedTreemapKey;
-            differenceToNextBooking=differenceToNextBooking+60000*2;
-            secondClonedTreemapKey=differenceToNextBooking;
+    private void sleepThread(long howLongThreadToSleep) {
+        try {
+            sleep(howLongThreadToSleep);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+    }
+
+    private long getCalculateSleepTime() {
+        //get current time
+        long currentTime = getCurrentCalendarHourMinuteInMilliseconds();
+        //get next dictionary entry
+        firstKeyFromDictionary = usersTreemap.firstKey();
+        firstDictionaryValue = usersTreemap.get(firstKeyFromDictionary);
+        //calculate how long to sleep
+        long whenToWakeUpFromSleep = (firstKeyFromDictionary - currentTime)-StaticVariables.WHEN_TO_WAKE_UP;
+        return whenToWakeUpFromSleep;
     }
 
     private void prepareSendingSMS(Long firstKeyFromDictionary, int firstValueFromDictionary) {
