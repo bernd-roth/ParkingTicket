@@ -81,11 +81,11 @@ public class IntentServiceManager extends JobIntentService {
             prepareSendingSMS(CalculateBookings.getTreeMap().firstKey(), CalculateBookings.getTreeMap().get(CalculateBookings.getTreeMap().firstKey()));
         } else if(CalculateBookings.getTreeMap().size()>1){
             usersTreemap = CalculateBookings.getTreeMap();
-            firstKeyFromDictionary = usersTreemap.firstKey();
-            firstDictionaryValue = usersTreemap.get(firstKeyFromDictionary);
 
             while (!usersTreemap.isEmpty()) {
                 currentMillisecs = getCurrentCalendarHourMinuteInMilliseconds();
+                firstKeyFromDictionary = usersTreemap.firstKey();
+                firstDictionaryValue = usersTreemap.get(firstKeyFromDictionary);
 
                 //If currentMillisecs are equal or greater than firstKeyFromDictionary or there is no 2 minutes gap at least, then it is better to do nothing and show user an alert message
                 //we do not want to fiddle around with clock time
@@ -100,8 +100,15 @@ public class IntentServiceManager extends JobIntentService {
                     long howLongThreadToSleep = getCalculateSleepTime();
                     sleepThread(howLongThreadToSleep);
 
+                    //waking up 30 seconds before sending an SMS
+                    //now wait until we reach the point to send an SMS
+                    while(getCurrentCalendarHourMinuteSecondsInMilliseconds()<firstKeyFromDictionary)
+                        sleepThread(1000);
+
                     prepareSendingSMS(firstKeyFromDictionary, firstDictionaryValue);
+
                     //now after sending SMS, we poll the first entry of your dictionary
+                    //and start with the next entry
                     usersTreemap.pollFirstEntry();
                 }
             }
@@ -118,13 +125,24 @@ public class IntentServiceManager extends JobIntentService {
 
     private long getCalculateSleepTime() {
         //get current time
-        long currentTime = getCurrentCalendarHourMinuteInMilliseconds();
+        long currentTime = getCurrentCalendarHourMinuteSecondsInMilliseconds();
         //get next dictionary entry
         firstKeyFromDictionary = usersTreemap.firstKey();
         firstDictionaryValue = usersTreemap.get(firstKeyFromDictionary);
         //calculate how long to sleep
-        long whenToWakeUpFromSleep = (firstKeyFromDictionary - currentTime)-StaticVariables.WHEN_TO_WAKE_UP;
+        long whenToWakeUpFromSleep = firstKeyFromDictionary - currentTime-StaticVariables.WHEN_TO_WAKE_UP;
         return whenToWakeUpFromSleep;
+    }
+
+    private long getCurrentCalendarHourMinuteSecondsInMilliseconds() {
+        final Calendar c = Calendar.getInstance();
+        int hour = 0;
+        hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = 0;
+        minute = c.get(Calendar.MINUTE);
+        int second = 0;
+        second = c.get(Calendar.SECOND);
+        return CalculateBookings.convertTimeToMillisecondsIncludingSeconds(hour, minute, second);
     }
 
     private void prepareSendingSMS(Long firstKeyFromDictionary, int firstValueFromDictionary) {
@@ -141,7 +159,6 @@ public class IntentServiceManager extends JobIntentService {
         int hour = 0;
         hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = 0;
-        minute = c.get(Calendar.MINUTE);
         return CalculateBookings.convertTimeToMilliseconds(hour, minute);
     }
 }
