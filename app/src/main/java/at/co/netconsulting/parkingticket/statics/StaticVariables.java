@@ -11,4 +11,7 @@ public class StaticVariables {
     public static final String VALUE = "VALUE";
     public static final int JOB_ID = 1;
     public static final int PERMISSION_ALL = 1;
+    public static final int BOOKING_ERROR = 99;
+    public static final String CHANNEL_ID = "FOREGROUND_SERVICE_CHANNEL";
+    public static final long WHEN_TO_WAKE_UP = 30000;
 }
