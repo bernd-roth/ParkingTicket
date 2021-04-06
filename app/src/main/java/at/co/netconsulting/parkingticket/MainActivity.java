@@ -19,7 +19,6 @@ import androidx.core.app.ActivityCompat;
 import at.co.netconsulting.parkingticket.CalculateBookings.CalculateBookings;
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.service.IntentServiceManager;
-import at.co.netconsulting.parkingticket.statics.StaticVariables;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
 import static at.co.netconsulting.parkingticket.statics.StaticVariables.*;
@@ -85,18 +84,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                } else {
-                    makeText(this, getResources().getString(R.string.permission_denied), LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
-
     private class TreemapResultReceiver extends ResultReceiver {
         public TreemapResultReceiver(Handler handler) {
             super(handler);
@@ -129,6 +116,24 @@ public class MainActivity extends BaseActivity {
         //Setting the title manually
         alert.setTitle("Alert message");
         alert.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(intentServiceManager);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                    makeText(this, getResources().getString(R.string.permission_denied), LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 
     public void control_handler(View view) {
