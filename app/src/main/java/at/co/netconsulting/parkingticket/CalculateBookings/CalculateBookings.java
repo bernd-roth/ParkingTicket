@@ -11,6 +11,10 @@ public class CalculateBookings {
     public static long millisecondsEndOfDay = 86340000; //23:59
     public int sizeOfTreeMap = 0;
 
+    public static long convertTimeToMillisecondsIncludingSeconds(int hour, int minutes, int seconds){
+        return (hour * 60 * 60 * 1000) + (minutes * 60000) + (seconds * 1000);
+    }
+
     public static long convertTimeToMilliseconds(int hour, int minutes){
         return (hour * 60 * 60 * 1000) + (minutes * 60000);
     }
