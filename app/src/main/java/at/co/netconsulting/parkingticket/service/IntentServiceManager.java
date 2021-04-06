@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.telephony.SmsManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,7 +19,6 @@ import androidx.core.app.NotificationCompat;
 import java.util.Calendar;
 import java.util.TreeMap;
 
-import at.co.netconsulting.parkingticket.BroadcastReceiver.SMSBroadcastReceiver;
 import at.co.netconsulting.parkingticket.CalculateBookings.CalculateBookings;
 import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
@@ -146,12 +146,8 @@ public class IntentServiceManager extends JobIntentService {
     }
 
     private void prepareSendingSMS(Long firstKeyFromDictionary, int firstValueFromDictionary) {
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(SMSBroadcastReceiver.ACTION_SMS_BROADCAST_RECEIVER);
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.putExtra(KEY, this.firstKeyFromDictionary.toString());
-        broadcastIntent.putExtra(VALUE, firstValueFromDictionary);
-        sendBroadcast(broadcastIntent);
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage("", null, "Test", null, null);
     }
 
     private long getCurrentCalendarHourMinuteInMilliseconds() {
