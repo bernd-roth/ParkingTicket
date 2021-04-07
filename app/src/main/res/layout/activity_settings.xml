@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SettingsActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="197dp"
+        tools:layout_editor_absoluteY="268dp">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="0828 20200 for Austria, 0664 660 0990 only for Vienna or 0664 660 6000, only for Baden, Styria, Linz, Bludenz, Steyr use 0800 664 4242">
+            </TextView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Telephone number for parking ticket">
+            </TextView>
+
+            <EditText
+                android:id="@+id/editTextTelephoneNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="06646606000"
+                android:inputType="number">
+            </EditText>
+
+            <Button
+                android:id="@+id/buttonSaveTelephoneNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save telephone number"
+                android:onClick="control_handler"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="License plate">
+            </TextView>
+
+            <EditText
+                android:id="@+id/editTextLicensePlate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="W-123456"
+                android:inputType="text">
+            </EditText>
+
+            <Button
+                android:id="@+id/buttonSaveLicensePlate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save license plate"
+                android:onClick="control_handler"/>
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
