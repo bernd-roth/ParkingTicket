@@ -7,4 +7,7 @@
     <item android:id="@+id/settings"
         android:title="@string/settings"
         app:showAsAction="ifRoom" />
+    <item android:id="@+id/logging"
+        android:title="LogMessages"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -8,6 +8,7 @@ import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import at.co.netconsulting.parkingticket.LogUserInputAndOtherMessagesActivity;
 import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.SettingsActivity;
@@ -30,6 +31,10 @@ public abstract class BaseActivity extends AppCompatActivity {
             case R.id.settings:
                 Intent intentSettings = new Intent(BaseActivity.this, SettingsActivity.class);
                 startActivity(intentSettings);
+                return true;
+            case R.id.logging:
+                Intent intentLog = new Intent(BaseActivity.this, LogUserInputAndOtherMessagesActivity.class);
+                startActivity(intentLog);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
