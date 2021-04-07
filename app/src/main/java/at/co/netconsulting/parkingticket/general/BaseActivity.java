@@ -1,13 +1,16 @@
 package at.co.netconsulting.parkingticket.general;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
+import at.co.netconsulting.parkingticket.SettingsActivity;
 
 public abstract class BaseActivity extends AppCompatActivity {
     @Override
@@ -21,8 +24,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.mainmenu:
+                Intent intentMainActivity = new Intent(BaseActivity.this, MainActivity.class);
+                startActivity(intentMainActivity);
                 return true;
             case R.id.settings:
+                Intent intentSettings = new Intent(BaseActivity.this, SettingsActivity.class);
+                startActivity(intentSettings);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
