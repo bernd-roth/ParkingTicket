@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -35,6 +36,8 @@ public class IntentServiceManager extends JobIntentService {
     Long firstKeyFromDictionary;
     long currentMillisecs;
     int firstDictionaryValue;
+    String telephone_number;
+    String license_plate;
 
     public static void enqueueWork(Context context, Intent intent) {
         enqueueWork(context, IntentServiceManager.class, JOB_ID, intent);
@@ -42,6 +45,7 @@ public class IntentServiceManager extends JobIntentService {
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
+        loadPreferences();
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,0, notificationIntent, 0);
@@ -54,6 +58,14 @@ public class IntentServiceManager extends JobIntentService {
         startForeground(1, notification);
 
         return START_STICKY;
+    }
+
+    private void loadPreferences() {
+        SharedPreferences sharedPreferences = getSharedPreferences("PREF_TELEPHONE_NUMBER", MODE_PRIVATE);
+        telephone_number = sharedPreferences.getString("PREF_TELEPHONE_NUMBER", "06646606000");
+
+        sharedPreferences = getSharedPreferences("PREF_LICENSE_PLATE", MODE_PRIVATE);
+        license_plate = sharedPreferences.getString("PREF_LICENSE_PLATE", "W-12345678");
     }
 
     private void createNotificationChannel() {
@@ -147,7 +159,7 @@ public class IntentServiceManager extends JobIntentService {
 
     private void prepareSendingSMS(Long firstKeyFromDictionary, int firstValueFromDictionary) {
         SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage("", null, "Test", null, null);
+        smsManager.sendTextMessage(telephone_number, null, "Test", null, null);
     }
 
     private long getCurrentCalendarHourMinuteInMilliseconds() {

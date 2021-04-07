@@ -55,7 +55,7 @@ public class SettingsActivity extends BaseActivity {
     private void saveTelephoneNumber() {
         SharedPreferences sharedpreferences = getSharedPreferences("PREF_TELEPHONE_NUMBER", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putInt("PREF_TELEPHONE_NUMBER", Integer.parseInt(editTextTelephoneNumber.getText().toString()));
+        editor.putString("PREF_TELEPHONE_NUMBER", editTextTelephoneNumber.getText().toString());
         editor.commit();
     }
 
@@ -68,7 +68,7 @@ public class SettingsActivity extends BaseActivity {
 
     private void loadPrefs() {
         SharedPreferences sharedPreferences = getSharedPreferences("PREF_TELEPHONE_NUMBER", MODE_PRIVATE);
-        int telephone_number = sharedPreferences.getInt("PREF_TELEPHONE_NUMBER", 06646606000);
+        String telephone_number = sharedPreferences.getString("PREF_TELEPHONE_NUMBER", "06646606000");
         editTextTelephoneNumber.setText(String.valueOf(telephone_number));
 
         sharedPreferences = getSharedPreferences("PREF_LICENSE_PLATE", MODE_PRIVATE);
