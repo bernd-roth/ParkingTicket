@@ -1,5 +1,6 @@
 package at.co.netconsulting.parkingticket.CalculateBookings;
 
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -62,5 +63,24 @@ public class CalculateBookings {
     }
     public int sizeOfTreeMap(){
         return pendingAlarms.size();
+    }
+
+    public static long getCurrentCalendarHourMinuteSecondsInMilliseconds() {
+        final Calendar c = Calendar.getInstance();
+        int hour = 0;
+        hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = 0;
+        minute = c.get(Calendar.MINUTE);
+        int second = 0;
+        second = c.get(Calendar.SECOND);
+        return CalculateBookings.convertTimeToMillisecondsIncludingSeconds(hour, minute, second);
+    }
+
+    public static long getCurrentCalendarHourMinuteInMilliseconds() {
+        final Calendar c = Calendar.getInstance();
+        int hour = 0;
+        hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = 0;
+        return CalculateBookings.convertTimeToMilliseconds(hour, minute);
     }
 }

@@ -17,6 +17,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import at.co.netconsulting.parkingticket.CalculateBookings.CalculateBookings;
+import at.co.netconsulting.parkingticket.CalculateBookings.LogMessages;
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.service.IntentServiceManager;
 import static android.widget.Toast.LENGTH_SHORT;
@@ -24,18 +25,19 @@ import static android.widget.Toast.makeText;
 import static at.co.netconsulting.parkingticket.statics.StaticVariables.*;
 
 public class MainActivity extends BaseActivity {
-    TimePicker clockStartTimer, clockEndTimer;
-    CheckBox checkBoxEndTimer;
-    CalculateBookings calculateBookings;
-    Intent intentServiceManager;
-    NumberPicker timerIntervall;
-    String[] PERMISSIONS= new String[]{
+    private TimePicker clockStartTimer, clockEndTimer;
+    private CheckBox checkBoxEndTimer;
+    private CalculateBookings calculateBookings;
+    private Intent intentServiceManager;
+    private NumberPicker timerIntervall;
+    private String[] PERMISSIONS= new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.SEND_SMS,
             Manifest.permission.FOREGROUND_SERVICE};
-    TreemapResultReceiver treeMapResultReceiver;
+    private TreemapResultReceiver treeMapResultReceiver;
+    private LogMessages logMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +68,13 @@ public class MainActivity extends BaseActivity {
 
         calculateBookings = new CalculateBookings();
         intentServiceManager = new Intent(this, IntentServiceManager.class);
+        logMessages = new LogMessages();
     }
 
     public void startTasks() {
         treeMapResultReceiver = new TreemapResultReceiver(new Handler(Looper.getMainLooper()));
         intentServiceManager.putExtra("receiver", treeMapResultReceiver);
-        IntentServiceManager.enqueueWork(this, intentServiceManager);
+        //IntentServiceManager.enqueueWork(this, intentServiceManager);
         startForegroundService(intentServiceManager);
     }
 
@@ -145,21 +148,27 @@ public class MainActivity extends BaseActivity {
         switch(whichControlWasClicked.getText().toString()) {
             case BUTTON_15:
                 calculateBookings.putTimeToTreeMap(whenToStartMilliSeconds, Integer.valueOf(BUTTON_15), timerIntervall.getValue());
+                logMessages.addLogMessages("Button " + BUTTON_15.toString() + " was clicked at " + CalculateBookings.getCurrentCalendarHourMinuteSecondsInMilliseconds());
                 break;
             case BUTTON_30:
                 calculateBookings.putTimeToTreeMap(whenToStartMilliSeconds, Integer.valueOf(BUTTON_30), timerIntervall.getValue());
+                logMessages.addLogMessages("Button " + BUTTON_30.toString() + " was clicked at " + CalculateBookings.getCurrentCalendarHourMinuteSecondsInMilliseconds());
                 break;
             case BUTTON_60:
                 calculateBookings.putTimeToTreeMap(whenToStartMilliSeconds, Integer.valueOf(BUTTON_60), timerIntervall.getValue());
+                logMessages.addLogMessages("Button " + BUTTON_60.toString() + " was clicked at " + CalculateBookings.getCurrentCalendarHourMinuteSecondsInMilliseconds());
                 break;
             case BUTTON_90:
                 calculateBookings.putTimeToTreeMap(whenToStartMilliSeconds, Integer.valueOf(BUTTON_90), timerIntervall.getValue());
+                logMessages.addLogMessages("Button " + BUTTON_90.toString() + " was clicked at " + CalculateBookings.getCurrentCalendarHourMinuteSecondsInMilliseconds());
                 break;
             case BUTTON_120:
                 calculateBookings.putTimeToTreeMap(whenToStartMilliSeconds, Integer.valueOf(BUTTON_120), timerIntervall.getValue());
+                logMessages.addLogMessages("Button " + BUTTON_120.toString() + " was clicked at " + CalculateBookings.getCurrentCalendarHourMinuteSecondsInMilliseconds());
                 break;
             case BUTTON_START_BOOKING:
                 startTasks();
+                logMessages.addLogMessages("Button " + BUTTON_START_BOOKING.toString() + " was clicked at " + CalculateBookings.getCurrentCalendarHourMinuteSecondsInMilliseconds());
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + whichControlWasClicked.getText().toString());

@@ -1,5 +1,6 @@
 package at.co.netconsulting.parkingticket.service;
 
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -17,10 +18,12 @@ import androidx.annotation.Nullable;
 import androidx.core.app.JobIntentService;
 import androidx.core.app.NotificationCompat;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TreeMap;
 
 import at.co.netconsulting.parkingticket.CalculateBookings.CalculateBookings;
+import at.co.netconsulting.parkingticket.CalculateBookings.LogMessages;
 import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.statics.StaticVariables;
@@ -30,17 +33,18 @@ import static at.co.netconsulting.parkingticket.statics.StaticVariables.KEY;
 import static at.co.netconsulting.parkingticket.statics.StaticVariables.VALUE;
 import static java.lang.Thread.*;
 
-public class IntentServiceManager extends JobIntentService {
+public class IntentServiceManager extends IntentService {
 
-    TreeMap<Long, Integer> usersTreemap;
-    Long firstKeyFromDictionary;
-    long currentMillisecs;
-    int firstDictionaryValue;
-    String telephone_number;
-    String license_plate;
+    private TreeMap<Long, Integer> usersTreemap;
+    private Long firstKeyFromDictionary;
+    private long currentMillisecs;
+    private int firstDictionaryValue;
+    private String telephone_number;
+    private String license_plate;
+    private LogMessages logMessages = new LogMessages();
 
-    public static void enqueueWork(Context context, Intent intent) {
-        enqueueWork(context, IntentServiceManager.class, JOB_ID, intent);
+    public IntentServiceManager() {
+        super("IntentServiceManager");
     }
 
     @Override
@@ -86,7 +90,7 @@ public class IntentServiceManager extends JobIntentService {
     }
 
     @Override
-    protected void onHandleWork(@NonNull Intent intent) {
+    protected void onHandleIntent(@Nullable Intent intent) {
         //check whether map is exactly 1 entry, if yes, book it immediately
         //we do not need to check whether the current clock has already passed the booking
         if(CalculateBookings.getTreeMap().size()==1) {
@@ -95,7 +99,7 @@ public class IntentServiceManager extends JobIntentService {
             usersTreemap = CalculateBookings.getTreeMap();
 
             while (!usersTreemap.isEmpty()) {
-                currentMillisecs = getCurrentCalendarHourMinuteInMilliseconds();
+                currentMillisecs = CalculateBookings.getCurrentCalendarHourMinuteInMilliseconds();
                 firstKeyFromDictionary = usersTreemap.firstKey();
                 firstDictionaryValue = usersTreemap.get(firstKeyFromDictionary);
 
@@ -114,7 +118,7 @@ public class IntentServiceManager extends JobIntentService {
 
                     //waking up 30 seconds before sending an SMS
                     //now wait until we reach the point to send an SMS
-                    while(getCurrentCalendarHourMinuteSecondsInMilliseconds()<firstKeyFromDictionary)
+                    while(CalculateBookings.getCurrentCalendarHourMinuteSecondsInMilliseconds()<firstKeyFromDictionary)
                         sleepThread(1000);
 
                     prepareSendingSMS(firstKeyFromDictionary, firstDictionaryValue);
@@ -137,7 +141,7 @@ public class IntentServiceManager extends JobIntentService {
 
     private long getCalculateSleepTime() {
         //get current time
-        long currentTime = getCurrentCalendarHourMinuteSecondsInMilliseconds();
+        long currentTime = CalculateBookings.getCurrentCalendarHourMinuteSecondsInMilliseconds();
         //get next dictionary entry
         firstKeyFromDictionary = usersTreemap.firstKey();
         firstDictionaryValue = usersTreemap.get(firstKeyFromDictionary);
@@ -146,27 +150,9 @@ public class IntentServiceManager extends JobIntentService {
         return whenToWakeUpFromSleep;
     }
 
-    private long getCurrentCalendarHourMinuteSecondsInMilliseconds() {
-        final Calendar c = Calendar.getInstance();
-        int hour = 0;
-        hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = 0;
-        minute = c.get(Calendar.MINUTE);
-        int second = 0;
-        second = c.get(Calendar.SECOND);
-        return CalculateBookings.convertTimeToMillisecondsIncludingSeconds(hour, minute, second);
-    }
-
     private void prepareSendingSMS(Long firstKeyFromDictionary, int firstValueFromDictionary) {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(telephone_number, null, "Test", null, null);
-    }
-
-    private long getCurrentCalendarHourMinuteInMilliseconds() {
-        final Calendar c = Calendar.getInstance();
-        int hour = 0;
-        hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = 0;
-        return CalculateBookings.convertTimeToMilliseconds(hour, minute);
+        logMessages.addLogMessages("SMS was sent at: " + CalculateBookings.getCurrentCalendarHourMinuteSecondsInMilliseconds());
     }
 }
