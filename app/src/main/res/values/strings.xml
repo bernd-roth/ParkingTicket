@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Parkingticket</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="startButton">Book</string>
+    <string name="minutesToBook">minutesToBook</string>
+    <string name="cityToBook">cityToBook</string>
+    <string name="licensePlateToBook">licensePlateToBook</string>
+    <string name="telephoneNumber">telephoneNumber</string>
+    <string name="title_activity_profile">Profile</string>
+    <string name="action_main">Main</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+</resources>

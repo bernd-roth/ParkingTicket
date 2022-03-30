@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar" />
+
+    <EditText
+        android:id="@+id/city"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="City"
+        android:inputType="text"
+        android:onClick="saveInput" />
+
+    <EditText
+        android:id="@+id/telephone_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Telephone number"
+        android:inputType="number"
+        android:onClick="saveInput" />
+
+    <EditText
+        android:id="@+id/license_plate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="License plate" />
+
+    <Button
+        android:id="@+id/saveInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="save"
+        android:onClick="saveInput"/>
+
+</LinearLayout>
