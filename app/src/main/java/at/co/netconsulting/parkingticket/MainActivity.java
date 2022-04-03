@@ -30,12 +30,13 @@ import java.util.List;
 
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.general.StaticFields;
+import at.co.netconsulting.parkingticket.pojo.PairResult;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
 
 public class MainActivity extends BaseActivity {
 
-    private PendingIntent pendingIntent;
-    private Intent intent;
+    private PendingIntent pendingIntent, pendingIntentVocieMessage;
+    private Intent intent, intentVoiceMessage;
     private TimePicker startTimePicker, stopTimePicker;
     private int permissionWriteExternalStorage,
             permissionReadExternalStorage,
@@ -56,14 +57,16 @@ public class MainActivity extends BaseActivity {
     private String city;
     private String licensePlate;
     private String telephoneNumber;
+    private int waitMinutes;
+    private long waitMinutesLong;
     private Integer durationParkingticket;
-    private Long intervall;
     private NumberPicker numberPicker;
     private Button stop;
     private CheckBox enableStopTimerCheckBox;
-    private boolean isStopTimePicker;
+    private boolean isStopTimePicker, isVoiceMessageActivated;
     private Toolbar toolbar;
     private List<Long> nextParkingTickets;
+    private List<Long> voiceMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +78,11 @@ public class MainActivity extends BaseActivity {
         toolbar.inflateMenu(R.menu.menu_main);
 
         if (checkAndRequestPermissions()) {
-            checkAndRequestPermissions();
             initializeObjects();
-            loadSharedPreferences("CITY");
-            loadSharedPreferences("TELEPHONE_NUMBER");
-            loadSharedPreferences("LICENSE_PLATE");
+            loadSharedPreferences(StaticFields.CITY);
+            loadSharedPreferences(StaticFields.TELEPHONE_NUMBER);
+            loadSharedPreferences(StaticFields.LICENSE_PLATE);
+            loadSharedPreferences(StaticFields.WAIT_MINUTES);
         } else {
             //Show error message and close app
         }
@@ -153,8 +156,8 @@ public class MainActivity extends BaseActivity {
         stopTimePicker.setIs24HourView(true);
 
         numberPicker = findViewById(R.id.numberpicker_main_picker);
-        numberPicker.setMinValue(0);
-        numberPicker.setMaxValue(86600);
+        numberPicker.setMinValue(StaticFields.MIN_ONE_DAY_MINUTES);
+        numberPicker.setMaxValue(StaticFields.MAX_ONE_DAY_MINUTES);
         numberPicker.setEnabled(true);
         numberPicker.setWrapSelectorWheel(true);
 
@@ -211,59 +214,88 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    public void startAlarm(View view) {
-        nextParkingTickets = calculateNextParkingTicket();
-
-        parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, licensePlate, telephoneNumber);
-
-        prepareAlarmManager(nextParkingTickets);
-    }
-
     private void prepareAlarmManager(List<Long> nextParkingTickets) {
         long plannedTime = nextParkingTickets.get(0);
         int size = nextParkingTickets.size();
 
         intent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
         intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
+
+        //Activate voice message, if it is used
+        if(parkscheinCollection.getNextVoiceMessage().get(0)>0) {
+            intentVoiceMessage = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
+            intentVoiceMessage.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
+            intentVoiceMessage.putExtra("voiceMessage", 1);
+            intentVoiceMessage.setAction("android.provider.Telephony.SMS_RECEIVED");
+            pendingIntentVocieMessage = PendingIntent.getBroadcast(getApplicationContext(), 1, intentVoiceMessage, PendingIntent.FLAG_UPDATE_CURRENT |
+                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+            isVoiceMessageActivated = true;
+        }
+
         pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
-        triggerAlarmManager(plannedTime, size);
+        triggerAlarmManager(plannedTime, size, isVoiceMessageActivated);
     }
 
-    private void triggerAlarmManager(long plannedTime, int size) {
-        if (size > 0) {
-            AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
+    private void triggerAlarmManager(long plannedTime, int size, boolean isVoiceMessageActivated) {
+        if(isVoiceMessageActivated) {
+            if (size > 0) {
+                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
+
+                AlarmManager alarmManagerVoiceMessage = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+                alarmManagerVoiceMessage.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntentVocieMessage);
+            } else {
+                AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
+                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setAlarmClock(ac, pendingIntent);
+
+                ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntentVocieMessage);
+                AlarmManager alarmManagerVoiceMessage = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+                alarmManagerVoiceMessage.setAlarmClock(ac, pendingIntentVocieMessage);
+            }
         } else {
-            AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
-            AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-            alarmManager.setAlarmClock(ac, pendingIntent);
+            if (size > 0) {
+                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
+            } else {
+                AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
+                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setAlarmClock(ac, pendingIntent);
+            }
         }
     }
 
-    private void triggerCancellationAlarmManager() {
+    private boolean isCityStop() {
         if((city.equals("Klagenfurt Zone 1")
-        || city.equals("Klagenfurt Zone 2")
-        || city.equals("Klosterneuburg Zone 1")
-        || city.equals("Klosterneuburg Zone 2")
-        || city.equals("Krems Zone 1")
-        || city.equals("Krems Zone 2")
-        || city.equals("Linz Zone 1")
-        || city.equals("Linz Zone 2")
-        || city.equals("Linz Zone 3")
-        || city.equals("Pörtschach")
-        || city.equals("Salzburg Zone 1")
-        || city.equals("Schärding Zone 1")
-        || city.equals("Steyr Zone 1")
-        || city.equals("Steyr Zone 2")
-        || city.equals("Steyr Zone 3")
-        || city.equals("Steyr Zone 4")
-        || city.equals("Steyr Zone 5")
-        || city.equals("Velden Zone 1")
-        || city.equals("Villach Zone 1")
-        || city.equals("Zell am See"))) {
-            parkscheinCollection = new ParkscheinCollection(city, licensePlate, telephoneNumber, StaticFields.STOP_SMS);
+                || city.equals("Klagenfurt Zone 2")
+                || city.equals("Klosterneuburg Zone 1")
+                || city.equals("Klosterneuburg Zone 2")
+                || city.equals("Krems Zone 1")
+                || city.equals("Krems Zone 2")
+                || city.equals("Linz Zone 1")
+                || city.equals("Linz Zone 2")
+                || city.equals("Linz Zone 3")
+                || city.equals("Pörtschach")
+                || city.equals("Salzburg Zone 1")
+                || city.equals("Schärding Zone 1")
+                || city.equals("Steyr Zone 1")
+                || city.equals("Steyr Zone 2")
+                || city.equals("Steyr Zone 3")
+                || city.equals("Steyr Zone 4")
+                || city.equals("Steyr Zone 5")
+                || city.equals("Velden Zone 1")
+                || city.equals("Villach Zone 1")
+                || city.equals("Zell am See")))
+            return true;
+        else
+            return false;
+    }
+
+    private void triggerCancellationAlarmManager() {
+        if(isCityStop()) {
+            parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, voiceMessages, licensePlate, telephoneNumber, true);
 
             intent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
             intent.putExtra(StaticFields.STOP_SMS, parkscheinCollection);
@@ -273,20 +305,17 @@ public class MainActivity extends BaseActivity {
             AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
             AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
             alarmManager.setAlarmClock(ac, pendingIntent);
-            nextParkingTickets.clear();
         } else {
             AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
             intent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
             alarmManager.cancel(pendingIntent);
-            nextParkingTickets.clear();
         }
+        nextParkingTickets.clear();
     }
 
-    private List<Long> calculateNextParkingTicket() {
-        List<Long> nextParkingTicket = new ArrayList<>();
-
+    private PairResult calculateNextParkingTicket() {
         //get timePicker
         int hour = startTimePicker.getHour();
         int minute = startTimePicker.getMinute();
@@ -297,81 +326,12 @@ public class MainActivity extends BaseActivity {
             minuteEnd = stopTimePicker.getMinute();
         }
 
-        //minute to milliSeconds
-        long lminute = minute*60000;
+        long intervall = Long.valueOf(numberPicker.getValue());
 
-        //current system time in milliseconds since 1970
-        long currentMilliseconds = System.currentTimeMillis();
-        Log.d("CURRENT_MILLIS_SECONDS: ", String.valueOf(currentMilliseconds));
+        CalculationParkingTicket calc = new CalculationParkingTicket();
+        PairResult pair = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, waitMinutesLong, intervall, isStopTimePicker);
 
-        //get seconds from System.currentTimeInMilliseconds
-        long timeSecondsFromSystemMilliseconds = getCurrentTimeInMilliseconds(currentMilliseconds);
-        Log.d("SECONDS_FROM_SYSTEM_TIME ", String.valueOf(timeSecondsFromSystemMilliseconds));
-
-        //get currentTimeInMilliseconds in format hh:mm:00
-        currentMilliseconds=currentMilliseconds-timeSecondsFromSystemMilliseconds;
-        Log.d("CURRENT_MILLIS_HH_MM_00 ", String.valueOf(currentMilliseconds));
-
-        //get minutes from System.currentTimeInMilliseconds
-        long timeMinutesFromSystemMilliseconds = getCurrentMinutesTimeInMilliseconds(currentMilliseconds);
-        Log.d("MINUTES_FROM_SYSTEM_TIME ", String.valueOf(timeMinutesFromSystemMilliseconds));
-
-        long calced = (minute*60000)-timeMinutesFromSystemMilliseconds;
-
-        //first plannedTime
-        currentMilliseconds+=calced;
-        Log.d("PLANNED_TIME ", String.valueOf(currentMilliseconds));
-
-        //calculate planned SMS for the next 24h from now on
-        long millisecondsAfter24Hours;
-        millisecondsAfter24Hours=currentMilliseconds + StaticFields.MAX_ONE_DAY;
-        Log.d("MILLIS_AFTER_24H ", String.valueOf(millisecondsAfter24Hours));
-
-        //get intervall in Milliseconds
-        intervall = Long.valueOf(numberPicker.getValue());
-        intervall *= 60000;
-
-        boolean isEnd = true;
-        while(isEnd) {
-            nextParkingTicket.add(currentMilliseconds);
-            if(intervall==0)
-                isEnd=false;
-            else
-                currentMilliseconds+=intervall;
-            if(currentMilliseconds>=millisecondsAfter24Hours)
-                isEnd=false;
-        }
-        return nextParkingTicket;
-    }
-
-    private long getCurrentMinutesTimeInMilliseconds(long currentMilliseconds) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm");
-        Date date = new Date(currentMilliseconds);
-        String minutes = simpleDateFormat.format(date);
-        long minute = Long.valueOf(minutes);
-        return minute * 60000;
-    }
-
-    private long getCurrentTimeInMilliseconds(long time) {
-        long totalSeconds = time/1000;
-        long currentSecond = totalSeconds % 60;
-        long totalMinutes =  totalSeconds/60;
-        long currentMinutes =totalMinutes%60 -30 ;
-        long totalHour= totalMinutes/60;
-        long currentHour =  totalHour % 24 - 6  ;
-        return currentSecond*1000;
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pendingIntent);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
+        return pair;
     }
 
     private void selectedSpinnerCity(AdapterView<?> parent, int position) {
@@ -431,17 +391,17 @@ public class MainActivity extends BaseActivity {
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Graz Zone 3")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.graz_z2, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.graz_z3, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Graz Zone 5")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.graz_z2, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.graz_z5, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Graz Zone 15")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.graz_z2, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.graz_z15, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Hall in Tirol")) {
@@ -531,52 +491,52 @@ public class MainActivity extends BaseActivity {
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Mödling")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.moedling, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Neusiedl am See Zone 1")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.neusiedl_am_see_zone_1, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Neusiedl am See Zone 2")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.neusiedl_am_see_zone_2, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Oberwart")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.oberwart, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Parktiger Flughafen Wien")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.parktiger_flughafen_wien, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Parktiger P + R Aspern")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.parktiger_p_r_aspern, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Parktiger P + R Heiligenstadt")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.parktiger_p_r_heiligenstadt, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Perchtoldsdorf Zone 1")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.perchtoldsdorf_zone_1, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Perchtoldsdorf Zone 2")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.perchtoldsdorf_zone_2, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Pörtschach")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.poertschach, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Ried Zone 1")) {
@@ -586,87 +546,92 @@ public class MainActivity extends BaseActivity {
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Salzburg Zone 1")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.salzburg_zone_1, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Schwechat Zone 1")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.schwechat_zone_1, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Schärding Zone 1")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.schaerding_zone_1, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Spittal")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.spittal, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("St. Pölten Zone 1")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.sankt_poelten_zone_1, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
-        } else if (item.equals("Steyr Zone 1")) {
+        }  else if (item.equals("St. Pölten Zone 2")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.sankt_poelten_zone_2, android.R.layout.simple_spinner_item);
+            adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerCity.setAdapter(adapterMinutes);
+        }  else if (item.equals("Steyr Zone 1")) {
+            spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.steyr_zone_1, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Steyr Zone 2")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.steyr_zone_2, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Steyr Zone 3")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.steyr_zone_3, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Steyr Zone 4")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.steyr_zone_4, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Steyr Zone 5")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.steyr_zone_5, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Stockerau")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.stockerau, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Tulln")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.tulln, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Velden Zone 1")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.velden_zone_1, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Velden Zone 2")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.velden_zone_2, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Villach")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.villach, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Weiz Zone A")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.weiz_zone_a, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Weiz Zone B")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.weiz_zone_b, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Wels")) {
@@ -682,22 +647,22 @@ public class MainActivity extends BaseActivity {
             selectedSpinnerMinutes(R.array.wien);
         } else if (item.equals("Wiener Neustadt Zone 1")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.wiener_neustadt_zone_1, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Wiener Neustadt Zone 2")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.wiener_neustadt_zone_2, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Wipark")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.wipark, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         } else if (item.equals("Zell am See")) {
             spinnerCity = (Spinner) findViewById(R.id.minutes_spinner);
-            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.klagenfurt_zone_1, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapterMinutes = ArrayAdapter.createFromResource(this, R.array.zell_am_see, android.R.layout.simple_spinner_item);
             adapterMinutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCity.setAdapter(adapterMinutes);
         }
@@ -721,14 +686,6 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    public void stopAlarm(View view) {
-        triggerCancellationAlarmManager();
-    }
-
-    public void showMenu(MenuItem item) {
-        onOptionsItemSelected(item);
-    }
-
     private void loadSharedPreferences(String sharedPref) {
         String input;
         SharedPreferences sh;
@@ -749,6 +706,10 @@ public class MainActivity extends BaseActivity {
                 input = sh.getString(sharedPref, "W-XYZ");
                 searchForPositions(spinnerLicensePlate, input);
                 break;
+            case "WAIT_MINUTES":
+                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
+                waitMinutesLong = sh.getInt(sharedPref, 0);
+                break;
         }
     }
 
@@ -757,5 +718,41 @@ public class MainActivity extends BaseActivity {
         int spinnerPosition = myAdap.getPosition(sharedPref);
 
         spinner.setSelection(spinnerPosition);
+    }
+
+    //--------------------onclicked methods--------------------//
+    public void stopAlarm(View view) {
+        triggerCancellationAlarmManager();
+    }
+
+    public void showMenu(MenuItem item) {
+        onOptionsItemSelected(item);
+    }
+
+    public void startAlarm(View view) {
+        PairResult pair = calculateNextParkingTicket();
+
+        nextParkingTickets = pair.getNextParkingTicket();
+        voiceMessages = pair.getVoiceMessage();
+
+        if(isCityStop())
+            parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, voiceMessages, licensePlate, telephoneNumber, true);
+        else
+            parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, voiceMessages, licensePlate, telephoneNumber, false);
+
+        prepareAlarmManager(nextParkingTickets);
+    }
+
+    //--------------------Activity overriden methods--------------------//
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 }

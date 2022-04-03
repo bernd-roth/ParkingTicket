@@ -14,68 +14,90 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class ParkscheinCollection implements Serializable {
     private List<Long> nextParkingTickets;
+    private List<Long> nextVoiceMessage;
     private String city;
     private int durationParkingticket;
     private String licensePlate;
     private String telephoneNumber;
-    private String cancel;
 
-    public ParkscheinCollection(String city, String licensePlate, String telephoneNumber, String cancel) {
-        this.city = city;
-        this.licensePlate = licensePlate;
-        this.telephoneNumber = telephoneNumber;
-        this.cancel = cancel;
-    }
+    private boolean isStop;
 
-    public ParkscheinCollection(String city, Integer durationParkingticket, List<Long> nextParkingTickets, String licensePlate, String telephoneNumber) {
+    /**
+     * Constructor for sending STOP signal by user instantly
+     * @param city
+     *        provide city
+     * @param durationParkingticket
+     *        provide duration of parkingticket, will be taken from duration view
+     * @param nextParkingTickets
+     *        provide nextParkingTickets, will be calcualted automatically
+     * @param nextVoiceMessage
+     *        provide nextVoiceMessage for providing text to speech, if SMS was not sent nor received
+     * @param licensePlate
+     *        provide license plate, will be taken from SharedPreferences, defined in Settings
+     * @param telephoneNumber
+     *        provide telephone number, will be taken from SharedPreferences, defined in Settings
+     */
+    public ParkscheinCollection(String city, Integer durationParkingticket, List<Long> nextParkingTickets, List<Long> nextVoiceMessage, String licensePlate, String telephoneNumber, boolean isStop) {
         this.city = city;
         this.durationParkingticket = durationParkingticket;
         this.nextParkingTickets = nextParkingTickets;
+        this.nextVoiceMessage = nextVoiceMessage;
         this.licensePlate = licensePlate;
         this.telephoneNumber = telephoneNumber;
+        this.isStop = isStop;
     }
 
+    //Getter
     public List<Long> getNextParkingTickets() {
         return nextParkingTickets;
+    }
+
+    public List<Long> getNextVoiceMessage() {
+        return nextVoiceMessage;
     }
 
     public String getCity() {
         return city;
     }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
-
     public int getDurationParkingticket() {
         return durationParkingticket;
-    }
-
-    public void setDurationParkingticket(int durationParkingticket) {
-        this.durationParkingticket = durationParkingticket;
     }
 
     public String getLicensePlate() {
         return licensePlate;
     }
 
-    public void setLicensePlate(String licensePlate) {
-        this.licensePlate = licensePlate;
-    }
-
     public String getTelephoneNumber() {
         return telephoneNumber;
+    }
+
+    //Setter
+    public void setNextVoiceMessage(List<Long> nextVoiceMessage) {
+        this.nextVoiceMessage = nextVoiceMessage;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setDurationParkingticket(int durationParkingticket) {
+        this.durationParkingticket = durationParkingticket;
+    }
+
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
     }
 
     public void setTelephoneNumber(String telephoneNumber) {
         this.telephoneNumber = telephoneNumber;
     }
 
-    public String getCancel() {
-        return cancel;
+    public boolean isStop() {
+        return isStop;
     }
 
-    public void setCancel(String cancel) {
-        this.cancel = cancel;
+    public void setStop(boolean stop) {
+        isStop = stop;
     }
 }

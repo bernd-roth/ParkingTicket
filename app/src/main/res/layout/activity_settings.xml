@@ -34,11 +34,18 @@
         android:layout_height="wrap_content"
         android:text="License plate" />
 
+    <EditText
+        android:id="@+id/waitMinutes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wait x Minutes"
+        android:inputType="number" />
+
     <Button
         android:id="@+id/saveInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="save"
-        android:onClick="saveInput"/>
+        android:onClick="saveInput"
+        android:text="save" />
 
 </LinearLayout>
