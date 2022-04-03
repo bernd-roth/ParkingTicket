@@ -1,6 +1,6 @@
 # ParkingTicket
-@author: Bernd Roth
-@Creation: 03.04.2022
+## Authors
+[Bernd Roth](https://github.com/bernd-roth/ParkingTicket)
 
 ## Purpose
 Sending and therefore booking parking tickets in Austria.
