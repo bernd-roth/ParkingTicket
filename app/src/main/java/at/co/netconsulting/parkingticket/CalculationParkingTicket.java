@@ -24,7 +24,7 @@ public class CalculationParkingTicket {
             millisecondsAfter24Hours;
     private PairResult pairResult;
 
-    public PairResult calculateNextParkingTicket(int hour, int minute, int hourEnd, int minuteEnd, long waitMinutesLong, long intervall, boolean isStopTimePicker) {
+    public List<Long> calculateNextParkingTicket(int hour, int minute, int hourEnd, int minuteEnd, long intervall, boolean isStopTimePicker) {
         nextParkingTicket = new ArrayList<>();
         nextVocieMessage = new ArrayList<>();
 
@@ -66,25 +66,18 @@ public class CalculationParkingTicket {
         //get intervall in Milliseconds
         intervall *= 60000;
 
-        //calculate voiceMessage for the first alarm
-        waitMinutesLong *=60000;
-        waitMinutesLong +=currentMilliseconds;
-
         //here the calculation / creating the list starts now
         while(isEnd) {
             nextParkingTicket.add(currentMilliseconds);
-            nextVocieMessage.add(waitMinutesLong);
             if(intervall==0)
                 isEnd=false;
             else {
                 currentMilliseconds+=intervall;
-                waitMinutesLong +=intervall;
             }
             if(currentMilliseconds>=millisecondsAfter24Hours)
                 isEnd=false;
         }
-        pairResult = new PairResult(nextParkingTicket, nextVocieMessage);
-        return pairResult;
+        return nextParkingTicket;
     }
 
     private long getCurrentMinutesTimeInMilliseconds(long currentMilliseconds) {

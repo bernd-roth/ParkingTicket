@@ -5,10 +5,8 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.telephony.SmsManager;
-import android.util.Log;
 
 import java.util.List;
 
@@ -17,7 +15,7 @@ import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
 
-    private PendingIntent pendingIntent, pendingIntentVoiceMessage;
+    private PendingIntent pendingIntent;
     private TextToSpeech textToSpeech;
     private Long nextParkingTicket, nextVoiceMessageLong;
     private int durationParkingticket;
@@ -29,98 +27,64 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getExtras() != null && intent.getAction() == null) {
+        if (intent.getExtras() != null && intent.getAction().equals("AlarmManager")) {
             ParkscheinCollection stop = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
 
             parkscheinCollection = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
             city = parkscheinCollection.getCity();
             durationParkingticket = parkscheinCollection.getDurationParkingticket();
             nextParkingTickets = parkscheinCollection.getNextParkingTickets();
-            nextVoiceMessage = parkscheinCollection.getNextVoiceMessage();
             licensePlate = parkscheinCollection.getLicensePlate();
             telephoneNumber = parkscheinCollection.getTelephoneNumber();
             isStopSignal = stop.isStop();
 
             if (stop != null && isStopSignal) {
-                sendSMSToCancel(context, city, licensePlate, telephoneNumber);
+                sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
             } else {
                 //TODO checkVoiceMessages needs to be implemented
                 //checkVoiceMessages(context, intent);
 
                 if (checkStopSignal()) {
-                    sendSMSToCancel(context, city, licensePlate, telephoneNumber);
+                    sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
                     //remove next planned parkingticket from collection
                     parkscheinCollection.getNextParkingTickets().clear();
                 } else {
                     if (parkscheinCollection.getNextParkingTickets().size() > 0) {
-                        removeNextParkingTicketFromCollection();
-                        setNextAlarmManager(context, intent);
+                        ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
+                        updateIntent(intent, reducedParkscheinCollection);
+                        setNextAlarmManager(context, intent, reducedParkscheinCollection);
                         sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
-                        updateIntent(intent);
                     }
                 }
             }
-        } else if(intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")){
-            Log.d("SMS Received", "SMS was received");
         }
     }
 
-    private void updateIntent(Intent intent) {
+    private void updateIntent(Intent intent, ParkscheinCollection parkscheinCollection) {
         //extra has to be removed from intent and added again
         //collection will not be updated without removing Extra
         intent.removeExtra(StaticFields.PARKSCHEIN_POJO);
         intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
+        intent.setAction("AlarmManager");
     }
 
-    private void removeNextParkingTicketFromCollection() {
-        if(nextParkingTickets.size()>=2) {
-            //remove upcoming parkingticket
-            nextParkingTickets.remove(0);
-            //get next planned parkingticket
-            nextParkingTicket = nextParkingTickets.get(0);
-        } else if(nextParkingTickets.size()>0){
-            //get next planned parkingticket
-            nextParkingTicket = nextParkingTickets.get(0);
-            //remove upcoming parkingticket
-            nextParkingTickets.remove(0);
-        }
+    private ParkscheinCollection removeNextParkingTicketFromCollection(ParkscheinCollection parkscheinCollection) {
+        if (parkscheinCollection.getNextParkingTickets().size() > 0) {
+            //remove next parkingticket
+            parkscheinCollection.getNextParkingTickets().remove(0);
+            return parkscheinCollection;
+        } else
+            return parkscheinCollection;
     }
 
-    private void setNextAlarmManager(Context context, Intent intent) {
+    private void setNextAlarmManager(Context context, Intent intent, ParkscheinCollection parkscheinCollection) {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextParkingTicket, pendingIntent);
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, parkscheinCollection.getNextParkingTickets().get(0), pendingIntent);
     }
 
-    private void checkVoiceMessages(Context context, Intent intent) {
-        nextVoiceMessageLong = parkscheinCollection.getNextVoiceMessage().get(0);
-
-        if (parkscheinCollection.getNextParkingTickets().size() > 0 && nextVoiceMessageLong > 0) {
-            intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
-            intent.putExtra("voiceMessage", 1);
-
-            //get next planned parkingticket
-            nextParkingTicket = nextParkingTickets.get(0);
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
-                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
-
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextParkingTicket, pendingIntent);
-        } else if (parkscheinCollection.getNextParkingTickets().size() > 0 && nextVoiceMessageLong == 0) {
-            intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
-
-            //get next planned parkingticket
-            nextParkingTicket = nextParkingTickets.get(0);
-
-            pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
-                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
-
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextParkingTicket, pendingIntent);
-        }
 //            if (nextVoiceMessage != null) {
 //                //remove next planned voiceMesage
 //                parkscheinCollection.getNextVoiceMessage().remove(0);
@@ -145,7 +109,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
 //                    });
 //                }
 //            }
-    }
+//    }
 
     private boolean checkStopSignal() {
         if((city.equals("Klagenfurt Zone 1")
@@ -173,9 +137,16 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
         return false;
     }
 
-    private void sendSMSToCancel(Context context, String city, String licensePlate, String telephoneNumber) {
+    private void sendSMSToCancel(Context context, String city, String licensePlate, String telephoneNumber, Intent intent, ParkscheinCollection parkscheinCollection) {
         SmsManager smsManager = context.getSystemService(SmsManager.class);
         smsManager.sendTextMessage(telephoneNumber, null, StaticFields.STOP_SMS, null, null);
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), StaticFields.requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+        alarmManager.cancel(pendingIntent);
+
+        parkscheinCollection.getNextParkingTickets().clear();
     }
 
     private void sendSMS(Context context, String city, int durationParkingticket, String licensePlate, String telephoneNumber) {

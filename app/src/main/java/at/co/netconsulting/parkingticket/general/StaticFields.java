@@ -8,9 +8,12 @@ public class StaticFields {
     public static final int MAX_ONE_DAY_MINUTES = 1440;
     public static final String STOP_SMS = "Stopp";
     public static final String PARKSCHEIN_POJO = "Parkschein_Pojo";
+    public static final String VOICE_MESSAGE = "voiceMessage";
     //Shared Preferences
     public static final String CITY = "CITY";
     public static final String TELEPHONE_NUMBER = "TELEPHONE_NUMBER";
     public static final String LICENSE_PLATE = "LICENSE_PLATE";
     public static final String WAIT_MINUTES = "WAIT_MINUTES";
+    //PendingIntent
+    public static final int requestCode = 0;
 }

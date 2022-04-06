@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,9 +22,8 @@ import android.widget.TimePicker;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import at.co.netconsulting.parkingticket.general.BaseActivity;
@@ -35,8 +33,8 @@ import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
 
 public class MainActivity extends BaseActivity {
 
-    private PendingIntent pendingIntent, pendingIntentVocieMessage;
-    private Intent intent, intentVoiceMessage;
+    private PendingIntent pendingIntent;
+    private Intent intent;
     private TimePicker startTimePicker, stopTimePicker;
     private int permissionWriteExternalStorage,
             permissionReadExternalStorage,
@@ -135,6 +133,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initializeObjects() {
+        intent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
+
         enableStopTimerCheckBox = findViewById(R.id.stopTimerCheckbox);
         enableStopTimerCheckBox.setEnabled(true);
         enableStopTimerCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -214,23 +214,12 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    private void prepareAlarmManager(List<Long> nextParkingTickets) {
-        long plannedTime = nextParkingTickets.get(0);
-        int size = nextParkingTickets.size();
+    private void prepareAlarmManager(ParkscheinCollection parkscheinCollection) {
+        long plannedTime = parkscheinCollection.getNextParkingTickets().get(0);
+        int size = parkscheinCollection.getNextParkingTickets().size();
 
-        intent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
         intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
-
-        //Activate voice message, if it is used
-        if(parkscheinCollection.getNextVoiceMessage().get(0)>0) {
-            intentVoiceMessage = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
-            intentVoiceMessage.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
-            intentVoiceMessage.putExtra("voiceMessage", 1);
-            intentVoiceMessage.setAction("android.provider.Telephony.SMS_RECEIVED");
-            pendingIntentVocieMessage = PendingIntent.getBroadcast(getApplicationContext(), 1, intentVoiceMessage, PendingIntent.FLAG_UPDATE_CURRENT |
-                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
-            isVoiceMessageActivated = true;
-        }
+        intent.setAction("AlarmManager");
 
         pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
@@ -243,17 +232,10 @@ public class MainActivity extends BaseActivity {
             if (size > 0) {
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
-
-                AlarmManager alarmManagerVoiceMessage = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-                alarmManagerVoiceMessage.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntentVocieMessage);
             } else {
                 AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setAlarmClock(ac, pendingIntent);
-
-                ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntentVocieMessage);
-                AlarmManager alarmManagerVoiceMessage = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-                alarmManagerVoiceMessage.setAlarmClock(ac, pendingIntentVocieMessage);
             }
         } else {
             if (size > 0) {
@@ -295,11 +277,10 @@ public class MainActivity extends BaseActivity {
 
     private void triggerCancellationAlarmManager() {
         if(isCityStop()) {
-            parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, voiceMessages, licensePlate, telephoneNumber, true);
+            parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, licensePlate, telephoneNumber, true);
 
-            intent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
             intent.putExtra(StaticFields.STOP_SMS, parkscheinCollection);
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
             AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
@@ -307,15 +288,16 @@ public class MainActivity extends BaseActivity {
             alarmManager.setAlarmClock(ac, pendingIntent);
         } else {
             AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-            intent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+
+            intent.setAction("AlarmManager");
+            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.requestCode, intent, PendingIntent.FLAG_NO_CREATE |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
             alarmManager.cancel(pendingIntent);
         }
-        nextParkingTickets.clear();
+        parkscheinCollection = null;
     }
 
-    private PairResult calculateNextParkingTicket() {
+    private List<Long> calculateNextParkingTicket() {
         //get timePicker
         int hour = startTimePicker.getHour();
         int minute = startTimePicker.getMinute();
@@ -329,9 +311,9 @@ public class MainActivity extends BaseActivity {
         long intervall = Long.valueOf(numberPicker.getValue());
 
         CalculationParkingTicket calc = new CalculationParkingTicket();
-        PairResult pair = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, waitMinutesLong, intervall, isStopTimePicker);
+        List<Long> nextParkingTicket = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, intervall, isStopTimePicker);
 
-        return pair;
+        return nextParkingTicket;
     }
 
     private void selectedSpinnerCity(AdapterView<?> parent, int position) {
@@ -730,17 +712,11 @@ public class MainActivity extends BaseActivity {
     }
 
     public void startAlarm(View view) {
-        PairResult pair = calculateNextParkingTicket();
+        List<Long> nextParkingTickets = calculateNextParkingTicket();
 
-        nextParkingTickets = pair.getNextParkingTicket();
-        voiceMessages = pair.getVoiceMessage();
+        parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, licensePlate, telephoneNumber, false);
 
-        if(isCityStop())
-            parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, voiceMessages, licensePlate, telephoneNumber, true);
-        else
-            parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, voiceMessages, licensePlate, telephoneNumber, false);
-
-        prepareAlarmManager(nextParkingTickets);
+        prepareAlarmManager(parkscheinCollection);
     }
 
     //--------------------Activity overriden methods--------------------//

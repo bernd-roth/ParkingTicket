@@ -37,11 +37,10 @@ public class ParkscheinCollection implements Serializable {
      * @param telephoneNumber
      *        provide telephone number, will be taken from SharedPreferences, defined in Settings
      */
-    public ParkscheinCollection(String city, Integer durationParkingticket, List<Long> nextParkingTickets, List<Long> nextVoiceMessage, String licensePlate, String telephoneNumber, boolean isStop) {
+    public ParkscheinCollection(String city, Integer durationParkingticket, List<Long> nextParkingTickets, String licensePlate, String telephoneNumber, boolean isStop) {
         this.city = city;
         this.durationParkingticket = durationParkingticket;
         this.nextParkingTickets = nextParkingTickets;
-        this.nextVoiceMessage = nextVoiceMessage;
         this.licensePlate = licensePlate;
         this.telephoneNumber = telephoneNumber;
         this.isStop = isStop;
@@ -50,10 +49,6 @@ public class ParkscheinCollection implements Serializable {
     //Getter
     public List<Long> getNextParkingTickets() {
         return nextParkingTickets;
-    }
-
-    public List<Long> getNextVoiceMessage() {
-        return nextVoiceMessage;
     }
 
     public String getCity() {
@@ -73,10 +68,6 @@ public class ParkscheinCollection implements Serializable {
     }
 
     //Setter
-    public void setNextVoiceMessage(List<Long> nextVoiceMessage) {
-        this.nextVoiceMessage = nextVoiceMessage;
-    }
-
     public void setCity(String city) {
         this.city = city;
     }
