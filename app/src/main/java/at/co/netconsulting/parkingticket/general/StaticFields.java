@@ -14,6 +14,9 @@ public class StaticFields {
     public static final String TELEPHONE_NUMBER = "TELEPHONE_NUMBER";
     public static final String LICENSE_PLATE = "LICENSE_PLATE";
     public static final String WAIT_MINUTES = "WAIT_MINUTES";
+    public static final String NO_ALTERNATE_BOOKING = "NO_ALTERNATE_BOOKING";
+    public static final String FIFTEEN_THIRTY = "FIFTEEN_THIRTY";
+    public static final String THIRTY_FIFTEEN = "THIRTY_FIFTEEN";
     //PendingIntent
     public static final int requestCode = 0;
 }

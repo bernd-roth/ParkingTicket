@@ -38,8 +38,42 @@
         android:id="@+id/waitMinutes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Wait x Minutes"
+        android:text="Wait x Minutes for reminder"
         android:inputType="number" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/alternate_booking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Alternate booking" />
+
+        <RadioButton
+            android:id="@+id/radioButton1530"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="15/30" />
+
+        <RadioButton
+            android:id="@+id/radioButton3015"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="30/15" />
+
+        <RadioButton
+            android:id="@+id/radioButtonNoAlternateBooking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="No alternate booking" />
+    </RadioGroup>
 
     <Button
         android:id="@+id/saveInput"

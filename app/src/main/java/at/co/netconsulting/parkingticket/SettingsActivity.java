@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 import at.co.netconsulting.parkingticket.general.BaseActivity;
@@ -19,6 +21,9 @@ public class SettingsActivity extends BaseActivity {
     private Toolbar toolbar;
     private EditText cityInput, telephoneNumberInput, licensePlateInput, waitMinutes;
     private Button saveButton;
+    private RadioGroup radioGroupMinutes;
+    private RadioButton radioButton1530, radioButton3015, radioButtonNoAlternateBooking;
+    private boolean isChecked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +36,7 @@ public class SettingsActivity extends BaseActivity {
         loadSharedPreferences("TELEPHONE_NUMBER");
         loadSharedPreferences("LICENSE_PLATE");
         loadSharedPreferences("WAIT_MINUTES");
+        loadSharedPreferences("ALTERNATE_BOOKING");
 
         waitMinutes.addTextChangedListener(new TextWatcher() {
             @Override
@@ -82,6 +88,16 @@ public class SettingsActivity extends BaseActivity {
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 waitMinutes.setText(String.valueOf(sh.getInt(sharedPref, 0)));
                 break;
+            case "ALTERNATE_BOOKING":
+                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
+                String noAlternateBooking = sh.getString(sharedPref, StaticFields.NO_ALTERNATE_BOOKING);
+                if(noAlternateBooking.equals(StaticFields.FIFTEEN_THIRTY))
+                    radioButton1530.setChecked(true);
+                else if(noAlternateBooking.equals(StaticFields.THIRTY_FIFTEEN))
+                    radioButton3015.setChecked(true);
+                else if(noAlternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING))
+                    radioButtonNoAlternateBooking.setChecked(true);
+                break;
         }
     }
 
@@ -94,6 +110,29 @@ public class SettingsActivity extends BaseActivity {
         waitMinutes = findViewById(R.id.waitMinutes);
         saveButton = findViewById(R.id.saveInput);
         saveButton.setEnabled(true);
+        radioButton1530 = findViewById(R.id.radioButton1530);
+        radioButton3015 = findViewById(R.id.radioButton3015);
+        radioButtonNoAlternateBooking = findViewById(R.id.radioButtonNoAlternateBooking);
+        radioGroupMinutes = (RadioGroup)findViewById(R.id.radioGroup);
+        radioGroupMinutes.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId)
+            {
+                switch(checkedId)
+                {
+                    case R.id.radioButton1530:
+                        saveSharedPreferences(StaticFields.FIFTEEN_THIRTY, "ALTERNATE_BOOKING");
+                        break;
+                    case R.id.radioButton3015:
+                        saveSharedPreferences(StaticFields.THIRTY_FIFTEEN, "ALTERNATE_BOOKING");
+                        break;
+                    case R.id.radioButtonNoAlternateBooking:
+                        saveSharedPreferences(StaticFields.NO_ALTERNATE_BOOKING, "ALTERNATE_BOOKING");
+                        break;
+                }
+            }
+        });
     }
 
     public void showMenu(MenuItem item) {
