@@ -1,7 +1,7 @@
 # ParkingTicket
 ## Authors
 [Bernd Roth](https://github.com/bernd-roth/ParkingTicket)
-berndroth0@gmail.com
+[Email](berndroth0@gmail.com)
 
 ## Purpose
 Sending and therefore booking parking tickets in Austria.
@@ -13,7 +13,7 @@ Sending and therefore booking parking tickets in Austria.
 2. Voice message if no parking ticket was booked
 3. Voice message when the booked parking ticket will be outdated
 
-#### What is not implemented yet
+### What is not implemented yet
 1. Overview of parking zones in Austria
 2. Overview of booked parking tickets
 3. Overview of parksheriffs, marked by users
@@ -21,7 +21,7 @@ Sending and therefore booking parking tickets in Austria.
 5. Mobile phone must vibrate if SMS was received
 6. Stop timer is not implemented yet.
 
-##### Steps to take of how to use the app
+### Steps to take of how to use the app
 1.  Under menu/settings choose your current location for your car
 2.  Type in your telephone number where the SMS should be sent to (06646606000, ...)
 3.  Your license plate
@@ -47,6 +47,6 @@ Sending and therefore booking parking tickets in Austria.
                     overriden.
                     They will be taken from your input in settings.
 
-##### FAQ
+### Support
 If you have questions or if you want further implementations,
 please write me an Email: berndroth0@gmail.com
