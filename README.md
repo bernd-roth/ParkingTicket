@@ -1,7 +1,7 @@
 # ParkingTicket
 ## Authors
 [Bernd Roth](https://github.com/bernd-roth/ParkingTicket)
-[Email](mailTo: berndroth0@gmail.com)
+berndroth0@gmail.com
 
 ## Purpose
 Sending and therefore booking parking tickets in Austria.
@@ -49,4 +49,4 @@ Sending and therefore booking parking tickets in Austria.
 
 ##### FAQ
 If you have questions or if you want further implementations,
-please write me an Email: [Email](mailTo: berndroth0@gmail.com)
+please write me an Email: berndroth0@gmail.com
