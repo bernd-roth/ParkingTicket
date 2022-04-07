@@ -16,11 +16,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.NumberPicker;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -28,10 +25,10 @@ import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.general.StaticFields;
-import at.co.netconsulting.parkingticket.pojo.PairResult;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
 
 public class MainActivity extends BaseActivity {
@@ -66,7 +63,7 @@ public class MainActivity extends BaseActivity {
     private CheckBox enableStopTimerCheckBox;
     private boolean isStopTimePicker, isVoiceMessageActivated;
     private Toolbar toolbar;
-    private List<Long> nextParkingTickets;
+    private TreeMap<Long, Integer> nextParkingTickets;
     private List<Long> voiceMessages;
 
     @Override
@@ -218,7 +215,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void prepareAlarmManager(ParkscheinCollection parkscheinCollection) {
-        long plannedTime = parkscheinCollection.getNextParkingTickets().get(0);
+        long plannedTime = parkscheinCollection.getNextParkingTickets().firstKey();
         int size = parkscheinCollection.getNextParkingTickets().size();
 
         intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
@@ -280,7 +277,7 @@ public class MainActivity extends BaseActivity {
 
     private void triggerCancellationAlarmManager() {
         if(isCityStop()) {
-            parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, licensePlate, telephoneNumber, true);
+            parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
 
             intent.putExtra(StaticFields.STOP_SMS, parkscheinCollection);
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT |
@@ -300,7 +297,7 @@ public class MainActivity extends BaseActivity {
         parkscheinCollection = null;
     }
 
-    private List<Long> calculateNextParkingTicket() {
+    private TreeMap<Long, Integer> calculateNextParkingTicket() {
         //get timePicker
         int hour = startTimePicker.getHour();
         int minute = startTimePicker.getMinute();
@@ -313,8 +310,9 @@ public class MainActivity extends BaseActivity {
 
         long intervall = Long.valueOf(numberPicker.getValue());
 
-        CalculationParkingTicket calc = new CalculationParkingTicket();
-        List<Long> nextParkingTicket = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, intervall, isStopTimePicker);
+        CalculationParkingTicket calc = new CalculationParkingTicket(getApplicationContext());
+        int durationMinutes = Integer.valueOf(spinnerMinutes.getSelectedItem().toString());
+        TreeMap<Long, Integer> nextParkingTicket = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, intervall, isStopTimePicker, durationMinutes);
 
         return nextParkingTicket;
     }
@@ -715,9 +713,9 @@ public class MainActivity extends BaseActivity {
     }
 
     public void startAlarm(View view) {
-        List<Long> nextParkingTickets = calculateNextParkingTicket();
+        TreeMap<Long, Integer> nextParkingTickets = calculateNextParkingTicket();
 
-        parkscheinCollection = new ParkscheinCollection(city, durationParkingticket, nextParkingTickets, licensePlate, telephoneNumber, false);
+        parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, false);
 
         prepareAlarmManager(parkscheinCollection);
     }

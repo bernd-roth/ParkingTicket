@@ -32,11 +32,11 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.activity_settings);
 
         initializeObjects();
-        loadSharedPreferences("CITY");
-        loadSharedPreferences("TELEPHONE_NUMBER");
-        loadSharedPreferences("LICENSE_PLATE");
-        loadSharedPreferences("WAIT_MINUTES");
-        loadSharedPreferences("ALTERNATE_BOOKING");
+        loadSharedPreferences(StaticFields.CITY);
+        loadSharedPreferences(StaticFields.TELEPHONE_NUMBER);
+        loadSharedPreferences(StaticFields.LICENSE_PLATE);
+        loadSharedPreferences(StaticFields.WAIT_MINUTES);
+        loadSharedPreferences(StaticFields.ALTERNATE_BOOKING);
 
         waitMinutes.addTextChangedListener(new TextWatcher() {
             @Override
@@ -71,17 +71,17 @@ public class SettingsActivity extends BaseActivity {
         switch(sharedPref) {
             case "CITY":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
-                input = sh.getString(sharedPref, "WIEN");
+                input = sh.getString(sharedPref, StaticFields.DEFAULT_CITY);
                 cityInput.setText(input);
                 break;
             case "TELEPHONE_NUMBER":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
-                input = sh.getString(sharedPref, "06646606000");
+                input = sh.getString(sharedPref, StaticFields.DEFAULT_TELEPHONE_NUMBER);
                 telephoneNumberInput.setText(input);
                 break;
             case "LICENSE_PLATE":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
-                input = sh.getString(sharedPref, "W-XYZ");
+                input = sh.getString(sharedPref, StaticFields.DEFAULT_NUMBER_PLATE);
                 licensePlateInput.setText(input);
                 break;
             case "WAIT_MINUTES":

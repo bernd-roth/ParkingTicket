@@ -9,6 +9,7 @@ import android.speech.tts.TextToSpeech;
 import android.telephony.SmsManager;
 
 import java.util.List;
+import java.util.TreeMap;
 
 import at.co.netconsulting.parkingticket.general.StaticFields;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
@@ -19,7 +20,8 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     private TextToSpeech textToSpeech;
     private Long nextParkingTicket, nextVoiceMessageLong;
     private int durationParkingticket;
-    private List<Long> nextParkingTickets, nextVoiceMessage;
+    private TreeMap<Long, Integer> nextParkingTickets;
+    private List<Long> nextVoiceMessage;
     private String licensePlate, telephoneNumber, city;
     private ParkscheinCollection parkscheinCollection;
     private int rowId;
@@ -32,7 +34,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
 
             parkscheinCollection = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
             city = parkscheinCollection.getCity();
-            durationParkingticket = parkscheinCollection.getDurationParkingticket();
+            durationParkingticket = parkscheinCollection.getNextParkingTickets().firstEntry().getValue();
             nextParkingTickets = parkscheinCollection.getNextParkingTickets();
             licensePlate = parkscheinCollection.getLicensePlate();
             telephoneNumber = parkscheinCollection.getTelephoneNumber();
@@ -71,7 +73,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     private ParkscheinCollection removeNextParkingTicketFromCollection(ParkscheinCollection parkscheinCollection) {
         if (parkscheinCollection.getNextParkingTickets().size() > 0) {
             //remove next parkingticket
-            parkscheinCollection.getNextParkingTickets().remove(0);
+            parkscheinCollection.getNextParkingTickets().pollFirstEntry();
             return parkscheinCollection;
         } else
             return parkscheinCollection;
@@ -82,34 +84,8 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, parkscheinCollection.getNextParkingTickets().get(0), pendingIntent);
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, parkscheinCollection.getNextParkingTickets().firstKey(), pendingIntent);
     }
-
-//            if (nextVoiceMessage != null) {
-//                //remove next planned voiceMesage
-//                parkscheinCollection.getNextVoiceMessage().remove(0);
-//                //get next planned vocieMessage
-//                nextVoiceMessageLong = nextVoiceMessage.get(0);
-//            }
-//            if (intent.getExtras() != null) {
-//                rowId = intent.getExtras().getInt("voiceMessage", 0);
-//                if(rowId==1) {
-//                    textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
-//                        @Override
-//                        public void onInit(int status) {
-//                            if (status != TextToSpeech.ERROR) {
-//                                // replace this Locale with whatever you want
-//                                Locale localeToUse = new Locale("en","US");
-//                                textToSpeech.setLanguage(localeToUse);
-//                                textToSpeech.speak("Hi, Welcome to my app! 10 minutes have passed now! Its time to check the app now! Time has passed again, over and over again", TextToSpeech.QUEUE_FLUSH, null);
-//                                //firstly, send SMS again
-//                                //then start recalculating the parkingtickets
-//                            }
-//                        }
-//                    });
-//                }
-//            }
-//    }
 
     private boolean checkStopSignal() {
         if((city.equals("Klagenfurt Zone 1")
@@ -178,3 +154,28 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
 //            vibrator.vibrate(CombinedVibration.createParallel(VibrationEffect.createWaveform(vibratePattern, REPEAT)));
 //        }
 //        //6. TextToSpeech
+//            if (nextVoiceMessage != null) {
+//                //remove next planned voiceMesage
+//                parkscheinCollection.getNextVoiceMessage().remove(0);
+//                //get next planned vocieMessage
+//                nextVoiceMessageLong = nextVoiceMessage.get(0);
+//            }
+//            if (intent.getExtras() != null) {
+//                rowId = intent.getExtras().getInt("voiceMessage", 0);
+//                if(rowId==1) {
+//                    textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+//                        @Override
+//                        public void onInit(int status) {
+//                            if (status != TextToSpeech.ERROR) {
+//                                // replace this Locale with whatever you want
+//                                Locale localeToUse = new Locale("en","US");
+//                                textToSpeech.setLanguage(localeToUse);
+//                                textToSpeech.speak("Hi, Welcome to my app! 10 minutes have passed now! Its time to check the app now! Time has passed again, over and over again", TextToSpeech.QUEUE_FLUSH, null);
+//                                //firstly, send SMS again
+//                                //then start recalculating the parkingtickets
+//                            }
+//                        }
+//                    });
+//                }
+//            }
+//    }

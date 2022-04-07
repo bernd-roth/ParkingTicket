@@ -9,6 +9,9 @@ public class StaticFields {
     public static final String STOP_SMS = "Stopp";
     public static final String PARKSCHEIN_POJO = "Parkschein_Pojo";
     public static final String VOICE_MESSAGE = "voiceMessage";
+    public static final String DEFAULT_TELEPHONE_NUMBER = "06646606000";
+    public static final String DEFAULT_CITY = "Wien";
+    public static final String DEFAULT_NUMBER_PLATE = "W-XYZ";
     //Shared Preferences
     public static final String CITY = "CITY";
     public static final String TELEPHONE_NUMBER = "TELEPHONE_NUMBER";
@@ -17,6 +20,7 @@ public class StaticFields {
     public static final String NO_ALTERNATE_BOOKING = "NO_ALTERNATE_BOOKING";
     public static final String FIFTEEN_THIRTY = "FIFTEEN_THIRTY";
     public static final String THIRTY_FIFTEEN = "THIRTY_FIFTEEN";
+    public static final String ALTERNATE_BOOKING = "ALTERNATE_BOOKING";
     //PendingIntent
     public static final int requestCode = 0;
 }
