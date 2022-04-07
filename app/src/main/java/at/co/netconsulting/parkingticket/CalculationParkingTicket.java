@@ -148,22 +148,4 @@ public class CalculationParkingTicket {
         }
         return date.getTime();
     }
-
-    private long getCurrentMinutesTimeInMilliseconds(long currentMilliseconds) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm");
-        Date date = new Date(currentMilliseconds);
-        String minutes = simpleDateFormat.format(date);
-        long minute = Long.valueOf(minutes);
-        return minute * 60000;
-    }
-
-    private long getCurrentTimeInMilliseconds(long time) {
-        long totalSeconds = time/1000;
-        long currentSecond = totalSeconds % 60;
-        long totalMinutes =  totalSeconds/60;
-        long currentMinutes =totalMinutes%60 -30 ;
-        long totalHour= totalMinutes/60;
-        long currentHour =  totalHour % 24 - 6  ;
-        return currentSecond*1000;
-    }
 }
