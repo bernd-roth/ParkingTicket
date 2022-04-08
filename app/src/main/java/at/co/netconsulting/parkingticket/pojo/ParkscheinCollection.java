@@ -17,7 +17,6 @@ public class ParkscheinCollection implements Serializable {
     private String city;
     private String licensePlate;
     private String telephoneNumber;
-
     private boolean isStop;
 
     /**
