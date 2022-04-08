@@ -21,6 +21,7 @@ Sending and therefore booking parking tickets in Austria.
 4. AI when parking ticket should be booked according to a parksheriff`s location
 5. Mobile phone must vibrate if SMS was received
 6. Stop timer is not implemented yet.
+7. Automatic stopping of parktickets; currently this functionality is only available for Vienna
 
 ### Steps to take of how to use the app
 1.  Under menu/settings choose your current location for your car
