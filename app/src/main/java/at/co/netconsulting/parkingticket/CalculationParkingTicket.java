@@ -21,7 +21,8 @@ public class CalculationParkingTicket {
             timeSecondsFromSystemMilliseconds,
             timeMinutesFromSystemMilliseconds,
             calced,
-            millisecondsAfter24Hours;
+            millisecondsAfter24Hours,
+            plannedEndTimeInMilliseconds;
     private Context context;
 
     public CalculationParkingTicket(Context context) {
@@ -33,8 +34,8 @@ public class CalculationParkingTicket {
 
         //get timePickerForEnd if checkbox is enabled
         if(isStopTimePicker) {
-            hourEnd = hourEnd;
-            minuteEnd = minuteEnd;
+            //hourEnd + minuteEnd to milliSeconds
+            plannedEndTimeInMilliseconds = plannedTimeToMilliseconds(hourEnd, minuteEnd);
         }
 
         //current date + time in milliseconds
@@ -101,10 +102,16 @@ public class CalculationParkingTicket {
                     nextParkingTicket.put(nextMilliseconds15, Integer.valueOf("15"));
                     plannedTimeInMilliseconds+=intervall;
                 }
-                if (plannedTimeInMilliseconds >= millisecondsAfter24Hours)
+                //stop calculating further parking tickets when the following condition is met
+                //1. Stop timer is enabled and planned time is greater than planned end of parking ticket
+                //2. or planned next parking ticket, measured in time, is greater than parking ticket in 24 hours
+                if (isStopTimePicker && (plannedTimeInMilliseconds > plannedEndTimeInMilliseconds
+                ||  plannedTimeInMilliseconds >= millisecondsAfter24Hours)) {
                     isEnd = false;
+                }
             }
         } else {
+            //every parking ticket for any other city than Vienna is considered here
             while (isEnd) {
                 nextParkingTicket.put(plannedTimeInMilliseconds, durationParkingticket);
                 if(intervall==0)
