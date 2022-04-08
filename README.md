@@ -1,6 +1,7 @@
 # ParkingTicket
 ## Authors
 [Bernd Roth](https://github.com/bernd-roth/ParkingTicket)
+
 [Email](berndroth0@gmail.com)
 
 ## Purpose
