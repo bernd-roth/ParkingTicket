@@ -57,8 +57,7 @@ public class CalculationParkingTicket {
         if(alternateBooking.equals(StaticFields.FIFTEEN_THIRTY) || alternateBooking.equals(StaticFields.THIRTY_FIFTEEN)) {
             intervall = 3600000;
         } else {
-            //get intervall in Milliseconds
-            intervall = 60000;
+            intervall*=60000;
         }
 
         boolean isFirstBooking = true;
