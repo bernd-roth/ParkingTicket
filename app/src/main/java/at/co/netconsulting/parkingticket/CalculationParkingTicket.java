@@ -62,6 +62,7 @@ public class CalculationParkingTicket {
         }
 
         boolean isFirstBooking = true;
+        long nextMilliseconds = 0;
         long nextMilliseconds15 = 0;
         long nextMilliseconds30 = 0;
 
