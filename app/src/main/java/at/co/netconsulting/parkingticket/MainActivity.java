@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity {
     private NumberPicker numberPicker;
     private Button stop;
     private CheckBox enableStopTimerCheckBox;
-    private boolean isStopTimePicker, isVoiceMessageActivated;
+    private boolean isStopTimePicker, isVoiceMessageActivated, isStopTimerCheckboxEnabled;
     private Toolbar toolbar;
     private TreeMap<Long, Integer> nextParkingTickets;
     private List<Long> voiceMessages;
@@ -141,7 +141,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
-                    isStopTimePicker=true;
+                    saveSharedPreferences(isStopTimePicker=true, StaticFields.STOP_TIMER_CHECKBOX);
                 }
             }
         });
@@ -734,6 +734,22 @@ public class MainActivity extends BaseActivity {
             parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
 
         prepareAlarmManager(parkscheinCollection);
+    }
+
+    private void saveSharedPreferences(boolean input, String sharedPref) {
+        // Storing data into SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences(sharedPref,MODE_PRIVATE);
+
+        // Creating an Editor object to edit(write to the file)
+        SharedPreferences.Editor myEdit = sharedPreferences.edit();
+
+        // Storing the key and its value as the data fetched from edittext
+        myEdit.putBoolean(sharedPref, input);
+
+        // Once the changes have been made,
+        // we need to commit to apply those changes made,
+        // otherwise, it will throw an error
+        myEdit.commit();
     }
 
     //--------------------Activity overriden methods--------------------//

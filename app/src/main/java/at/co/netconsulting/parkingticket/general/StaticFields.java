@@ -21,6 +21,7 @@ public class StaticFields {
     public static final String FIFTEEN_THIRTY = "FIFTEEN_THIRTY";
     public static final String THIRTY_FIFTEEN = "THIRTY_FIFTEEN";
     public static final String ALTERNATE_BOOKING = "ALTERNATE_BOOKING";
+    public static final String STOP_TIMER_CHECKBOX = "STOP_TIMER_CHECKBOX";
     //PendingIntent
     public static final int requestCode = 0;
 }
