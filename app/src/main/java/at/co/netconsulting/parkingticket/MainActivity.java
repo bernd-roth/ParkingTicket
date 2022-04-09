@@ -3,11 +3,15 @@ package at.co.netconsulting.parkingticket;
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.telephony.SmsMessage;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -61,7 +65,7 @@ public class MainActivity extends BaseActivity {
     private NumberPicker numberPicker;
     private Button stop;
     private CheckBox enableStopTimerCheckBox;
-    private boolean isStopTimePicker, isVoiceMessageActivated;
+    private boolean isStopTimePicker, isVoiceMessageActivated, isStopTimerCheckboxEnabled;
     private Toolbar toolbar;
     private TreeMap<Long, Integer> nextParkingTickets;
     private List<Long> voiceMessages;
@@ -141,7 +145,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
-                    isStopTimePicker=true;
+                    saveSharedPreferences(isStopTimePicker=true, StaticFields.STOP_TIMER_CHECKBOX);
                 }
             }
         });
@@ -221,7 +225,7 @@ public class MainActivity extends BaseActivity {
         intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
         intent.setAction("AlarmManager");
 
-        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
         triggerAlarmManager(plannedTime, size, isVoiceMessageActivated);
@@ -280,7 +284,7 @@ public class MainActivity extends BaseActivity {
             parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
 
             intent.putExtra(StaticFields.STOP_SMS, parkscheinCollection);
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
             AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
@@ -290,7 +294,7 @@ public class MainActivity extends BaseActivity {
             AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
             intent.setAction("AlarmManager");
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.requestCode, intent, PendingIntent.FLAG_NO_CREATE |
+            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
             alarmManager.cancel(pendingIntent);
         }
@@ -311,7 +315,8 @@ public class MainActivity extends BaseActivity {
         long intervall = Long.valueOf(numberPicker.getValue());
 
         CalculationParkingTicket calc = new CalculationParkingTicket(getApplicationContext());
-        int durationMinutes = numberPicker.getValue();
+        spinnerMinutes = (Spinner) findViewById(R.id.minutes_spinner);
+        int durationMinutes = Integer.valueOf(spinnerMinutes.getSelectedItem().toString());
         TreeMap<Long, Integer> nextParkingTicket = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, intervall, isStopTimePicker, durationMinutes);
 
         return nextParkingTicket;
@@ -734,6 +739,22 @@ public class MainActivity extends BaseActivity {
             parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
 
         prepareAlarmManager(parkscheinCollection);
+    }
+
+    private void saveSharedPreferences(boolean input, String sharedPref) {
+        // Storing data into SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences(sharedPref,MODE_PRIVATE);
+
+        // Creating an Editor object to edit(write to the file)
+        SharedPreferences.Editor myEdit = sharedPreferences.edit();
+
+        // Storing the key and its value as the data fetched from edittext
+        myEdit.putBoolean(sharedPref, input);
+
+        // Once the changes have been made,
+        // we need to commit to apply those changes made,
+        // otherwise, it will throw an error
+        myEdit.commit();
     }
 
     //--------------------Activity overriden methods--------------------//

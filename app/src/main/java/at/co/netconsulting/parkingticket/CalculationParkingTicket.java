@@ -101,6 +101,14 @@ public class CalculationParkingTicket {
                     nextMilliseconds15 += intervall;
                     nextParkingTicket.put(nextMilliseconds15, Integer.valueOf("15"));
                     plannedTimeInMilliseconds+=intervall;
+                } else if(alternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING) && intervall>0) {
+                    nextParkingTicket.put(plannedTimeInMilliseconds, durationParkingticket);
+                    plannedTimeInMilliseconds+=intervall;
+                } else if(alternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING) && intervall==0){
+                    //one shot call, planned time will be set to 99999999 so that it exceeds the
+                    //24 hours threshold
+                    nextParkingTicket.put(plannedTimeInMilliseconds, durationParkingticket);
+                    plannedTimeInMilliseconds+=99999999;
                 }
                 //stop calculating further parking tickets when the following condition is met
                 //1. Stop timer is enabled and planned time is greater than planned end of parking ticket
