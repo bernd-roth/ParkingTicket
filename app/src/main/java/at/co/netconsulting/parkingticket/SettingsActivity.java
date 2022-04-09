@@ -162,7 +162,13 @@ public class SettingsActivity extends BaseActivity {
             saveSharedPreferences(cityInput.getText().toString(), StaticFields.CITY);
             saveSharedPreferences(telephoneNumberInput.getText().toString(), StaticFields.TELEPHONE_NUMBER);
             saveSharedPreferences(licensePlateInput.getText().toString(), StaticFields.LICENSE_PLATE);
-            saveSharedPreferencesAsInteger(Integer.valueOf(waitMinutes.getText().toString()), StaticFields.WAIT_MINUTES);
+            String inputWaitMinutes = waitMinutes.getText().toString();
+            if(inputWaitMinutes==null || inputWaitMinutes.isEmpty()) {
+                waitMinutes.setText("0");
+                saveSharedPreferencesAsInteger(Integer.valueOf(waitMinutes.getText().toString()), StaticFields.WAIT_MINUTES);
+            } else {
+                saveSharedPreferencesAsInteger(Integer.valueOf(waitMinutes.getText().toString()), StaticFields.WAIT_MINUTES);
+            }
         }
     }
 
