@@ -221,7 +221,7 @@ public class MainActivity extends BaseActivity {
         intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
         intent.setAction("AlarmManager");
 
-        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
         triggerAlarmManager(plannedTime, size, isVoiceMessageActivated);
@@ -280,7 +280,7 @@ public class MainActivity extends BaseActivity {
             parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
 
             intent.putExtra(StaticFields.STOP_SMS, parkscheinCollection);
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
             AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
@@ -290,7 +290,7 @@ public class MainActivity extends BaseActivity {
             AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
             intent.setAction("AlarmManager");
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.requestCode, intent, PendingIntent.FLAG_NO_CREATE |
+            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
             alarmManager.cancel(pendingIntent);
         }
