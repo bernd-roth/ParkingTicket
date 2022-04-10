@@ -24,4 +24,8 @@ public class StaticFields {
     public static final String STOP_TIMER_CHECKBOX = "STOP_TIMER_CHECKBOX";
     //PendingIntent
     public static final int REQUEST_CODE = 0;
+    //ForegroundService
+    public static final String TAG_FOREGROUND_SERVICE = "FOREGROUND_SERVICE";
+    public static final String ACTION_START_FOREGROUND_SERVICE = "ACTION_START_FOREGROUND_SERVICE";
+    public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
 }

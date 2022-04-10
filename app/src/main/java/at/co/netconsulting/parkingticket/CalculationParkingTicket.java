@@ -14,13 +14,9 @@ import at.co.netconsulting.parkingticket.general.StaticFields;
 
 public class CalculationParkingTicket {
 
-    private Long intervall;
     private boolean isEnd = true;
     private TreeMap<Long, Integer> nextParkingTicket = new TreeMap<Long, Integer>();
     private long currentMilliseconds,
-            timeSecondsFromSystemMilliseconds,
-            timeMinutesFromSystemMilliseconds,
-            calced,
             millisecondsAfter24Hours,
             plannedEndTimeInMilliseconds;
     private Context context;

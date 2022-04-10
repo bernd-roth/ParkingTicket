@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,6 +25,12 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.Parkingticket">
+        <!-- Declare foreground service -->
+        <service
+            android:name=".service.ForegroundService"
+            android:enabled="true"
+            android:exported="true" />
+
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
@@ -35,13 +43,12 @@
             android:theme="@style/Theme.Parkingticket.NoActionBar" />
 
         <receiver
-            android:name=".SmsBroadcastReceiver"
+            android:name=".broadcastreceiver.SmsBroadcastReceiver"
             android:exported="true"
             android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.INPUT_METHOD_CHANGED" />
-                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
         </receiver>
 

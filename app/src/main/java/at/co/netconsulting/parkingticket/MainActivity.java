@@ -3,15 +3,11 @@ package at.co.netconsulting.parkingticket;
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.telephony.SmsMessage;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,9 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+import at.co.netconsulting.parkingticket.broadcastreceiver.SmsBroadcastReceiver;
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.general.StaticFields;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
+import at.co.netconsulting.parkingticket.service.ForegroundService;
 
 public class MainActivity extends BaseActivity {
 
@@ -243,8 +241,13 @@ public class MainActivity extends BaseActivity {
             }
         } else {
             if (size > 0) {
-                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
+//                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
+
+                //start foregroundservice
+                Intent intent = new Intent(this, ForegroundService.class);
+                intent.setAction(StaticFields.ACTION_START_FOREGROUND_SERVICE);
+                startForegroundService(intent);
             } else {
                 AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);

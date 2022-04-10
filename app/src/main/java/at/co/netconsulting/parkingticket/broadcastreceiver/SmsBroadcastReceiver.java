@@ -1,4 +1,4 @@
-package at.co.netconsulting.parkingticket;
+package at.co.netconsulting.parkingticket.broadcastreceiver;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -24,7 +24,6 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     private List<Long> nextVoiceMessage;
     private String licensePlate, telephoneNumber, city;
     private ParkscheinCollection parkscheinCollection;
-    private int rowId;
     private boolean isStopSignal = false;
 
     @Override
@@ -51,7 +50,11 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                     //remove next planned parkingticket from collection
                     parkscheinCollection.getNextParkingTickets().clear();
                 } else {
-                    if (parkscheinCollection.getNextParkingTickets().size() > 0) {
+                    if(parkscheinCollection.getNextParkingTickets().size() == 1) {
+                        sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
+                        ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
+                        updateIntent(intent, reducedParkscheinCollection);
+                    } else if(parkscheinCollection.getNextParkingTickets().size() > 1) {
                         ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
                         updateIntent(intent, reducedParkscheinCollection);
                         setNextAlarmManager(context, intent, reducedParkscheinCollection);
@@ -130,52 +133,3 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
         smsManager.sendTextMessage(telephoneNumber, null, durationParkingticket + " " + city + "*" + licensePlate, null, null);
     }
 }
-
-//TODO:
-//        //collect all necessary information before triggering the alarm clock
-//        //1. repeat the alarm
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-//        boolean isRepeating = prefs.getBoolean("REPEATING", false);
-//        //2. telephone number
-//        String telephoneNumber = prefs.getString("TELEPHONE-NUMBER", "06646606000");
-//        //3. city
-//        String city = prefs.getString("CITY", "Wien");
-//        //4. when to remember that parking ticket is getting outdated
-//        int outdatedParkingTicket = prefs.getInt("OUTDATED-PARKING-TICKET", 0);
-//        //5. Vibrate
-//        boolean isVibrating = prefs.getBoolean("VIBRATE", false);
-//        if(isVibrating) {
-//            VibratorManager vibrator = (VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
-//            vibrator.getDefaultVibrator();
-//
-//            final int DELAY = 0, VIBRATE = 500, SLEEP = 0, REPEAT = -1;
-//            long[] vibratePattern = {DELAY, VIBRATE, SLEEP};
-//
-//            vibrator.vibrate(CombinedVibration.createParallel(VibrationEffect.createWaveform(vibratePattern, REPEAT)));
-//        }
-//        //6. TextToSpeech
-//            if (nextVoiceMessage != null) {
-//                //remove next planned voiceMesage
-//                parkscheinCollection.getNextVoiceMessage().remove(0);
-//                //get next planned vocieMessage
-//                nextVoiceMessageLong = nextVoiceMessage.get(0);
-//            }
-//            if (intent.getExtras() != null) {
-//                rowId = intent.getExtras().getInt("voiceMessage", 0);
-//                if(rowId==1) {
-//                    textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
-//                        @Override
-//                        public void onInit(int status) {
-//                            if (status != TextToSpeech.ERROR) {
-//                                // replace this Locale with whatever you want
-//                                Locale localeToUse = new Locale("en","US");
-//                                textToSpeech.setLanguage(localeToUse);
-//                                textToSpeech.speak("Hi, Welcome to my app! 10 minutes have passed now! Its time to check the app now! Time has passed again, over and over again", TextToSpeech.QUEUE_FLUSH, null);
-//                                //firstly, send SMS again
-//                                //then start recalculating the parkingtickets
-//                            }
-//                        }
-//                    });
-//                }
-//            }
-//    }
