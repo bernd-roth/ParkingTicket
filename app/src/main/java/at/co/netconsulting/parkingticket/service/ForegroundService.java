@@ -1,5 +1,6 @@
 package at.co.netconsulting.parkingticket.service;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -69,7 +70,7 @@ public class ForegroundService extends Service {
         startForeground(NOTIFICATION_ID, notification);
 
         final int[] counter = {0};
-        waitForXMinutes*=60;
+        waitForXMinutes*=10;
 
         final Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -168,6 +169,7 @@ public class ForegroundService extends Service {
                             textToSpeech.setLanguage(Locale.GERMAN);
                             textToSpeech.speak("Es wurde kein Parkschein in den letzten " + waitForXMinutes + " Sekunden gebucht",
                                     TextToSpeech.QUEUE_FLUSH, null, "0");
+                            MainActivity.getInstance().cancelAlarmManagerFromForegroundService();
                         }
                     }
                 });

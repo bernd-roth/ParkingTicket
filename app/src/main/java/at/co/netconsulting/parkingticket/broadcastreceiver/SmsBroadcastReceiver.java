@@ -56,11 +56,19 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 telephoneNumber = parkscheinCollection.getTelephoneNumber();
 
                 if(parkscheinCollection.getNextParkingTickets().size() == 1) {
+                    //If city is not Vienna
                     if(parkscheinCollection.isStop()) {
                         sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
                         ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
                         updateIntent(intent, reducedParkscheinCollection);
                         parkscheinCollection = null;
+                    } else {
+                        //If city is Vienna and one ticket will be booked
+                        ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
+                        updateIntent(intent, reducedParkscheinCollection);
+                        sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
+                        //start foregroundservice
+                        startForegroundService(context, intent);
                     }
                 } else if(parkscheinCollection.getNextParkingTickets().size() > 1) {
                     ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
@@ -69,16 +77,19 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                     sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
                     //start foregroundservice
                     if(waitMinutes>0) {
-                        Intent intentForegroundService = new Intent(context, ForegroundService.class);
-                        intent.setAction(StaticFields.ACTION_START_FOREGROUND_SERVICE);
-                        context.startForegroundService(intentForegroundService);
+                        startForegroundService(context, intent);
                     }
                 }
             }
         }
     }
 
-    private void sendSMSWithStopSignal(Context context, String city, String stop, String licensePlate, String telephoneNumber) {
+    private void startForegroundService(Context context, Intent intent) {
+        if(waitMinutes>0) {
+            Intent intentForegroundService = new Intent(context, ForegroundService.class);
+            intent.setAction(StaticFields.ACTION_START_FOREGROUND_SERVICE);
+            context.startForegroundService(intentForegroundService);
+        }
     }
 
     private int loadSharedPreferences(Context context, String sharedPref) {

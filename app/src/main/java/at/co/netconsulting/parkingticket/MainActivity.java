@@ -65,6 +65,7 @@ public class MainActivity extends BaseActivity {
     private boolean isStopTimePicker, isVoiceMessageActivated, isStopTimerCheckboxEnabled;
     private Toolbar toolbar;
     private TreeMap<Long, Integer> nextParkingTickets;
+    private static MainActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class MainActivity extends BaseActivity {
         //set the toolbar
         toolbar = findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.menu_main);
+        instance = this;
 
         if (checkAndRequestPermissions()) {
             initializeObjects();
@@ -275,7 +277,7 @@ public class MainActivity extends BaseActivity {
     }
 
     //When STOP is called manually
-    private void triggerCancellationAlarmManager() {
+    public void triggerCancellationAlarmManager() {
         if(isCityStop()) {
             Spinner spinnerCity = (Spinner) findViewById(R.id.city_spinner);
             String city = spinnerCity.getSelectedItem().toString();
@@ -729,6 +731,14 @@ public class MainActivity extends BaseActivity {
             parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
 
         prepareAlarmManager(parkscheinCollection);
+    }
+
+    public static MainActivity getInstance() {
+        return instance;
+    }
+
+    public void cancelAlarmManagerFromForegroundService() {
+        triggerCancellationAlarmManager();
     }
 
     private void saveSharedPreferences(boolean input, String sharedPref) {
