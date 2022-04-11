@@ -32,13 +32,13 @@
         android:id="@+id/license_plate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="License plate" />
+        android:hint="License plate" />
 
     <EditText
         android:id="@+id/waitMinutes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Wait x Minutes for reminder"
+        android:hint="Wait x minutes for reminder:\n0 - no voice message\n5 - maximum waiting time"
         android:inputType="number" />
 
     <RadioGroup
