@@ -23,20 +23,18 @@ Sending and therefore booking parking tickets in Austria.
 6. Automatic stopping of parktickets; currently this functionality is only available for Vienna
 
 ### Steps to take of how to use the app for Vienna
-1.  Under menu/settings choose your current location for your car
-2.  Type in your telephone number where the SMS should be sent to (06646606000, ...)
-3.  Your license plate
-4.  Number of minutes of how long to wait for an incoming SMS until a voice message is going to tell
+1.  Under menu/settings type the parkingticket`s telephone number (06646606000, ...)
+2.  Your license plate
+3.  Number of minutes of how long to wait for an incoming SMS until a voice message is going to tell
     you that no parking ticket was booked
-5.  Which parking type should be used (15/30, 30/15 or no alternate booking)
+4.  Which parking type should be used (15/30, 30/15 or no alternate booking)
     If your current location is Vienna (Wien), then alternate booking will be considered
     So, intervall in main menu will be overriden
-6.  Point to the main menu and depending on the city that you have chosen in settings choose the
+5.  Point to the main menu and depending on the city that you have chosen in settings choose the
     time to start the first booking
     
     Example: 
-        Settings:   City:               Vienna
-                    License plate:      T-XYZ
+        Settings:   License plate:      T-XYZ
                     Telephone number:   06646606000
                     Alternate booking:  15/30
     
@@ -49,23 +47,21 @@ Sending and therefore booking parking tickets in Austria.
                     They will be taken from your input in settings.
 
 ### Steps to take of how to use the app for every city that needs an additional STOP signal
-1.  Under menu/settings choose your current location for your car
-2.  Type in your telephone number where the SMS should be sent to (06646606000, ...)
-3.  Your license plate
-4.  Number of minutes of how long to wait for an incoming SMS until a voice message is going to tell
+1.  Under menu/settings Under menu/settings type the parkingticket`s telephone number (06646606000, ...)
+2.  Your license plate
+3.  Number of minutes of how long to wait for an incoming SMS until a voice message is going to tell
     you that no parking ticket was booked
-5.  Which parking type should be used (15/30, 30/15 or no alternate booking)
-6.  Point to the main menu and depending on the city that you have chosen in settings choose the
+4.  Which parking type should be used (15/30, 30/15 or no alternate booking) - all of them will be
+    ignored, if city is not Vienna
+5.  Point to the main menu and depending on the city that you have chosen in settings choose the
     time to start the first booking
 
     Example:
-    Settings:   
-    City:               Villach
-    License plate:      T-XYZ
-    Telephone number:   06646606000
-    Alternate booking:  No alternate booking available
-    Intervall:          Since Villach needs an additional STOP Signal to stop booking,
-                        you have to choose an intervall that exceeds the duration parkingticket!
+        Settings:   License plate:      T-XYZ
+                    Telephone number:   06646606000
+                    Alternate booking:  No alternate booking available
+        Intervall:  Since Villach needs an additional STOP Signal to stop booking,
+                    you have to choose an intervall that exceeds the duration parkingticket!
 
         Main menu:  Time:               15:17 !Always choose 2 minutes after 00, 15, 30, 45 minutes!
 

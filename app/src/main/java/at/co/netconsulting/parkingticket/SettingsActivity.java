@@ -19,11 +19,10 @@ import at.co.netconsulting.parkingticket.general.StaticFields;
 public class SettingsActivity extends BaseActivity {
 
     private Toolbar toolbar;
-    private EditText cityInput, telephoneNumberInput, licensePlateInput, waitMinutes;
+    private EditText telephoneNumberInput, licensePlateInput, waitMinutes;
     private Button saveButton;
     private RadioGroup radioGroupMinutes;
     private RadioButton radioButton1530, radioButton3015, radioButtonNoAlternateBooking;
-    private boolean isChecked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +31,6 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.activity_settings);
 
         initializeObjects();
-        loadSharedPreferences(StaticFields.CITY);
         loadSharedPreferences(StaticFields.TELEPHONE_NUMBER);
         loadSharedPreferences(StaticFields.LICENSE_PLATE);
         loadSharedPreferences(StaticFields.WAIT_MINUTES);
@@ -69,11 +67,6 @@ public class SettingsActivity extends BaseActivity {
         SharedPreferences sh;
 
         switch(sharedPref) {
-            case "CITY":
-                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
-                input = sh.getString(sharedPref, StaticFields.DEFAULT_CITY);
-                cityInput.setText(input);
-                break;
             case "TELEPHONE_NUMBER":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 input = sh.getString(sharedPref, StaticFields.DEFAULT_TELEPHONE_NUMBER);
@@ -104,7 +97,6 @@ public class SettingsActivity extends BaseActivity {
     private void initializeObjects() {
         toolbar = findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.menu_settings);
-        cityInput = findViewById(R.id.city);
         telephoneNumberInput = findViewById(R.id.telephone_number);
         licensePlateInput = findViewById(R.id.license_plate);
         waitMinutes = findViewById(R.id.waitMinutes);
@@ -140,18 +132,13 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public void saveInput(View view) {
-        boolean bool_city = isEmpty(cityInput);
         boolean bool_telephoneNumber = isEmpty(telephoneNumberInput);
         boolean bool_license_plate = isEmpty(licensePlateInput);
 
-        if(bool_city && bool_telephoneNumber && bool_license_plate) {
-            cityInput.setError("City field must not be empty");
-            cityInput.requestFocus();
+        if(bool_telephoneNumber && bool_license_plate) {
             telephoneNumberInput.setError("Telephone number field must not be empty");
             licensePlateInput.setError("License plate field must not be empty");
-        } else if(bool_city){
-            cityInput.setError("City field must not be empty");
-            cityInput.requestFocus();
+            telephoneNumberInput.requestFocus();
         } else if(bool_telephoneNumber){
             telephoneNumberInput.setError("Telephone number field must not be empty");
             telephoneNumberInput.requestFocus();
@@ -159,7 +146,6 @@ public class SettingsActivity extends BaseActivity {
             licensePlateInput.setError("License plate must not be empty");
             licensePlateInput.requestFocus();
         } else {
-            saveSharedPreferences(cityInput.getText().toString(), StaticFields.CITY);
             saveSharedPreferences(telephoneNumberInput.getText().toString(), StaticFields.TELEPHONE_NUMBER);
             saveSharedPreferences(licensePlateInput.getText().toString(), StaticFields.LICENSE_PLATE);
             String inputWaitMinutes = waitMinutes.getText().toString();

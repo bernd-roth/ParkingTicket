@@ -25,7 +25,7 @@ public class CalculationParkingTicket {
         this.context = context;
     }
 
-    public TreeMap<Long, Integer> calculateNextParkingTicket(int hour, int minute, int hourEnd, int minuteEnd, long intervall, boolean isStopTimePicker, int durationParkingticket) {
+    public TreeMap<Long, Integer> calculateNextParkingTicket(int hour, int minute, int hourEnd, int minuteEnd, long intervall, boolean isStopTimePicker, int durationParkingticket, String city) {
         nextParkingTicket = new TreeMap<Long, Integer>();
 
         //get timePickerForEnd if checkbox is enabled
@@ -40,12 +40,8 @@ public class CalculationParkingTicket {
         //planned time in milliseconds
         long plannedTimeInMilliseconds = plannedTimeToMilliseconds(hour, minute);
 
-        //get city for alternate booking
-        SharedPreferences sh = this.context.getSharedPreferences(StaticFields.CITY, Context.MODE_PRIVATE);
-        String city = sh.getString(StaticFields.CITY, StaticFields.DEFAULT_CITY);
-
         //which parking schema alternate/no alternate booking to use
-        sh = this.context.getSharedPreferences(StaticFields.ALTERNATE_BOOKING, Context.MODE_PRIVATE);
+        SharedPreferences sh = this.context.getSharedPreferences(StaticFields.ALTERNATE_BOOKING, Context.MODE_PRIVATE);
         String alternateBooking = sh.getString(StaticFields.ALTERNATE_BOOKING, StaticFields.NO_ALTERNATE_BOOKING);
 
         //change intervall if alternate booking is in use

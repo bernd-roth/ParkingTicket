@@ -11,15 +11,6 @@
         android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar" />
 
     <EditText
-        android:id="@+id/city"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="City"
-        android:inputType="text"
-        android:onClick="saveInput" />
-
-    <EditText
         android:id="@+id/telephone_number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -77,7 +77,6 @@ public class MainActivity extends BaseActivity {
 
         if (checkAndRequestPermissions()) {
             initializeObjects();
-            loadSharedPreferences(StaticFields.CITY);
             loadSharedPreferences(StaticFields.TELEPHONE_NUMBER);
             loadSharedPreferences(StaticFields.LICENSE_PLATE);
             loadSharedPreferences(StaticFields.WAIT_MINUTES);
@@ -317,7 +316,7 @@ public class MainActivity extends BaseActivity {
         CalculationParkingTicket calc = new CalculationParkingTicket(getApplicationContext());
         spinnerMinutes = (Spinner) findViewById(R.id.minutes_spinner);
         int durationMinutes = Integer.valueOf(spinnerMinutes.getSelectedItem().toString());
-        TreeMap<Long, Integer> nextParkingTicket = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, intervall, isStopTimePicker, durationMinutes);
+        TreeMap<Long, Integer> nextParkingTicket = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, intervall, isStopTimePicker, durationMinutes, city);
 
         return nextParkingTicket;
     }
@@ -688,15 +687,6 @@ public class MainActivity extends BaseActivity {
         SharedPreferences sh;
 
         switch(sharedPref) {
-            case "CITY":
-                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
-                input = sh.getString(sharedPref, "WIEN");
-                searchForPositions(spinnerCity, input);
-                String city = spinnerCity.getSelectedItem().toString();
-                if(!city.equals("Wien")) {
-                    deactivateEndTimePicker(false);
-                }
-                break;
             case "TELEPHONE_NUMBER":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 input = sh.getString(sharedPref, "06646606000");
