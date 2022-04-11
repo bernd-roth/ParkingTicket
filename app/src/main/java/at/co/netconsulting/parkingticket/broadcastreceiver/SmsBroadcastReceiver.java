@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.speech.tts.TextToSpeech;
 import android.telephony.SmsManager;
 
@@ -13,6 +14,7 @@ import java.util.TreeMap;
 
 import at.co.netconsulting.parkingticket.general.StaticFields;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
+import at.co.netconsulting.parkingticket.service.ForegroundService;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
 
@@ -25,10 +27,15 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     private String licensePlate, telephoneNumber, city;
     private ParkscheinCollection parkscheinCollection;
     private boolean isStopSignal = false;
+    private SharedPreferences sh;
+    private int waitMinutes;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getExtras() != null && intent.getAction().equals("AlarmManager")) {
+            //Receive SharedPreferences for voice message
+            String sharedPref = "WAIT_MINUTES";
+            waitMinutes = loadSharedPreferences(context, sharedPref);
             ParkscheinCollection stop = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
 
             parkscheinCollection = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
@@ -59,10 +66,22 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                         updateIntent(intent, reducedParkscheinCollection);
                         setNextAlarmManager(context, intent, reducedParkscheinCollection);
                         sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
+                        //start foregroundservice
+                        if(waitMinutes>0) {
+                            Intent intentForegroundService = new Intent(context, ForegroundService.class);
+                            intent.setAction(StaticFields.ACTION_START_FOREGROUND_SERVICE);
+                            context.startForegroundService(intentForegroundService);
+                        }
                     }
                 }
             }
         }
+    }
+
+    private int loadSharedPreferences(Context context, String sharedPref) {
+        sh = context.getSharedPreferences("WAIT_MINUTES", Context.MODE_PRIVATE);
+        waitMinutes = sh.getInt(sharedPref, 0);
+        return waitMinutes;
     }
 
     private void updateIntent(Intent intent, ParkscheinCollection parkscheinCollection) {

@@ -34,6 +34,7 @@ public class ForegroundService extends Service {
     private int waitForXMinutes;
     private TextToSpeech textToSpeech;
     private IntentFilter filter;
+    private boolean isSmsReceived;
 
     @Override
     public void onCreate() {
@@ -64,7 +65,7 @@ public class ForegroundService extends Service {
 
         startForeground(NOTIFICATION_ID, notification);
 
-        waitForXMinutes*=10;
+        waitForXMinutes*=60;
         while (counter <= waitForXMinutes) {
             try {
                 Thread.sleep(1000);
@@ -132,19 +133,11 @@ public class ForegroundService extends Service {
                     msgs = new SmsMessage[pdus.length];
                     for (int i = 0; i < msgs.length; i++) {
                         msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-                        msg_from = msgs[i].getOriginatingAddress();
                         String msgBody = msgs[i].getMessageBody();
                         if (!msgBody.contains("Zuletzt gebuchter Parkschein")) {
-                            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                @Override
-                                public void onInit(int status) {
-                                    if (status != TextToSpeech.ERROR) {
-                                        textToSpeech.setLanguage(Locale.GERMAN);
-                                        textToSpeech.speak("Es wurde kein Parkschein in den letzten " + waitForXMinutes + " Sekunden gebucht",
-                                                TextToSpeech.QUEUE_FLUSH, null, "0");
-                                    }
-                                }
-                            });
+                            isSmsReceived=false;
+                        } else {
+                            isSmsReceived=true;
                         }
                     }
                 } catch (Exception e) {
@@ -152,6 +145,12 @@ public class ForegroundService extends Service {
                 }
             } else {
                 //If no SMS was retrieved
+                voiceMessage();
+            }
+        }
+
+        private void voiceMessage() {
+            if(!isSmsReceived) {
                 textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
                     @Override
                     public void onInit(int status) {

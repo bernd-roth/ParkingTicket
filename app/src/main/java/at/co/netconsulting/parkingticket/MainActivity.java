@@ -57,7 +57,6 @@ public class MainActivity extends BaseActivity {
     private String city;
     private String licensePlate;
     private String telephoneNumber;
-    private int waitMinutes;
     private long waitMinutesLong;
     private Integer durationParkingticket;
     private NumberPicker numberPicker;
@@ -66,7 +65,6 @@ public class MainActivity extends BaseActivity {
     private boolean isStopTimePicker, isVoiceMessageActivated, isStopTimerCheckboxEnabled;
     private Toolbar toolbar;
     private TreeMap<Long, Integer> nextParkingTickets;
-    private List<Long> voiceMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,13 +239,8 @@ public class MainActivity extends BaseActivity {
             }
         } else {
             if (size > 0) {
-//                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
-
-                //start foregroundservice
-                Intent intent = new Intent(this, ForegroundService.class);
-                intent.setAction(StaticFields.ACTION_START_FOREGROUND_SERVICE);
-                startForegroundService(intent);
+                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
             } else {
                 AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
