@@ -29,7 +29,7 @@ public class CalculationParkingTicket {
         nextParkingTicket = new TreeMap<Long, Integer>();
 
         //get timePickerForEnd if checkbox is enabled
-        if(isStopTimePicker) {
+        if (isStopTimePicker) {
             //hourEnd + minuteEnd to milliSeconds
             plannedEndTimeInMilliseconds = plannedTimeToMilliseconds(hourEnd, minuteEnd);
         }
@@ -50,10 +50,12 @@ public class CalculationParkingTicket {
 
         //change intervall if alternate booking is in use
         //intervall will be overriden
-        if(alternateBooking.equals(StaticFields.FIFTEEN_THIRTY) || alternateBooking.equals(StaticFields.THIRTY_FIFTEEN)) {
-            intervall = 3600000;
-        } else {
-            intervall*=60000;
+        if (city.equals("Wien")) {
+            if (alternateBooking.equals(StaticFields.FIFTEEN_THIRTY) || alternateBooking.equals(StaticFields.THIRTY_FIFTEEN)) {
+                intervall = 3600000;
+            } else {
+                intervall *= 60000;
+            }
         }
 
         boolean isFirstBooking = true;

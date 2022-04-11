@@ -275,10 +275,14 @@ public class MainActivity extends BaseActivity {
             return false;
     }
 
+    //When STOP is called manually
     private void triggerCancellationAlarmManager() {
         if(isCityStop()) {
+            Spinner spinnerCity = (Spinner) findViewById(R.id.city_spinner);
+            String city = spinnerCity.getSelectedItem().toString();
             parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
 
+            intent.setAction("AlarmManager");
             intent.putExtra(StaticFields.STOP_SMS, parkscheinCollection);
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
@@ -290,7 +294,7 @@ public class MainActivity extends BaseActivity {
             AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
             intent.setAction("AlarmManager");
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE |
+            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
             alarmManager.cancel(pendingIntent);
         }

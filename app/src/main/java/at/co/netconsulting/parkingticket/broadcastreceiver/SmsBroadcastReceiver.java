@@ -36,46 +36,49 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
             //Receive SharedPreferences for voice message
             String sharedPref = "WAIT_MINUTES";
             waitMinutes = loadSharedPreferences(context, sharedPref);
-            ParkscheinCollection stop = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
+            ParkscheinCollection stop = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.STOP_SMS);
 
-            parkscheinCollection = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
-            city = parkscheinCollection.getCity();
-            durationParkingticket = parkscheinCollection.getNextParkingTickets().firstEntry().getValue();
-            nextParkingTickets = parkscheinCollection.getNextParkingTickets();
-            licensePlate = parkscheinCollection.getLicensePlate();
-            telephoneNumber = parkscheinCollection.getTelephoneNumber();
-            isStopSignal = stop.isStop();
+            //Manually stop signal triggered via STOP button
+            if(stop!=null) {
+                city = stop.getCity();
+                licensePlate = stop.getLicensePlate();
+                telephoneNumber = stop.getTelephoneNumber();
 
-            if (stop != null && isStopSignal) {
                 sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
+                parkscheinCollection = null;
             } else {
-                //TODO checkVoiceMessages needs to be implemented
-                //checkVoiceMessages(context, intent);
+                //Automatic booking
+                parkscheinCollection = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
+                city = parkscheinCollection.getCity();
+                durationParkingticket = parkscheinCollection.getNextParkingTickets().firstEntry().getValue();
+                nextParkingTickets = parkscheinCollection.getNextParkingTickets();
+                licensePlate = parkscheinCollection.getLicensePlate();
+                telephoneNumber = parkscheinCollection.getTelephoneNumber();
 
-                if (checkStopSignal()) {
-                    sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
-                    //remove next planned parkingticket from collection
-                    parkscheinCollection.getNextParkingTickets().clear();
-                } else {
-                    if(parkscheinCollection.getNextParkingTickets().size() == 1) {
-                        sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
+                if(parkscheinCollection.getNextParkingTickets().size() == 1) {
+                    if(parkscheinCollection.isStop()) {
+                        sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
                         ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
                         updateIntent(intent, reducedParkscheinCollection);
-                    } else if(parkscheinCollection.getNextParkingTickets().size() > 1) {
-                        ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
-                        updateIntent(intent, reducedParkscheinCollection);
-                        setNextAlarmManager(context, intent, reducedParkscheinCollection);
-                        sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
-                        //start foregroundservice
-                        if(waitMinutes>0) {
-                            Intent intentForegroundService = new Intent(context, ForegroundService.class);
-                            intent.setAction(StaticFields.ACTION_START_FOREGROUND_SERVICE);
-                            context.startForegroundService(intentForegroundService);
-                        }
+                        parkscheinCollection = null;
+                    }
+                } else if(parkscheinCollection.getNextParkingTickets().size() > 1) {
+                    ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
+                    updateIntent(intent, reducedParkscheinCollection);
+                    setNextAlarmManager(context, intent, reducedParkscheinCollection);
+                    sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
+                    //start foregroundservice
+                    if(waitMinutes>0) {
+                        Intent intentForegroundService = new Intent(context, ForegroundService.class);
+                        intent.setAction(StaticFields.ACTION_START_FOREGROUND_SERVICE);
+                        context.startForegroundService(intentForegroundService);
                     }
                 }
             }
         }
+    }
+
+    private void sendSMSWithStopSignal(Context context, String city, String stop, String licensePlate, String telephoneNumber) {
     }
 
     private int loadSharedPreferences(Context context, String sharedPref) {
@@ -129,7 +132,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 || city.equals("Steyr Zone 5")
                 || city.equals("Velden Zone 1")
                 || city.equals("Villach Zone 1")
-                || city.equals("Zell am See") && parkscheinCollection.getNextParkingTickets().size()==1)) {
+                || city.equals("Zell am See"))) {
             return true;
         }
         return false;
@@ -143,8 +146,6 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
         alarmManager.cancel(pendingIntent);
-
-        parkscheinCollection.getNextParkingTickets().clear();
     }
 
     private void sendSMS(Context context, String city, int durationParkingticket, String licensePlate, String telephoneNumber) {
