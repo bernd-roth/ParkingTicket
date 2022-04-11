@@ -19,6 +19,9 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.general.StaticFields;
@@ -34,7 +37,7 @@ public class ForegroundService extends Service {
     private int waitForXMinutes;
     private TextToSpeech textToSpeech;
     private IntentFilter filter;
-    private boolean isSmsReceived;
+    private final boolean[] isSmsReceived = new boolean[1];
 
     @Override
     public void onCreate() {
@@ -48,7 +51,7 @@ public class ForegroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        loadSharedPreferences(StaticFields.WAIT_MINUTES);
+        waitForXMinutes = loadSharedPreferences(StaticFields.WAIT_MINUTES);
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -65,21 +68,29 @@ public class ForegroundService extends Service {
 
         startForeground(NOTIFICATION_ID, notification);
 
+        final int[] counter = {0};
         waitForXMinutes*=60;
-        while (counter <= waitForXMinutes) {
-            try {
-                Thread.sleep(1000);
+
+        final Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
                 manager.notify(NOTIFICATION_ID /* ID of notification */,
-                        notificationBuilder.setContentTitle("No parkingticket for " + counter + " seconds").build());
-                counter++;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                        notificationBuilder.setContentTitle("No parkingticket for " + counter[0]++ + " seconds").build());
+                if(isSmsReceived[0] || counter[0]>waitForXMinutes) {
+                    if(!isSmsReceived[0]) {
+                        isSmsReceived[0] = false;
+                        Intent i = new Intent("NO_SMS_RECEIVED");
+                        sendBroadcast(i);
+                        stopSelfResult(NOTIFICATION_ID);
+                    } else {
+                        stopSelfResult(NOTIFICATION_ID);
+                    }
+                    timer.cancel();
+                }
             }
-        }
-        Intent i = new Intent("NO_SMS_RECEIVED");
-        sendBroadcast(i);
-        stopSelf();
-        return START_NOT_STICKY;
+        }, 0,1000);
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -108,7 +119,6 @@ public class ForegroundService extends Service {
     }
 
     private int loadSharedPreferences(String sharedPref) {
-        String input;
         SharedPreferences sh;
 
         switch (sharedPref) {
@@ -135,9 +145,9 @@ public class ForegroundService extends Service {
                         msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                         String msgBody = msgs[i].getMessageBody();
                         if (!msgBody.contains("Zuletzt gebuchter Parkschein")) {
-                            isSmsReceived=false;
+                            isSmsReceived[0]=false;
                         } else {
-                            isSmsReceived=true;
+                            isSmsReceived[0]=true;
                         }
                     }
                 } catch (Exception e) {
@@ -150,7 +160,7 @@ public class ForegroundService extends Service {
         }
 
         private void voiceMessage() {
-            if(!isSmsReceived) {
+            if(!isSmsReceived[0]) {
                 textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
                     @Override
                     public void onInit(int status) {
