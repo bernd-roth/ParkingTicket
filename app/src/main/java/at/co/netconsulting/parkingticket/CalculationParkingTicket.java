@@ -56,6 +56,8 @@ public class CalculationParkingTicket {
             } else {
                 intervall *= 60000;
             }
+        } else {
+            intervall *= 60000;
         }
 
         boolean isFirstBooking = true;
@@ -119,6 +121,8 @@ public class CalculationParkingTicket {
             }
         } else {
             //every parking ticket for any other city than Vienna is considered here
+            plannedEndTimeInMilliseconds=StaticFields.MAX_ONE_DAY_MINUTES*60000;
+
             while (isEnd) {
                 nextParkingTicket.put(plannedTimeInMilliseconds, durationParkingticket);
                 //one shot calling
@@ -126,16 +130,13 @@ public class CalculationParkingTicket {
                     isEnd=false;
                 //intervall booking
                 else {
-                    if(isStopTimePicker && (plannedTimeInMilliseconds > plannedEndTimeInMilliseconds
-                            ||  plannedTimeInMilliseconds >= millisecondsAfter24Hours)) {
+                    //calculation will end after 24 hours are reached
+                    if(plannedTimeInMilliseconds > millisecondsAfter24Hours) {
                         isEnd = false;
                     } else {
                         plannedTimeInMilliseconds+=intervall;
                     }
                 }
-                //calculation will end after 24 hours are reached
-                if(plannedTimeInMilliseconds>=millisecondsAfter24Hours)
-                    isEnd=false;
             }
         }
         return nextParkingTicket;
