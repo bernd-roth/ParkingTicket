@@ -45,7 +45,7 @@ public class CalculationParkingTicket {
         String alternateBooking = sh.getString(StaticFields.ALTERNATE_BOOKING, StaticFields.NO_ALTERNATE_BOOKING);
 
         //change intervall if alternate booking is in use
-        //intervall will be overriden
+        //interval will be overridden
         if (city.equals("Wien")) {
             if (alternateBooking.equals(StaticFields.FIFTEEN_THIRTY) || alternateBooking.equals(StaticFields.THIRTY_FIFTEEN)) {
                 intervall = 3600000;
