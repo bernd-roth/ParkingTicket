@@ -55,8 +55,6 @@ Sending and therefore booking parking tickets in Austria.
 4.  Number of minutes of how long to wait for an incoming SMS until a voice message is going to tell
     you that no parking ticket was booked
 5.  Which parking type should be used (15/30, 30/15 or no alternate booking)
-    If your current location is Vienna (Wien), then alternate booking will be considered
-    So, intervall in main menu will be overriden
 6.  Point to the main menu and depending on the city that you have chosen in settings choose the
     time to start the first booking
 
@@ -66,6 +64,8 @@ Sending and therefore booking parking tickets in Austria.
     License plate:      T-XYZ
     Telephone number:   06646606000
     Alternate booking:  No alternate booking available
+    Intervall:          Since Villach needs an additional STOP Signal to stop booking,
+                        you have to choose an intervall that exceeds the duration parkingticket!
 
         Main menu:  Time:               15:17 !Always choose 2 minutes after 00, 15, 30, 45 minutes!
 
