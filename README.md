@@ -30,7 +30,7 @@ Sending and therefore booking parking tickets in Austria.
 4.  Number of minutes of how long to wait for an incoming SMS until a voice message is going to tell
     you that no parking ticket was booked
 5.  Which parking type should be used (15/30, 30/15 or no alternate booking)
-    If you current location is Vienna (Wien), then alternate booking will be considered
+    If your current location is Vienna (Wien), then alternate booking will be considered
     So, intervall in main menu will be overriden
 6.  Point to the main menu and depending on the city that you have chosen in settings choose the
     time to start the first booking
