@@ -70,7 +70,7 @@ public class ForegroundService extends Service {
         startForeground(NOTIFICATION_ID, notification);
 
         final int[] counter = {0};
-        waitForXMinutes*=10;
+        waitForXMinutes*=60;
 
         final Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {

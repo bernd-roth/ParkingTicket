@@ -73,7 +73,7 @@ Sending and therefore booking parking tickets in Austria.
         Settings:   License plate:      T-XYZ
                     Telephone number:   06646606000
                     Alternate booking:  No alternate booking available
-        Intervall:  Since Villach needs an additional STOP Signal to stop booking,
+        Interval:   Since Villach needs an additional STOP Signal to stop booking,
                     you have to choose an interval that exceeds the duration parkingticket!
 
         Main menu:  Time:               15:17 !Always choose 2 minutes after 00, 15, 30, 45 minutes!
