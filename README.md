@@ -77,6 +77,13 @@ Sending and therefore booking parking tickets in Austria.
                     you have to choose an interval that exceeds the duration parkingticket!
 
         Main menu:  Time:               15:17 !Always choose 2 minutes after 00, 15, 30, 45 minutes!
+        
+### Pictures
+![Screenshot_20220412-122236](https://user-images.githubusercontent.com/1835491/162941274-1c99cffc-852b-4b65-9f60-c0b56a415dc3.png)
+![Screenshot_20220412-122247](https://user-images.githubusercontent.com/1835491/162941359-db0ae893-da4b-4a80-98dd-ac70721aad9f.png)
+![Screenshot_20220412-122305](https://user-images.githubusercontent.com/1835491/162941363-b3f62eae-8951-4242-affa-d0594ca47fc0.png)
+![Screenshot_20220412-122355](https://user-images.githubusercontent.com/1835491/162941364-07133d70-fd8f-433a-aa65-b607d3a4d300.png)
+![Screenshot_20220412-122403](https://user-images.githubusercontent.com/1835491/162941366-9ac8f84d-0bf5-44d3-85bd-00973d1c8097.png)
 
 ### Support
 If you have questions or if you want further implementations,
