@@ -22,6 +22,9 @@ public class StaticFields {
     public static final String THIRTY_FIFTEEN = "THIRTY_FIFTEEN";
     public static final String ALTERNATE_BOOKING = "ALTERNATE_BOOKING";
     public static final String STOP_TIMER_CHECKBOX = "STOP_TIMER_CHECKBOX";
+    public static final String DIALOG_YES = "DIALOG_YES";
+    public static final String DIALOG_NO = "DIALOG_NO";
+    public static final String ALERT_DIALOG = "ALERT_DIALOG";
     //PendingIntent
     public static final int REQUEST_CODE = 0;
     //ForegroundService

@@ -2,12 +2,17 @@ package at.co.netconsulting.parkingticket;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,20 +23,21 @@ import android.widget.CompoundButton;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TimePicker;
-
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.TreeMap;
-
 import at.co.netconsulting.parkingticket.broadcastreceiver.SmsBroadcastReceiver;
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.general.StaticFields;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
-import at.co.netconsulting.parkingticket.service.ForegroundService;
 
 public class MainActivity extends BaseActivity {
 
@@ -62,10 +68,11 @@ public class MainActivity extends BaseActivity {
     private NumberPicker numberPicker;
     private Button stop;
     private CheckBox enableStopTimerCheckBox;
-    private boolean isStopTimePicker, isVoiceMessageActivated, isStopTimerCheckboxEnabled;
+    private boolean isStopTimePicker, isVoiceMessageActivated, isStopTimerCheckboxEnabled, resultValue;
     private Toolbar toolbar;
     private TreeMap<Long, Integer> nextParkingTickets;
     private static MainActivity instance;
+    private String showAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +89,7 @@ public class MainActivity extends BaseActivity {
             loadSharedPreferences(StaticFields.TELEPHONE_NUMBER);
             loadSharedPreferences(StaticFields.LICENSE_PLATE);
             loadSharedPreferences(StaticFields.WAIT_MINUTES);
+            loadSharedPreferences(StaticFields.ALERT_DIALOG);
         } else {
             //Show error message and close app
         }
@@ -141,8 +149,8 @@ public class MainActivity extends BaseActivity {
         enableStopTimerCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
-                    saveSharedPreferences(isStopTimePicker=true, StaticFields.STOP_TIMER_CHECKBOX);
+                if (isChecked) {
+                    saveSharedPreferences(isStopTimePicker = true, StaticFields.STOP_TIMER_CHECKBOX);
                 }
             }
         });
@@ -229,7 +237,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private void triggerAlarmManager(long plannedTime, int size, boolean isVoiceMessageActivated) {
-        if(isVoiceMessageActivated) {
+        //show AlertDialog about bookings
+        if(showAlertDialog.equals(StaticFields.DIALOG_YES))
+            showAlertDialog();
+        if (isVoiceMessageActivated) {
             if (size > 0) {
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
@@ -248,6 +259,47 @@ public class MainActivity extends BaseActivity {
                 alarmManager.setAlarmClock(ac, pendingIntent);
             }
         }
+    }
+
+    public boolean showAlertDialog() {
+        final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message mesg) {
+                throw new RuntimeException();
+            }
+        };
+
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Bookings overview");
+
+        String message = new String();
+        Date date;
+        SimpleDateFormat formatter = new SimpleDateFormat("dd:MM:yyyy HH:mm", Locale.GERMANY);
+
+        for (Map.Entry<Long, Integer> entry : parkscheinCollection.getNextParkingTickets().entrySet()) {
+            date = new Date(entry.getKey());
+            String result = formatter.format(date);
+
+            message += "\nDuration: " + entry.getValue() + "-" + "Time: " + result;
+            builder.setMessage(message);
+        }
+
+        // add a button
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                resultValue = true;
+                handler.sendMessage(handler.obtainMessage());
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        try {
+            Looper.loop();
+        } catch (RuntimeException e) {}
+        return resultValue;
     }
 
     private boolean isCityStop() {
@@ -702,6 +754,10 @@ public class MainActivity extends BaseActivity {
             case "WAIT_MINUTES":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 waitMinutesLong = sh.getInt(sharedPref, 0);
+                break;
+            case "ALERT_DIALOG":
+                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
+                showAlertDialog = sh.getString(sharedPref, StaticFields.DIALOG_NO);
                 break;
         }
     }

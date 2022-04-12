@@ -13,14 +13,14 @@ Sending and therefore booking parking tickets in Austria.
    parking ticket.
 2. Voice message if no parking ticket was booked
 3. Voice message when the booked parking ticket will be outdated
+4. Overview of parkingtickets that must be booked
 
 ### What is not implemented yet
 1. Overview of parking zones in Austria
-2. Overview of booked parking tickets
-3. Overview of parksheriffs, marked by users
-4. AI when parking ticket should be booked according to a parksheriff`s location
-5. Mobile phone must vibrate if SMS was received
-6. Automatic stopping of parktickets; currently this functionality is only available for Vienna
+2. Overview of parksheriffs, marked by users
+3. AI when parking ticket should be booked according to a parksheriff`s location
+4. Mobile phone must vibrate if SMS was received
+5. Automatic stopping of parktickets; currently this functionality is only available for Vienna
 
 ### Steps to take of how to use the app for Vienna
 1.  Under menu/settings type the parkingticket`s telephone number (06646606000, ...)

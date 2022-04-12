@@ -64,7 +64,34 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:text="No alternate booking" />
+
     </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/radioGroupDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/showAlertDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show bookings overview" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Yes" />
+
+            <RadioButton
+                android:id="@+id/radioButtonNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="No" />
+        </RadioGroup>
 
     <Button
         android:id="@+id/saveInput"

@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.general.StaticFields;
@@ -21,8 +20,9 @@ public class SettingsActivity extends BaseActivity {
     private Toolbar toolbar;
     private EditText telephoneNumberInput, licensePlateInput, waitMinutes;
     private Button saveButton;
-    private RadioGroup radioGroupMinutes;
-    private RadioButton radioButton1530, radioButton3015, radioButtonNoAlternateBooking;
+    private RadioGroup radioGroupMinutes, radioGroupAlertDialog;
+    private RadioButton radioButton1530, radioButton3015, radioButtonNoAlternateBooking,
+                        radioButtonYes, radioButtonNo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +35,7 @@ public class SettingsActivity extends BaseActivity {
         loadSharedPreferences(StaticFields.LICENSE_PLATE);
         loadSharedPreferences(StaticFields.WAIT_MINUTES);
         loadSharedPreferences(StaticFields.ALTERNATE_BOOKING);
+        loadSharedPreferences(StaticFields.ALERT_DIALOG);
 
         waitMinutes.addTextChangedListener(new TextWatcher() {
             @Override
@@ -91,6 +92,14 @@ public class SettingsActivity extends BaseActivity {
                 else if(noAlternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING))
                     radioButtonNoAlternateBooking.setChecked(true);
                 break;
+            case "ALERT_DIALOG":
+                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
+                String showAlertDialog = sh.getString(sharedPref, StaticFields.DIALOG_YES);
+                if(showAlertDialog.equals(StaticFields.DIALOG_YES))
+                    radioButtonYes.setChecked(true);
+                else if(showAlertDialog.equals(StaticFields.DIALOG_NO))
+                    radioButtonNo.setChecked(true);
+                break;
         }
     }
 
@@ -105,6 +114,7 @@ public class SettingsActivity extends BaseActivity {
         radioButton1530 = findViewById(R.id.radioButton1530);
         radioButton3015 = findViewById(R.id.radioButton3015);
         radioButtonNoAlternateBooking = findViewById(R.id.radioButtonNoAlternateBooking);
+
         radioGroupMinutes = (RadioGroup)findViewById(R.id.radioGroup);
         radioGroupMinutes.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
         {
@@ -121,6 +131,25 @@ public class SettingsActivity extends BaseActivity {
                         break;
                     case R.id.radioButtonNoAlternateBooking:
                         saveSharedPreferences(StaticFields.NO_ALTERNATE_BOOKING, "ALTERNATE_BOOKING");
+                        break;
+                }
+            }
+        });
+        radioButtonYes = findViewById(R.id.radioButtonYes);
+        radioButtonNo = findViewById(R.id.radioButtonNo);
+        radioGroupAlertDialog = (RadioGroup)findViewById(R.id.radioGroupDialog);
+        radioGroupAlertDialog.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId)
+            {
+                switch(checkedId)
+                {
+                    case R.id.radioButtonYes:
+                        saveSharedPreferences(StaticFields.DIALOG_YES, "ALERT_DIALOG");
+                        break;
+                    case R.id.radioButtonNo:
+                        saveSharedPreferences(StaticFields.DIALOG_NO, "ALERT_DIALOG");
                         break;
                 }
             }
