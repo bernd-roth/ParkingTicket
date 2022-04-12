@@ -186,41 +186,11 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        spinnerLicensePlate = (Spinner) findViewById(R.id.license_plate_spinner);
-        spinnerLicensePlate.setPrompt("License Plate");
         ArrayAdapter<CharSequence> adapterLicensePlate = ArrayAdapter.createFromResource(this, R.array.license_plate, android.R.layout.simple_spinner_item);
         adapterLicensePlate.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerLicensePlate.setAdapter(adapterLicensePlate);
-        spinnerLicensePlate.setEnabled(true);
-        spinnerLicensePlate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                licensePlate = parent.getItemAtPosition(position).toString();
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spinnerTelephoneNumber = (Spinner) findViewById(R.id.telephone_spinner);
-        spinnerTelephoneNumber.setPrompt("Telephone number");
         ArrayAdapter<CharSequence> adapterTelephoneNumber = ArrayAdapter.createFromResource(this, R.array.telephoneNumber, android.R.layout.simple_spinner_item);
         adapterTelephoneNumber.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerTelephoneNumber.setAdapter(adapterTelephoneNumber);
-        spinnerTelephoneNumber.setEnabled(true);
-        spinnerTelephoneNumber.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                telephoneNumber = parent.getItemAtPosition(position).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
     }
 
     private void prepareAlarmManager(ParkscheinCollection parkscheinCollection) {
@@ -744,12 +714,10 @@ public class MainActivity extends BaseActivity {
             case "TELEPHONE_NUMBER":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 input = sh.getString(sharedPref, "06646606000");
-                searchForPositions(spinnerTelephoneNumber, input);
                 break;
             case "LICENSE_PLATE":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
-                input = sh.getString(sharedPref, "W-XYZ");
-                searchForPositions(spinnerLicensePlate, input);
+                licensePlate = sh.getString(sharedPref, StaticFields.DEFAULT_NUMBER_PLATE);
                 break;
             case "WAIT_MINUTES":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
@@ -760,13 +728,6 @@ public class MainActivity extends BaseActivity {
                 showAlertDialog = sh.getString(sharedPref, StaticFields.DIALOG_NO);
                 break;
         }
-    }
-
-    private void searchForPositions(Spinner spinner, String sharedPref) {
-        ArrayAdapter myAdap = (ArrayAdapter) spinner.getAdapter();
-        int spinnerPosition = myAdap.getPosition(sharedPref);
-
-        spinner.setSelection(spinnerPosition);
     }
 
     //--------------------onclicked methods--------------------//

@@ -589,13 +589,10 @@
     </string-array>
 
     <string-array name="license_plate">
-        <item>W-53921P</item>
     </string-array>
 
     <string-array name="telephoneNumber">
         <item>06646606000</item>
-        <item>06646600990</item>
-        <item>06763506625</item>
     </string-array>
 
     <string-array name="vienna_minutes">

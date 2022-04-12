@@ -42,30 +42,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Spinner
-            android:id="@+id/telephone_spinner"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="1dp"
-            android:layout_marginTop="48dp"
-            android:layout_marginEnd="1dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.582"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/license_plate_spinner" />
-
-        <Button
-            android:id="@+id/stopButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="196dp"
-            android:layout_marginTop="44dp"
-            android:onClick="stopAlarm"
-            android:text="Stop"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/telephone_spinner" />
-
         <TextView
             android:id="@+id/textView3"
             android:layout_width="0dp"
@@ -80,21 +56,21 @@
             android:id="@+id/startButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="100dp"
-            android:layout_marginTop="44dp"
+            android:layout_marginTop="1469dp"
+            android:layout_marginEnd="35dp"
             android:onClick="startAlarm"
             android:text="Start"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/telephone_spinner" />
+            app:layout_constraintEnd_toStartOf="@+id/stopButton"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/textView"
+        <Button
+            android:id="@+id/stopButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="36dp"
-            android:layout_marginTop="544dp"
-            android:text="Intervall"
+            android:layout_marginStart="96dp"
+            android:layout_marginTop="960dp"
+            android:onClick="stopAlarm"
+            android:text="Stop"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_main_picker"
             app:layout_constraintTop_toBottomOf="@+id/startTimePicker" />
 
@@ -102,29 +78,28 @@
             android:id="@+id/numberpicker_main_picker"
             android:layout_width="123dp"
             android:layout_height="149dp"
-            android:layout_marginStart="148dp"
-            android:layout_marginTop="988dp"
+            android:layout_marginStart="140dp"
+            android:layout_marginTop="980dp"
             app:layout_constraintStart_toStartOf="@+id/startTimePicker"
-            app:layout_constraintTop_toTopOf="@+id/startTimePicker">
-        </NumberPicker>
+            app:layout_constraintTop_toTopOf="@+id/startTimePicker"></NumberPicker>
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="264dp"
-            android:text="Phone number"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/numberpicker_main_picker" />
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="536dp"
+            android:text="Intervall"
+            app:layout_constraintStart_toStartOf="@+id/numberpicker_main_picker"
+            app:layout_constraintTop_toBottomOf="@+id/startTimePicker" />
 
         <Spinner
             android:id="@+id/city_spinner"
             android:layout_width="160dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="52dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.581"
+            app:layout_constraintHorizontal_bias="0.514"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/numberpicker_main_picker" />
 
@@ -145,7 +120,7 @@
             android:layout_marginStart="1dp"
             android:layout_marginTop="48dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.582"
+            app:layout_constraintHorizontal_bias="0.513"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/city_spinner" />
 
@@ -176,26 +151,6 @@
             android:layout_marginTop="556dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="196dp"
-            android:text="License plate"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/numberpicker_main_picker" />
-
-        <Spinner
-            android:id="@+id/license_plate_spinner"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.581"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/minutes_spinner" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
