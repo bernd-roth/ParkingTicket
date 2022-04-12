@@ -713,7 +713,7 @@ public class MainActivity extends BaseActivity {
         switch(sharedPref) {
             case "TELEPHONE_NUMBER":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
-                input = sh.getString(sharedPref, "06646606000");
+                telephoneNumber = sh.getString(sharedPref, "06646606000");
                 break;
             case "LICENSE_PLATE":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
