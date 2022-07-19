@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="baden_z1_minutes">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+    </string-array>
+
+    <string-array name="baden_z2_minutes">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+    </string-array>
+
+    <string-array name="bruck_an_der_leitha_minutes">
+        <item>30</item>
+        <item>60</item>
+        <item>150</item>
+    </string-array>
+
+    <string-array name="eisenstadt_zona_a_minutes">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="eisenstadt_zona_b_minutes">
+        <item>240</item>
+        <item>480</item>
+    </string-array>
+
+    <string-array name="eisenstadt_zona_c_minutes">
+        <item>240</item>
+        <item>480</item>
+    </string-array>
+
+    <string-array name="gleisdorf">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+    </string-array>
+
+    <string-array name="gmunden">
+        <item>6</item>
+        <item>42</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="graz_z1">
+        <item></item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="graz_z2">
+        <item></item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+    </string-array>
+
+    <string-array name="graz_z3">
+        <item></item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
+    <string-array name="graz_z5">
+        <item></item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>210</item>
+        <item>240</item>
+        <item>270</item>
+        <item>300</item>
+        <item>330</item>
+        <item>360</item>
+        <item>390</item>
+        <item>420</item>
+        <item>450</item>
+        <item>480</item>
+        <item>510</item>
+        <item>540</item>
+        <item>570</item>
+        <item>600</item>
+        <item>630</item>
+        <item>660</item>
+    </string-array>
+
+    <string-array name="graz_z15">
+        <item>330</item>
+        <item>360</item>
+        <item>390</item>
+        <item>420</item>
+        <item>450</item>
+        <item>480</item>
+        <item>510</item>
+        <item>540</item>
+        <item>570</item>
+        <item>600</item>
+        <item>630</item>
+        <item>660</item>
+    </string-array>
+
+    <string-array name="hall_in_tirol">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>25</item>
+    </string-array>
+
+    <string-array name="iig_parkplatz_sillside">
+        <item></item>
+    </string-array>
+
+    <string-array name="innsbruck_zone_1">
+        <item></item>
+    </string-array>
+
+    <string-array name="innsbruck_zone_2">
+        <item></item>
+    </string-array>
+
+    <string-array name="innsbruck_zone_3">
+        <item></item>
+    </string-array>
+
+    <string-array name="innsbruck_zone_4">
+        <item></item>
+    </string-array>
+
+    <string-array name="innsbruck_zone_5">
+        <item></item>
+
+    </string-array>
+
+    <string-array name="klagenfurt_zone_1">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="klagenfurt_zone_2">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>210</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="klosterneuburg_zone_1">
+        <item>15</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="klosterneuburg_zone_2">
+        <item>15</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="korneuburg">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="krems_zone_1">
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="krems_zone_2">
+        <item>Start-Stopp</item>
+        <item>Heute + 6 Tage</item>
+    </string-array>
+
+    <string-array name="linz_zone_1">
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="linz_zone_2">
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="linz_zone_3">
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="moedling">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="neusiedl_am_see_zone_1">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+    </string-array>
+
+    <string-array name="neusiedl_am_see_zone_2">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="oberwart">
+        <item>30</item>
+    </string-array>
+
+    <string-array name="parktiger_flughafen_wien">
+        <item>Heute</item>
+    </string-array>
+
+    <string-array name="parktiger_p_r_aspern">
+        <item>Heute</item>
+        <item>Heute + 4 Tage</item>
+    </string-array>
+
+    <string-array name="parktiger_p_r_heiligenstadt">
+        <item>Heute</item>
+        <item>Heute + 4 Tage</item>
+    </string-array>
+
+    <string-array name="perchtoldsdorf_zone_1">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+    </string-array>
+
+    <string-array name="perchtoldsdorf_zone_2">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="poertschach">
+        <item>Start-Stopp</item>
+        <item>24 Stunden</item>
+    </string-array>
+
+    <string-array name="ried_zone_1">
+        <item>15</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+        <item>45</item>
+        <item>60</item>
+        <item>75</item>
+        <item>90</item>
+        <item>105</item>
+        <item>120</item>
+    </string-array>
+
+    <string-array name="salzburg_zone_1">
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="schwechat_zone_1">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+    </string-array>
+
+    <string-array name="schwechat_zone_2">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>210</item>
+        <item>240</item>
+        <item>270</item>
+        <item>300</item>
+        <item>330</item>
+        <item>Heute</item>
+    </string-array>
+
+    <string-array name="schaerding_zone_1">
+        <item>10</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="spittal">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>30 Minuten Verlängerung</item>
+    </string-array>
+
+    <string-array name="sankt_poelten_zone_1">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="sankt_poelten_zone_2">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>210</item>
+        <item>1 Tag</item>
+    </string-array>
+
+    <string-array name="steyr_zone_1">
+        <item>30</item>
+        <item>60</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="steyr_zone_2">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="steyr_zone_3">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="steyr_zone_4">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="steyr_zone_5">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="stockerau">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="tulln">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+    </string-array>
+
+    <string-array name="velden_zone_1">
+        <item>30</item>
+        <item>40</item>
+        <item>50</item>
+        <item>60</item>
+        <item>70</item>
+        <item>80</item>
+        <item>90</item>
+        <item>100</item>
+        <item>110</item>
+        <item>120</item>
+        <item>130</item>
+        <item>140</item>
+        <item>140</item>
+        <item>150</item>
+        <item>160</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="velden_zone_2">
+        <item>30</item>
+    </string-array>
+
+    <string-array name="villach">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>160</item>
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <string-array name="weiz_zone_a">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+    </string-array>
+
+    <string-array name="weiz_zone_b">
+        <item>30</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+    </string-array>
+
+    <string-array name="wels">
+        <item>6</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+    </string-array>
+
+    <string-array name="wien">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="wiener_neustadt_zone_1">
+        <item>10</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+        <item>75</item>
+        <item>90</item>
+        <item>105</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="wiener_neustadt_zone_2">
+        <item>10</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+        <item>75</item>
+        <item>90</item>
+        <item>105</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>1 Tag</item>
+    </string-array>
+
+    <string-array name="wipark">
+        <item>24 Stunden</item>
+    </string-array>
+
+    <string-array name="zell_am_see">
+        <item>Start-Stopp</item>
+    </string-array>
+
+    <!--City Spinner-->
+
+    <string-array name="city">
+        <item>Baden Z1 (Blaue Zone)</item>
+        <item>Baden Z2 (Grüne Zone)</item>
+        <item>Bruck an der Leitha</item>
+        <item>Eisenstadt Zone A</item>
+        <item>Eisenstadt Zone B</item>
+        <item>Eisenstadt Zone C</item>
+        <item>Gleisdorf</item>
+        <item>Gmunden</item>
+        <item>Graz Zone 1</item>
+        <item>Graz Zone 2</item>
+        <item>Graz Zone 3</item>
+        <item>Graz Zone 5</item>
+        <item>Graz Zone 15</item>
+        <item>Hall in Tirol</item>
+        <item>IIG Parkplatz Sillside</item>
+        <item>Innsbruck Zone 1</item>
+        <item>Innsbruck Zone 2</item>
+        <item>Innsbruck Zone 3</item>
+        <item>Innsbruck Zone 4</item>
+        <item>Innsbruck Zone 5</item>
+        <item>Klagenfurt Zone 1</item>
+        <item>Klagenfurt Zone 2</item>
+        <item>Klosterneuburg Zone 1</item>
+        <item>Klosterneuburg Zone 2</item>
+        <item>Korneuburg</item>
+        <item>Krems Zone 1 (Blaue Zone)</item>
+        <item>Krems Zone 2</item>
+        <item>Linz Zone 1</item>
+        <item>Linz Zone 2</item>
+        <item>Linz Zone 3</item>
+        <item>Mödling</item>
+        <item>Neusiedl am See Zone 1</item>
+        <item>Neusiedl am See Zone 2</item>
+        <item>Oberwart</item>
+        <item>Parktiger Flughafen Wien</item>
+        <item>Parktiger P + R Aspern</item>
+        <item>Parktiger P + R Heiligenstadt</item>
+        <item>Perchtoldsdorf Zone 1</item>
+        <item>Perchtoldsdorf Zone 2</item>
+        <item>Poertschach</item>
+        <item>Ried Zone 1</item>
+        <item>Salzburg Zone 1</item>
+        <item>Schwechat Zone 1</item>
+        <item>Schärding Zone 1</item>
+        <item>Spittal</item>
+        <item>Sankt Pölten Zone 1</item>
+        <item>Steyr Zone 1</item>
+        <item>Steyr Zone 2</item>
+        <item>Steyr Zone 3</item>
+        <item>Steyr Zone 4</item>
+        <item>Steyr Zone 5</item>
+        <item>Stockerau</item>
+        <item>Tulln</item>
+        <item>Velden Zone 1</item>
+        <item>Velden Zone 2</item>
+        <item>Villach</item>
+        <item>Weiz Zone A</item>
+        <item>Weiz Zone B</item>
+        <item>Wels</item>
+        <item>Wien</item>
+        <item>Wiener Neustadt Zone 1</item>
+        <item>Wiener Neustadt Zone 2</item>
+        <item>Wipark</item>
+        <item>Zell am See</item>
+    </string-array>
+
+    <string-array name="license_plate">
+    </string-array>
+
+    <string-array name="telephoneNumber">
+        <item>06646606000</item>
+    </string-array>
+
+    <string-array name="vienna_minutes">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>180</item>
+    </string-array>
+</resources>

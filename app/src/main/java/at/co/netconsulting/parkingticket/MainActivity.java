@@ -23,10 +23,9 @@ import android.widget.CompoundButton;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TimePicker;
-import androidx.appcompat.widget.Toolbar;
+import android.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -707,7 +706,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void loadSharedPreferences(String sharedPref) {
-        String input;
         SharedPreferences sh;
 
         switch(sharedPref) {

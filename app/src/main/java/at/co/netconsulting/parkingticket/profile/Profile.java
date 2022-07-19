@@ -1,8 +1,10 @@
 package at.co.netconsulting.parkingticket.profile;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import at.co.netconsulting.parkingticket.R;
 
 public class Profile extends AppCompatActivity {

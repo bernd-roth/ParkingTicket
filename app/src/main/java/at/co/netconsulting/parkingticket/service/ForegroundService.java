@@ -1,6 +1,5 @@
 package at.co.netconsulting.parkingticket.service;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -17,8 +16,10 @@ import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.telephony.SmsMessage;
 import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -59,7 +60,7 @@ public class ForegroundService extends Service {
                 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT |
                         PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
         notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-                .setContentTitle("No SMS retrieved within the last " + counter + " seconds")
+                .setContentTitle(getString(R.string.notificationBuilder_title, counter))
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
@@ -77,7 +78,7 @@ public class ForegroundService extends Service {
             @Override
             public void run() {
                 manager.notify(NOTIFICATION_ID /* ID of notification */,
-                        notificationBuilder.setContentTitle("No parkingticket for " + counter[0]++ + " seconds").build());
+                        notificationBuilder.setContentTitle(getString(R.string.title_content, counter[0]++)).build());
                 if(isSmsReceived[0] || counter[0]>waitForXMinutes) {
                     if(!isSmsReceived[0]) {
                         isSmsReceived[0] = false;
@@ -167,7 +168,7 @@ public class ForegroundService extends Service {
                     public void onInit(int status) {
                         if (status != TextToSpeech.ERROR) {
                             textToSpeech.setLanguage(Locale.GERMAN);
-                            textToSpeech.speak("Es wurde kein Parkschein in den letzten " + waitForXMinutes + " Sekunden gebucht",
+                            textToSpeech.speak(getString(R.string.text_to_speak, waitForXMinutes),
                                     TextToSpeech.QUEUE_FLUSH, null, "0");
                             MainActivity.getInstance().cancelAlarmManagerFromForegroundService();
                         }

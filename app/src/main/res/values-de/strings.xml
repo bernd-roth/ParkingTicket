@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Parkticket</string>
+    <string name="action_settings">Einstellungen</string>
+
+    <string name="startButton">Buchen</string>
+    <string name="minutesToBook">minutesToBook</string>
+    <string name="cityToBook">cityToBook</string>
+    <string name="licensePlateToBook">licensePlateToBook</string>
+    <string name="telephoneNumber">telephoneNumber</string>
+    <string name="title_activity_profile">Profil</string>
+    <string name="action_main">Hauptseite</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_content">Kein Parkticket in den letzten %1$d Sekunden</string>
+    <string name="text_to_speak">Es wurde kein Parkschein in den letzten %1$d Sekunde gebucht</string>
+    <string name="notificationBuilder_title">Es wurde kein Parkticket in den letzten %1$d Sekunden empfangen</string>
+</resources>
