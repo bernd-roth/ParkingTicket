@@ -20,7 +20,7 @@ Sending and therefore booking parking tickets in Austria.
 2. Overview of parksheriffs, marked by users
 3. AI when parking ticket should be booked according to a parksheriff`s location
 4. Mobile phone must vibrate if SMS was received
-5. Automatic stopping of parktickets; currently this functionality is only available for Vienna
+5. Automatic stopping of parking tickets; currently this functionality is only available for Vienna
 
 ### Steps to take of how to use the app for Vienna
 1.  Under menu/settings type the parkingticket`s telephone number (06646606000, ...)
@@ -77,6 +77,11 @@ Sending and therefore booking parking tickets in Austria.
                     you have to choose an interval that exceeds the duration parkingticket!
 
         Main menu:  Time:               15:17 !Always choose 2 minutes after 00, 15, 30, 45 minutes!
+
+### What happens if no answer of a successful booked parking ticket was received?
+Currently, the booking procedure will be stopped automatically.
+That means, if no answer is received within a defined time (this time will be set by yourself),
+the booking procedure will be stopped automatically.
         
 ### Pictures
 ![Screenshot_20220412-122236](https://user-images.githubusercontent.com/1835491/162941274-1c99cffc-852b-4b65-9f60-c0b56a415dc3.png)
