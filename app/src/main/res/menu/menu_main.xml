@@ -9,4 +9,10 @@
         android:title="@string/action_settings"
         app:showAsAction="never"
         android:onClick="showMenu" />
+    <item
+        android:id="@+id/action_parkingplaces_overview"
+        android:orderInCategory="300"
+        android:title="@string/menu_action_parkingplaces_overview"
+        app:showAsAction="never"
+        android:onClick="showMenu" />
 </menu>

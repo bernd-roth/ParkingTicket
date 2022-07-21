@@ -9,12 +9,17 @@
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/drawable/ic_launcher_background.xml" value="0.176" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.176" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/layout/activity_parking_places_overview.xml" value="0.2328125" />
+        <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/layout/activity_parkingpplaces.xml" value="0.1" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/layout/activity_profile.xml" value="0.18" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/layout/activity_settings.xml" value="0.22552083333333334" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/layout/content_main.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/layout/content_profile.xml" value="0.2328125" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/layout/content_settings.xml" value="0.1671875" />
+        <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/menu/action_parking_overview.xml" value="0.173828125" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/menu/menu_main.xml" value="0.2421875" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/menu/menu_options.xml" value="0.2421875" />
+        <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/menu/menu_parkingplacesoverview.xml" value="0.2328125" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/menu/menu_settings.xml" value="0.2994791666666667" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.176" />
         <entry key="..\:/Users/user/Downloads/Parkingticket/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.15" />

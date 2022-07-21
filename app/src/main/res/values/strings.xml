@@ -7,10 +7,14 @@
     <string name="cityToBook">cityToBook</string>
     <string name="licensePlateToBook">licensePlateToBook</string>
     <string name="telephoneNumber">telephoneNumber</string>
-    <string name="title_activity_profile">Profile</string>
     <string name="action_main">Main</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-    <string name="title_content">No parking ticket for %1$d seconds</string>
     <string name="text_to_speak">No parking ticket was booked in the last %1$d seconds</string>
     <string name="notificationBuilder_title">No SMS retrieved within the last %1$d seconds</string>
+    <!-- title -->
+    <string name="title_activity_profile">Profile</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_content">No parking ticket for %1$d seconds</string>
+    <string name="title_activity_parkingpplaces">Parkingplaces overview</string>
+    <!-- menu -->
+    <string name="menu_action_parkingplaces_overview">Parkingplaces overview</string>
 </resources>

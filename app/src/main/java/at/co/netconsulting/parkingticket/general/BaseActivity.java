@@ -7,6 +7,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import at.co.netconsulting.parkingticket.MainActivity;
+import at.co.netconsulting.parkingticket.Parkingpplaces;
 import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.SettingsActivity;
 
@@ -30,6 +31,10 @@ public class BaseActivity extends Activity {
                 return true;
             case R.id.action_settings:
                 intent = new Intent(this, SettingsActivity.class);
+                this.startActivity(intent);
+                return true;
+            case R.id.action_parkingplaces_overview:
+                intent = new Intent(this, Parkingpplaces.class);
                 this.startActivity(intent);
                 return true;
             default:

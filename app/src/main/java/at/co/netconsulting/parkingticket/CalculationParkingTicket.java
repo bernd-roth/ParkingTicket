@@ -44,7 +44,7 @@ public class CalculationParkingTicket {
         SharedPreferences sh = this.context.getSharedPreferences(StaticFields.ALTERNATE_BOOKING, Context.MODE_PRIVATE);
         String alternateBooking = sh.getString(StaticFields.ALTERNATE_BOOKING, StaticFields.NO_ALTERNATE_BOOKING);
 
-        //change intervall if alternate booking is in use
+        //change interval if alternate booking is in use
         //interval will be overridden
         if (city.equals("Wien")) {
             if (alternateBooking.equals(StaticFields.FIFTEEN_THIRTY) || alternateBooking.equals(StaticFields.THIRTY_FIFTEEN)) {
@@ -140,9 +140,6 @@ public class CalculationParkingTicket {
 
     private long plannedTimeToMilliseconds(int hour, int minute) {
         Date date = null;
-        //Specifying the pattern of input date and time
-        long hourInMilliseconds = hour * 3600000;
-        long minuteInMilliseconds = minute * 60000;
 
         String pattern = "dd-M-yyyy hh:mm:ss";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
