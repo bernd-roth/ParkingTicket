@@ -19,4 +19,9 @@
 
     <!-- settings -->
     <string name="settings_voice_message">Bitte geben Sie zwischen 0 und 5 Minuten an</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Beenden</string>
+
+    <!-- gps -->
+    <string name="gps_location">Please, turn on location services so that your current position can be shown!</string>
 </resources>

@@ -1,10 +1,8 @@
 package at.co.netconsulting.parkingticket;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.webkit.GeolocationPermissions;
 import android.webkit.GeolocationPermissions.Callback;
@@ -13,6 +11,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -22,6 +21,7 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
 
     private ArrayList mSelectedItems = new ArrayList();
     private int choiceParking;
+    private boolean isGPSEnabled;
 
     @JavascriptInterface
     @Override
@@ -29,9 +29,11 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parkingpplaces);
 
+        isGPSEnabled = isGPSEnabled();
+        if(!isGPSEnabled) {
+            Toast.makeText(getApplicationContext(), R.string.gps_location, Toast.LENGTH_LONG).show();
+        }
         showAlertDialog();
-
-
     }
 
     private void showAlertDialog() {
@@ -44,8 +46,6 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
             public void onDismiss(DialogInterface dialog) {
                 final LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
                 boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-                ConnectivityManager connectivity = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
                 final WebView browser;
                 browser=(WebView)findViewById(R.id.webView);
@@ -117,6 +117,11 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
         AlertDialog alert = alertDialog.create();
         alert.setCanceledOnTouchOutside(false);
         alert.show();
+    }
+
+    private boolean isGPSEnabled() {
+        final LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
+        return service.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     @Override
