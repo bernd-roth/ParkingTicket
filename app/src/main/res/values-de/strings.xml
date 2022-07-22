@@ -16,4 +16,7 @@
     <string name="title_activity_parkingpplaces">Übersicht Parkplätze</string>
     <!-- menu -->
     <string name="menu_action_parkingplaces_overview">Übersicht Parkplätze</string>
+
+    <!-- settings -->
+    <string name="settings_voice_message">Bitte geben Sie zwischen 0 und 5 Minuten an</string>
 </resources>

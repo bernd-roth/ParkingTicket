@@ -71,7 +71,7 @@ public class MainActivity extends BaseActivity {
     private Toolbar toolbar;
     private TreeMap<Long, Integer> nextParkingTickets;
     private static MainActivity instance;
-    private String showAlertDialog;
+    private String showAlertDialog, alternateBooking;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +89,7 @@ public class MainActivity extends BaseActivity {
             loadSharedPreferences(StaticFields.LICENSE_PLATE);
             loadSharedPreferences(StaticFields.WAIT_MINUTES);
             loadSharedPreferences(StaticFields.ALERT_DIALOG);
+            loadSharedPreferences(StaticFields.ALTERNATE_BOOKING);
         } else {
             //Show error message and close app
         }
@@ -724,6 +725,13 @@ public class MainActivity extends BaseActivity {
             case "ALERT_DIALOG":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 showAlertDialog = sh.getString(sharedPref, StaticFields.DIALOG_NO);
+                break;
+            case "ALTERNATE_BOOKING":
+                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
+                alternateBooking = sh.getString(sharedPref, StaticFields.ALTERNATE_BOOKING);
+                if(!alternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING)) {
+                    numberPicker.setEnabled(false);
+                }
                 break;
         }
     }

@@ -17,4 +17,7 @@
     <string name="title_activity_parkingpplaces">Parkingplaces overview</string>
     <!-- menu -->
     <string name="menu_action_parkingplaces_overview">Parkingplaces overview</string>
+
+    <!-- settings -->
+    <string name="settings_voice_message">Please, set waiting minutes between 0 and 5, both are inclusive</string>
 </resources>

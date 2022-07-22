@@ -41,9 +41,7 @@ public class SettingsActivity extends BaseActivity {
 
         waitMinutes.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -51,7 +49,7 @@ public class SettingsActivity extends BaseActivity {
                     try {
                         Integer hymnNumber = Integer.valueOf(Integer.valueOf(s.toString()));
                         if(!(hymnNumber>=0 && hymnNumber<6))
-                            waitMinutes.setError("Please, set waiting minutes between 0 and 5, both are inclusive");
+                            waitMinutes.setError(getString(R.string.settings_voice_message));
                     } catch (NumberFormatException e) {
                         e.printStackTrace();
                     }
