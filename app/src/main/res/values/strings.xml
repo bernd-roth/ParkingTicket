@@ -20,4 +20,6 @@
 
     <!-- settings -->
     <string name="settings_voice_message">Please, set waiting minutes between 0 and 5, both are inclusive</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
 </resources>

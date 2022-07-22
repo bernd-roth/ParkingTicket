@@ -603,4 +603,8 @@
         <item>120</item>
         <item>180</item>
     </string-array>
+    <string-array name="geojson">
+        <item>Kurzparkzone Wien</item>
+        <item>Anrainerparken Wien</item>
+    </string-array>
 </resources>

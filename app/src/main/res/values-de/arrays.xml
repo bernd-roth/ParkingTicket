@@ -603,4 +603,5 @@
         <item>120</item>
         <item>180</item>
     </string-array>
+    <string-array name="geojson">f</string-array>
 </resources>

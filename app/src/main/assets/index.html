@@ -2,155 +2,123 @@
 <head>
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
-	<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
 	<script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
 	<script src="../layer/vector/OSM.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
 	<script type='text/javascript'>
-	function AndroidFunction(msga, msgb, msgc, msgd, msge, msgf, msgg, mapZoom){
-		a = msga;
-		b = msgb;
-		c = msgc;
-		d = msgd;
-		e = msge;
-		f = msgf;
-		g = msgg;
-		init(a, b, c, d, e, f, g, mapZoom)
-	}
-		function init(a, b, c, d, e, f, g, mapZoom)
+	function init(choiceParking, mapZoom)
+	{
+		var map = new L.Map ("map1");
+		var attrib="";
+		var layerOSM = new L.TileLayer
+			("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+				{	attribution: attrib,
+					maxZoom: 500
+				} );
+		map.addLayer(layerOSM);
+		var auto = L.icon({
+			iconUrl: 'auto.png',
+			//shadowUrl: 'auto.png',
+			iconSize:     [50, 50], // size of the icon
+			//shadowSize:   [50, 64], // size of the shadow
+			iconAnchor:   [100, 70], // point of the icon which will correspond to marker's location
+			//shadowAnchor: [4, 62],  // the same for the shadow
+			popupAnchor:  [100, 70] // point from which the popup should open relative to the iconAnchor
+		});
+
+		//map.on("click",onMapClick)
+		map.on('locationfound', onLocationFound);
+		map.on('locationerror', onLocationError);
+		map.locate({setView: true, maxZoom: mapZoom});
+
+		function onMapClick(e)
 		{
-		    var map = new L.Map ("map1");
-		    var attrib="";
-		    var layerOSM = new L.TileLayer
-		        ("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-		            {	attribution: attrib,
-		            	maxZoom: 500
-		            } );
-		    map.addLayer(layerOSM);
-		    var auto = L.icon({
-			    iconUrl: 'auto.png',
-			    //shadowUrl: 'auto.png',
-			    iconSize:     [50, 50], // size of the icon
-			    //shadowSize:   [50, 64], // size of the shadow
-			    iconAnchor:   [100, 70], // point of the icon which will correspond to marker's location
-			    //shadowAnchor: [4, 62],  // the same for the shadow
-			    popupAnchor:  [100, 70] // point from which the popup should open relative to the iconAnchor
+			// "e.latlng" is an L.LatLng object representing the mouse click position
+			var clickedPosition = e.latlng;
+			alert("You clicked at: " + clickedPosition.lat + " " + clickedPosition.lng);
+		}
+		function onLocationFound(e) {
+			var radius = e.accuracy / 2;
+			//L.marker(e.latlng).addTo(map).bindPopup("You are within " + radius + " meters from this point").openPopup();
+			//L.circle(e.latlng, radius).addTo(map);
+			L.marker(e.latlng, {icon: auto}).addTo(map);
+		}
+		function onLocationError(e) {
+			alert(e.message);
+		}
+
+		if(choiceParking==-1) {
+		} else if(choiceParking==1) {
+			$.ajax({
+				type: "GET",
+				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:KURZPARKZONEOGD&srsName=EPSG:4326&outputFormat=json",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				dataType: 'json',
+				success: function (response) {
+					geojsonLayer = L.geoJson(response, {
+						style: function (feature) {
+								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" };
+							}
+					}).addTo(map);
+				}
+			});
+		} else if(choiceParking==2) {
+			$.ajax({
+				type: "GET",
+				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=json&typeName=ogdwien:PARKENANRAINEROGD",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				dataType: 'json',
+				success: function (response) {
+					geojsonLayer = L.geoJson(response, {
+						style: function (feature) {
+								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "blue" };
+							}
+					}).addTo(map);
+				}
+			});
+		} else if(choiceParking==3) {
+			$.ajax({
+				type: "GET",
+				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:KURZPARKZONEOGD&srsName=EPSG:4326&outputFormat=json",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				dataType: 'json',
+				success: function (response) {
+					geojsonLayer = L.geoJson(response, {
+						style: function (feature) {
+								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" };
+							}
+					}).addTo(map);
+				}
 			});
 
-		    //map.on("click",onMapClick)
-	    	map.on('locationfound', onLocationFound);
-			map.on('locationerror', onLocationError);
-			map.locate({setView: true, maxZoom: mapZoom});
-			
-			function onMapClick(e)
-			{
-			    // "e.latlng" is an L.LatLng object representing the mouse click position
-			    var clickedPosition = e.latlng;
-			    alert("You clicked at: " + clickedPosition.lat + " " + clickedPosition.lng);
-			}
-			function onLocationFound(e) {
-				var radius = e.accuracy / 2;
-				//L.marker(e.latlng).addTo(map).bindPopup("You are within " + radius + " meters from this point").openPopup();
-				//L.circle(e.latlng, radius).addTo(map);
-				L.marker(e.latlng, {icon: auto}).addTo(map);
-			}
-			function onLocationError(e) {
-				alert(e.message);
-			}
-			var Kurzparkzonen= a;
-			var Parkstreifen = b;
-			var Anrainerparkzone = c;
-			var ParkAndRide = d;
-			var ParkgaragenGraz = e;
-			var BehindertenparkplaetzeWien = f;
-			var ParkplaetzeSalzburg = g;
-
-			L.control.scale().addTo(map);
-			if(a!=false)
-				KurzparkzonenFunktion();		
-			if(b!=false)
-				KurzparkstreifenFunktion();
-			if(c!=false)
-				AnrainerparkzoneFunction();
-			if(d!=false)
-				ParkAndRideFunction();
-			if(e!=false)
-				ParkgaragenGrazFunction();
-			if(f!=false)
-				BehindertenparkplaetzeWienFunction();
-			if(g!=false)
-				ParkplaetzeSalzburgFunction();
-			
-			function ParkplaetzeSalzburgFunction(){
-				L.geoJson( ParkplaetzeSalzburg, {
-				    	style: function (feature) {
-				        	return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" }; // Farbe: Rot
-				    	},
-				    	onEachFeature: function(feature, layer){
-				        	layer.bindPopup("Garage/Parkhaus: " + feature.properties.TYP + " | " + "Oeffnungszeiten: " + feature.properties.OEFFNUNGSZEITEN + " | " + "Adresse: " + feature.properties.ADRESSE);
-				    	}
+			$.ajax({
+				type: "GET",
+				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=json&typeName=ogdwien:PARKENANRAINEROGD",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				dataType: 'json',
+				success: function (response) {
+					geojsonLayer = L.geoJson(response, {
+						style: function (feature) {
+								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "blue" };
+							}
 					}).addTo(map);
 				}
-				function BehindertenparkplaetzeWienFunction(){
-						L.geoJson( BehindertenparkplaetzeWien, {
-				    	style: function (feature) {
-				        	return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" }; // Farbe: Rot
-				    	},
-				    	onEachFeature: function(feature, layer){
-				        	layer.bindPopup("Behindertenparkplaetze: Strassenname: " + feature.properties.STRNAM + " | " + "Bezirk: " + feature.properties.BEZIRK);
-				    	}
-					}).addTo(map);
-				}
-				function KurzparkzonenFunktion(){
-					L.geoJson( Kurzparkzonen, {
-				    	style: function (feature) {
-				        	return { opacity: 0, fillOpacity: 0.5, fillColor: "#0f0" }; //Farbe: Green
-				    	},
-				   		onEachFeature: function(feature, layer){
-				       		layer.bindPopup("Dauer: " + feature.properties.DAUER + " | " + "Kurzparkzone: " + feature.properties.ZEITRAUM);
-				   		}
-					}).addTo(map);
-				}
-				function KurzparkstreifenFunktion(){
-					L.geoJson( Parkstreifen, {
-					    style: function (feature) {
-					        return { opacity: 0.65, fillOpacity: 0.65, weight: 5, "color": "blue" }; // Farbe: Blau
-				    	},
-				    	onEachFeature: function(feature, layer){
-				        	layer.bindPopup("Dauer: " + feature.properties.DAUER + " | " + "Parkstreifen: " + feature.properties.ZEITRAUM);
-				    	}
-					}).addTo(map);
-				}
-				function ParkgaragenGrazFunction(){
-						L.geoJson( ParkgaragenGraz, {
-				    	style: function (feature) {
-				        	return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" }; // Farbe: Rot
-				    	},
-				    	onEachFeature: function(feature, layer){
-				        	layer.bindPopup("Parkgaragen in Graz: Adresse: " + feature.properties.ANSCHRIFT + " | " + "INFO: " + feature.properties.INFO);
-				    	}
-					}).addTo(map);
-				}
-				function ParkAndRideFunction(){
-					L.geoJson( ParkAndRide, {
-					    style: function (feature) {
-					        return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "yellow" }; // Farbe: Gelb
-					    },
-					    onEachFeature: function(feature, layer){
-					        layer.bindPopup("Park & Ride: Adresse: " + feature.properties.ADRESSE + " | " + "PLZ: " + feature.properties.PLZ);
-					    }
-					}).addTo(map);
-				}
-				function AnrainerparkzoneFunction(){
-					L.geoJson( Anrainerparkzone, {
-				    	style: function (feature) {
-				        	return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" }; // Farbe: Rot
-				    	},
-				    	onEachFeature: function(feature, layer){
-				        	layer.bindPopup("Adresse: " + feature.properties.ADRESSE + " | " + "Ausnahme: " + feature.properties.AUSNAHME_TXT);
-				    	}
-					}).addTo(map);
-				}
+			});
 		}
+		L.control.scale().addTo(map);
+	}
 	</script>
 </head>
 <body>
