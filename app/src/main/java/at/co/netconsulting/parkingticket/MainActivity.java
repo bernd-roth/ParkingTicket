@@ -52,6 +52,9 @@ public class MainActivity extends BaseActivity {
             permissionBroadcastSMS,
             permissionReadSMS,
             permissionReceiveSMS,
+            permissionAccessFineLocation,
+            permissionAccessCoarseLocation,
+            permissionAccessLocationExtraCommands,
             hourEnd,
             minuteEnd;
     private Spinner spinnerMinutes;
@@ -105,6 +108,9 @@ public class MainActivity extends BaseActivity {
         permissionBroadcastSMS = ContextCompat.checkSelfPermission(this, Manifest.permission.BROADCAST_SMS);
         permissionReadSMS = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS);
         permissionReceiveSMS = ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS);
+        permissionAccessFineLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        permissionAccessCoarseLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        permissionAccessLocationExtraCommands = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS);
 
         List<String> listPermissionsNeeded = new ArrayList<>();
         if (permissionWriteExternalStorage != PackageManager.PERMISSION_GRANTED) {
@@ -133,6 +139,15 @@ public class MainActivity extends BaseActivity {
         }
         if (permissionReceiveSMS != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.RECEIVE_SMS);
+        }
+        if (permissionAccessFineLocation != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (permissionAccessCoarseLocation != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        }
+        if (permissionAccessLocationExtraCommands != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS);
         }
         if (!listPermissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), StaticFields.REQUEST_ID_MULTIPLE_PERMISSIONS);
