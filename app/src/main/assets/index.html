@@ -87,6 +87,23 @@
 		} else if(choiceParking==3) {
 			$.ajax({
 				type: "GET",
+				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:GARAGENOGD&srsName=EPSG:4326&outputFormat=json",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				dataType: 'json',
+				success: function (response) {
+					geojsonLayer = L.geoJson(response, {
+						style: function (feature) {
+								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "green" };
+							}
+					}).addTo(map);
+				}
+			});
+			<!-- 1st and 2nd are chosen -->
+		} else if(choiceParking==12) {
+			$.ajax({
+				type: "GET",
 				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:KURZPARKZONEOGD&srsName=EPSG:4326&outputFormat=json",
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded'
@@ -100,7 +117,6 @@
 					}).addTo(map);
 				}
 			});
-
 			$.ajax({
 				type: "GET",
 				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=json&typeName=ogdwien:PARKENANRAINEROGD",
@@ -112,6 +128,68 @@
 					geojsonLayer = L.geoJson(response, {
 						style: function (feature) {
 								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "blue" };
+							}
+					}).addTo(map);
+				}
+			});
+		} else if(choiceParking==23) {
+			$.ajax({
+				type: "GET",
+				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=json&typeName=ogdwien:PARKENANRAINEROGD",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				dataType: 'json',
+				success: function (response) {
+					geojsonLayer = L.geoJson(response, {
+						style: function (feature) {
+								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "blue" };
+							}
+					}).addTo(map);
+				}
+			});
+			$.ajax({
+				type: "GET",
+				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:GARAGENOGD&srsName=EPSG:4326&outputFormat=json",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				dataType: 'json',
+				success: function (response) {
+					geojsonLayer = L.geoJson(response, {
+						style: function (feature) {
+								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "green" };
+							}
+					}).addTo(map);
+				}
+			});
+		} else if(choiceParking==13) {
+			$.ajax({
+				type: "GET",
+				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:KURZPARKZONEOGD&srsName=EPSG:4326&outputFormat=json",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				dataType: 'json',
+				success: function (response) {
+					geojsonLayer = L.geoJson(response, {
+						style: function (feature) {
+								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" };
+							}
+					}).addTo(map);
+				}
+			});
+			$.ajax({
+				type: "GET",
+				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:GARAGENOGD&srsName=EPSG:4326&outputFormat=json",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				dataType: 'json',
+				success: function (response) {
+					geojsonLayer = L.geoJson(response, {
+						style: function (feature) {
+								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "green" };
 							}
 					}).addTo(map);
 				}

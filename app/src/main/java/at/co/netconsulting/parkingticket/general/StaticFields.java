@@ -31,4 +31,8 @@ public class StaticFields {
     public static final String TAG_FOREGROUND_SERVICE = "FOREGROUND_SERVICE";
     public static final String ACTION_START_FOREGROUND_SERVICE = "ACTION_START_FOREGROUND_SERVICE";
     public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
+    //Parking zones, Resident parking, Garages
+    public static final String PARKING_ZONES_VIENNA = "PARKING_ZONES_VIENNA";
+    public static final String RESIDENT_PARKING_VIENNA = "RESIDENT_PARKING_VIENNA";
+    public static final String GARAGES_VIENNA = "GARAGES_VIENNA";
 }

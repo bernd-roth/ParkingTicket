@@ -28,6 +28,7 @@
     <!-- short-term parking zone -->
     <string name="kurzparkzone_wien">Kurzparkzone Wien</string>
     <string name="anrainerparken_wien">Anrainerparken Wien</string>
+    <string name="garage_and_park_ride_facility">Garagen und Park &amp; Ride Anlagen Wien</string>
 
     <!-- Warnings/Alerts -->
     <string name="alert_gps_deactivated">Achtung! GPS aktivieren</string>

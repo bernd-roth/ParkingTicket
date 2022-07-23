@@ -26,8 +26,9 @@
     <string name="gps_location">Please, turn on location services so that your current position can be shown!</string>
 
     <!-- short-term parking zone -->
-    <string name="kurzparkzone_wien">Kurzparkzone Wien</string>
-    <string name="anrainerparken_wien">Anrainerparken Wien</string>
+    <string name="kurzparkzone_wien">Short-term parking Vienna</string>
+    <string name="anrainerparken_wien">Resident parking Vienna</string>
+    <string name="garage_and_park_ride_facility">Garage as well as Park &amp; Ride facilities Vienna</string>
 
     <!-- Warnings/Alerts -->
     <string name="alert_gps_deactivated">Alert! Enable GPS</string>

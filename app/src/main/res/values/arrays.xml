@@ -604,7 +604,8 @@
         <item>180</item>
     </string-array>
     <string-array name="geojson">
-        <item>Kurzparkzone Wien</item>
-        <item>Anrainerparken Wien</item>
+        <item>Short-term parking zones Vienna</item>
+        <item>Resident parking zones Vienna</item>
+        <item>Garages as well as Park &amp; Ride facilities Vienna</item>
     </string-array>
 </resources>
