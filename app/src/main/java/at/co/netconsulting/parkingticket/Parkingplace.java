@@ -38,8 +38,8 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
 
     private void showAlertDialog() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(Parkingplace.this);
-        alertDialog.setTitle("AlertDialog");
-        String[] items = {"Kurzparkzone Wien", "Anrainerparken Wien"};
+        alertDialog.setTitle(R.string.alert_gps_deactivated);
+        String[] items = {String.valueOf(R.string.kurzparkzone_wien), String.valueOf(R.string.anrainerparken_wien)};
         int checkedItem = 1;
         alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override

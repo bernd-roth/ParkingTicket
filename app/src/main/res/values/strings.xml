@@ -24,4 +24,11 @@
     <string name="cancel">Cancel</string>
 
     <string name="gps_location">Please, turn on location services so that your current position can be shown!</string>
+
+    <!-- short-term parking zone -->
+    <string name="kurzparkzone_wien">Kurzparkzone Wien</string>
+    <string name="anrainerparken_wien">Anrainerparken Wien</string>
+
+    <!-- Warnings/Alerts -->
+    <string name="alert_gps_deactivated">Alert! Enable GPS</string>
 </resources>
