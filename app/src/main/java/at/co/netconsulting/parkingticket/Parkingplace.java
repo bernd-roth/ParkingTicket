@@ -42,8 +42,10 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
         isGPSEnabled = isGPSEnabled();
         if(!isGPSEnabled) {
             Toast.makeText(getApplicationContext(), R.string.gps_location, Toast.LENGTH_LONG).show();
+            finish();
+        } else {
+            showAlertDialog();
         }
-        showAlertDialog();
     }
 
     private void initializeObjects() {
@@ -90,29 +92,24 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
                 new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        if (isChecked) {
-                            if(which==0) {
-                                mSelectedItems.add(1);
-                                saveSharedPreferences(true, StaticFields.PARKING_ZONES_VIENNA);
-                            } else if(which==1) {
-                                mSelectedItems.add(2);
-                                saveSharedPreferences(true, StaticFields.RESIDENT_PARKING_VIENNA);
-                            } else if(which==2) {
-                                mSelectedItems.add(3);
-                                saveSharedPreferences(true, StaticFields.GARAGES_VIENNA);
+                        if(which==0) {
+                            if (mSelectedItems.contains(1)) {
+                                removeSelectedItem(1, StaticFields.PARKING_ZONES_VIENNA);
+                            } else {
+                                addingSelectedItem(1, StaticFields.PARKING_ZONES_VIENNA);
                             }
-                        } else if (mSelectedItems.contains(1)) {
-                            mSelectedItems.remove(Integer.valueOf(1));
-                            SharedPreferences preferences = getSharedPreferences(StaticFields.PARKING_ZONES_VIENNA, 0);
-                            preferences.edit().remove(StaticFields.PARKING_ZONES_VIENNA).commit();
-                        } else if(mSelectedItems.contains(2)) {
-                            mSelectedItems.remove(Integer.valueOf(2));
-                            SharedPreferences preferences = getSharedPreferences(StaticFields.RESIDENT_PARKING_VIENNA, 0);
-                            preferences.edit().remove(StaticFields.RESIDENT_PARKING_VIENNA).commit();
-                        } else if(mSelectedItems.contains(3)) {
-                            mSelectedItems.remove(Integer.valueOf(3));
-                            SharedPreferences preferences = getSharedPreferences(StaticFields.GARAGES_VIENNA, 0);
-                            preferences.edit().remove(StaticFields.GARAGES_VIENNA).commit();
+                        } else if(which==1) {
+                            if(mSelectedItems.contains(2)) {
+                                removeSelectedItem(2, StaticFields.RESIDENT_PARKING_VIENNA);
+                            } else {
+                                addingSelectedItem(2, StaticFields.RESIDENT_PARKING_VIENNA);
+                            }
+                        } else if(which==2) {
+                            if(mSelectedItems.contains(3)) {
+                                removeSelectedItem(3, StaticFields.GARAGES_VIENNA);
+                            } else {
+                                addingSelectedItem(3, StaticFields.GARAGES_VIENNA);
+                            }
                         }
                     }
                 })
@@ -154,6 +151,17 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
         AlertDialog alert = alertDialog.create();
         alert.setCanceledOnTouchOutside(false);
         alert.show();
+    }
+
+    private void removeSelectedItem(int i, String parkingOrResidentOrGarage) {
+        mSelectedItems.remove(Integer.valueOf(i));
+        SharedPreferences preferences = getSharedPreferences(parkingOrResidentOrGarage, 0);
+        preferences.edit().remove(parkingOrResidentOrGarage).commit();
+    }
+
+    private void addingSelectedItem(int i, String parkingOrResidentorGarage) {
+        mSelectedItems.add(i);
+        saveSharedPreferences(true, parkingOrResidentorGarage);
     }
 
     private boolean isGPSEnabled() {

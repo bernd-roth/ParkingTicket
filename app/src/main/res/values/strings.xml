@@ -23,7 +23,7 @@
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
 
-    <string name="gps_location">Please, turn on location services so that your current position can be shown!</string>
+    <string name="gps_location">Please, turn on location services so that your\ncurrent position can be shown!</string>
 
     <!-- short-term parking zone -->
     <string name="kurzparkzone_wien">Short-term parking Vienna</string>

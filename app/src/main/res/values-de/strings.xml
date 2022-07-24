@@ -23,7 +23,7 @@
     <string name="cancel">Beenden</string>
 
     <!-- gps -->
-    <string name="gps_location">Please, turn on location services so that your current position can be shown!</string>
+    <string name="gps_location">Bitte schalten Sie ihr GPS ein!</string>
 
     <!-- short-term parking zone -->
     <string name="kurzparkzone_wien">Kurzparkzone Wien</string>
