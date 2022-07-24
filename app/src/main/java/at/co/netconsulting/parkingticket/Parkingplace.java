@@ -102,15 +102,15 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
                                 saveSharedPreferences(true, StaticFields.GARAGES_VIENNA);
                             }
                         } else if (mSelectedItems.contains(1)) {
-                            mSelectedItems.remove(Integer.valueOf(0));
+                            mSelectedItems.remove(Integer.valueOf(1));
                             SharedPreferences preferences = getSharedPreferences(StaticFields.PARKING_ZONES_VIENNA, 0);
                             preferences.edit().remove(StaticFields.PARKING_ZONES_VIENNA).commit();
                         } else if(mSelectedItems.contains(2)) {
-                            mSelectedItems.remove(Integer.valueOf(1));
+                            mSelectedItems.remove(Integer.valueOf(2));
                             SharedPreferences preferences = getSharedPreferences(StaticFields.RESIDENT_PARKING_VIENNA, 0);
                             preferences.edit().remove(StaticFields.RESIDENT_PARKING_VIENNA).commit();
                         } else if(mSelectedItems.contains(3)) {
-                            mSelectedItems.remove(Integer.valueOf(2));
+                            mSelectedItems.remove(Integer.valueOf(3));
                             SharedPreferences preferences = getSharedPreferences(StaticFields.GARAGES_VIENNA, 0);
                             preferences.edit().remove(StaticFields.GARAGES_VIENNA).commit();
                         }
