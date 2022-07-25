@@ -24,7 +24,7 @@ public class ParkscheinCollection implements Serializable {
      * @param city
      *        provide city
      * @param nextParkingTickets
-     *        provide nextParkingTickets, will be calcualted automatically
+     *        provide nextParkingTickets, will be calculated automatically
      * @param licensePlate
      *        provide license plate, will be taken from SharedPreferences, defined in Settings
      * @param telephoneNumber

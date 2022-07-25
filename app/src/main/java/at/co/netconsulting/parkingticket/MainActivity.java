@@ -185,6 +185,9 @@ public class MainActivity extends BaseActivity {
         numberPicker.setEnabled(true);
         numberPicker.setWrapSelectorWheel(true);
 
+        spinnerMinutes = (Spinner) findViewById(R.id.minutes_spinner);
+        spinnerMinutes.setEnabled(true);
+
         spinnerCity = findViewById(R.id.city_spinner);
         ArrayAdapter<CharSequence> adapterCity = ArrayAdapter.createFromResource(this, R.array.city, android.R.layout.simple_spinner_item);
         adapterCity.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -350,12 +353,11 @@ public class MainActivity extends BaseActivity {
             minuteEnd = stopTimePicker.getMinute();
         }
 
-        long intervall = Long.valueOf(numberPicker.getValue());
+        long interval = Long.valueOf(numberPicker.getValue());
 
         CalculationParkingTicket calc = new CalculationParkingTicket(getApplicationContext());
-        spinnerMinutes = (Spinner) findViewById(R.id.minutes_spinner);
         int durationMinutes = Integer.valueOf(spinnerMinutes.getSelectedItem().toString());
-        TreeMap<Long, Integer> nextParkingTicket = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, intervall, isStopTimePicker, durationMinutes, city);
+        TreeMap<Long, Integer> nextParkingTicket = calc.calculateNextParkingTicket(hour, minute, hourEnd, minuteEnd, interval, isStopTimePicker, durationMinutes, city);
 
         return nextParkingTicket;
     }
@@ -744,9 +746,6 @@ public class MainActivity extends BaseActivity {
             case "ALTERNATE_BOOKING":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 alternateBooking = sh.getString(sharedPref, StaticFields.ALTERNATE_BOOKING);
-                if(!alternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING)) {
-                    numberPicker.setEnabled(false);
-                }
                 break;
         }
     }

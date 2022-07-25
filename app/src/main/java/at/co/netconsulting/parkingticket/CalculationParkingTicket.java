@@ -25,7 +25,7 @@ public class CalculationParkingTicket {
         this.context = context;
     }
 
-    public TreeMap<Long, Integer> calculateNextParkingTicket(int hour, int minute, int hourEnd, int minuteEnd, long intervall, boolean isStopTimePicker, int durationParkingticket, String city) {
+    public TreeMap<Long, Integer> calculateNextParkingTicket(int hour, int minute, int hourEnd, int minuteEnd, long interval, boolean isStopTimePicker, int durationParkingticket, String city) {
         nextParkingTicket = new TreeMap<Long, Integer>();
 
         //get timePickerForEnd if checkbox is enabled
@@ -48,12 +48,12 @@ public class CalculationParkingTicket {
         //interval will be overridden
         if (city.equals("Wien")) {
             if (alternateBooking.equals(StaticFields.FIFTEEN_THIRTY) || alternateBooking.equals(StaticFields.THIRTY_FIFTEEN)) {
-                intervall = 3600000;
+                interval = 3600000;
             } else {
-                intervall *= 60000;
+                interval *= 60000;
             }
         } else {
-            intervall *= 60000;
+            interval *= 60000;
         }
 
         boolean isFirstBooking = true;
@@ -70,36 +70,36 @@ public class CalculationParkingTicket {
                 if (alternateBooking.equals(StaticFields.FIFTEEN_THIRTY) && isFirstBooking) {
                     nextMilliseconds15=plannedTimeInMilliseconds;
                     nextParkingTicket.put(nextMilliseconds15, Integer.valueOf("15"));
-                    //book next parking ticket after 15 minutes have passed
+                    //book next parking ticket after 45 minutes have passed
                     nextMilliseconds30=plannedTimeInMilliseconds+900000;
                     nextParkingTicket.put(nextMilliseconds30, Integer.valueOf("30"));
                     isFirstBooking = false;
                     plannedTimeInMilliseconds+=900000;
                 } else if (alternateBooking.equals(StaticFields.FIFTEEN_THIRTY)) {
-                    nextMilliseconds15 += intervall;
+                    nextMilliseconds15 += interval;
                     nextParkingTicket.put(nextMilliseconds15, Integer.valueOf("15"));
-                    nextMilliseconds30 += intervall;
+                    nextMilliseconds30 += interval;
                     nextParkingTicket.put(nextMilliseconds30, Integer.valueOf("30"));
                     isFirstBooking = false;
-                    plannedTimeInMilliseconds+=intervall;
+                    plannedTimeInMilliseconds+=interval;
                 } else if(alternateBooking.equals(StaticFields.THIRTY_FIFTEEN) && isFirstBooking) {
                     nextMilliseconds30=plannedTimeInMilliseconds;
                     nextParkingTicket.put(nextMilliseconds30, Integer.valueOf("30"));
-                    //book next parking ticket after 15 minutes have passed
-                    nextMilliseconds15=plannedTimeInMilliseconds+900000;
+                    //book next parking ticket after 45 minutes have passed
+                    nextMilliseconds15=nextMilliseconds30+2700000;
                     nextParkingTicket.put(nextMilliseconds15, Integer.valueOf("15"));
                     isFirstBooking = false;
-                    plannedTimeInMilliseconds+=900000;
+//                    nextMilliseconds15+=900000;
                 } else if(alternateBooking.equals(StaticFields.THIRTY_FIFTEEN)) {
-                    nextMilliseconds30 += intervall;
+                    nextMilliseconds30 += interval;
                     nextParkingTicket.put(nextMilliseconds30, Integer.valueOf("30"));
-                    nextMilliseconds15 += intervall;
+                    nextMilliseconds15 += interval;
                     nextParkingTicket.put(nextMilliseconds15, Integer.valueOf("15"));
-                    plannedTimeInMilliseconds+=intervall;
-                } else if(alternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING) && intervall>0) {
+                    plannedTimeInMilliseconds+=interval;
+                } else if(alternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING) && interval>0) {
                     nextParkingTicket.put(plannedTimeInMilliseconds, durationParkingticket);
-                    plannedTimeInMilliseconds+=intervall;
-                } else if(alternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING) && intervall==0){
+                    plannedTimeInMilliseconds+=interval;
+                } else if(alternateBooking.equals(StaticFields.NO_ALTERNATE_BOOKING) && interval==0){
                     //one shot call, planned time will be set to 99999999 so that it exceeds the
                     //24 hours threshold
                     nextParkingTicket.put(plannedTimeInMilliseconds, durationParkingticket);
@@ -122,15 +122,15 @@ public class CalculationParkingTicket {
             while (isEnd) {
                 nextParkingTicket.put(plannedTimeInMilliseconds, durationParkingticket);
                 //one shot calling
-                if(intervall==0)
+                if(interval==0)
                     isEnd=false;
-                //intervall booking
+                //interval booking
                 else {
                     //calculation will end after 24 hours are reached
                     if(plannedTimeInMilliseconds > millisecondsAfter24Hours) {
                         isEnd = false;
                     } else {
-                        plannedTimeInMilliseconds+=intervall;
+                        plannedTimeInMilliseconds+=interval;
                     }
                 }
             }
