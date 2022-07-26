@@ -82,7 +82,7 @@ public class ForegroundService extends Service {
                 if(isSmsReceived[0] || counter[0]>waitForXMinutes) {
                     if(!isSmsReceived[0]) {
                         isSmsReceived[0] = false;
-                        Intent i = new Intent("NO_SMS_RECEIVED");
+                        Intent i = new Intent(String.valueOf(R.string.no_sms_received));
                         sendBroadcast(i);
                         stopSelfResult(NOTIFICATION_ID);
                     } else {
@@ -167,7 +167,9 @@ public class ForegroundService extends Service {
                     @Override
                     public void onInit(int status) {
                         if (status != TextToSpeech.ERROR) {
-                            textToSpeech.setLanguage(Locale.GERMAN);
+                            //set the right locale for textToSpeech
+                            Locale current = getResources().getConfiguration().getLocales().get(0);
+                            textToSpeech.setLanguage(current);
                             textToSpeech.speak(getString(R.string.text_to_speak, waitForXMinutes),
                                     TextToSpeech.QUEUE_FLUSH, null, "0");
                             MainActivity.getInstance().cancelAlarmManagerFromForegroundService();

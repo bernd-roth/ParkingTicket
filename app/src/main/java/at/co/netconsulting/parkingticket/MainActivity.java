@@ -216,7 +216,7 @@ public class MainActivity extends BaseActivity {
         int size = parkscheinCollection.getNextParkingTickets().size();
 
         intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
-        intent.setAction("AlarmManager");
+        intent.setAction(String.valueOf(R.string.intentAction));
 
         pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
@@ -259,7 +259,7 @@ public class MainActivity extends BaseActivity {
 
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Bookings overview");
+        builder.setTitle(R.string.alertDialog);
 
         String message = new String();
         Date date;
@@ -334,7 +334,7 @@ public class MainActivity extends BaseActivity {
         } else {
             AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
-            intent.setAction("AlarmManager");
+            intent.setAction(String.valueOf(R.string.intentAction));
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
             alarmManager.cancel(pendingIntent);

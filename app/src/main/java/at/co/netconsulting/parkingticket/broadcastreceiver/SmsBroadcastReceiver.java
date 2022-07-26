@@ -12,6 +12,7 @@ import android.telephony.SmsManager;
 import java.util.List;
 import java.util.TreeMap;
 
+import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.general.StaticFields;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
 import at.co.netconsulting.parkingticket.service.ForegroundService;
@@ -93,7 +94,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     }
 
     private int loadSharedPreferences(Context context, String sharedPref) {
-        sh = context.getSharedPreferences("WAIT_MINUTES", Context.MODE_PRIVATE);
+        sh = context.getSharedPreferences(StaticFields.WAIT_MINUTES, Context.MODE_PRIVATE);
         waitMinutes = sh.getInt(sharedPref, 0);
         return waitMinutes;
     }
@@ -103,7 +104,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
         //collection will not be updated without removing Extra
         intent.removeExtra(StaticFields.PARKSCHEIN_POJO);
         intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
-        intent.setAction("AlarmManager");
+        intent.setAction(String.valueOf(R.string.intentAction));
     }
 
     private ParkscheinCollection removeNextParkingTicketFromCollection(ParkscheinCollection parkscheinCollection) {
