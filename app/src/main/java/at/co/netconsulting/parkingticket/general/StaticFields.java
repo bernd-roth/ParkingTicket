@@ -35,4 +35,5 @@ public class StaticFields {
     public static final String PARKING_ZONES_VIENNA = "PARKING_ZONES_VIENNA";
     public static final String RESIDENT_PARKING_VIENNA = "RESIDENT_PARKING_VIENNA";
     public static final String GARAGES_VIENNA = "GARAGES_VIENNA";
+    public static final String NO_PARKSCHEIN_RECEIVED = "NO_VOICE_MESSAGE_RECEIVED";
 }

@@ -38,5 +38,5 @@
 
     <!-- IntentAction -->
     <string name="intentAction">AlarmManager</string>
-    <string name="no_sms_received">NO_SMS_RECEIVED</string>
+    <string name="no_sms_received">Es wurde kein Parkschein in den letzten %1$d Sekunden empfangen</string>
 </resources>

@@ -323,7 +323,7 @@ public class MainActivity extends BaseActivity {
             String city = spinnerCity.getSelectedItem().toString();
             parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
 
-            intent.setAction("AlarmManager");
+            intent.setAction(String.valueOf("AlarmManager"));
             intent.putExtra(StaticFields.STOP_SMS, parkscheinCollection);
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
@@ -738,6 +738,8 @@ public class MainActivity extends BaseActivity {
             case "WAIT_MINUTES":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 waitMinutesLong = sh.getInt(sharedPref, 0);
+                if(waitMinutesLong>0)
+                    isVoiceMessageActivated=true;
                 break;
             case "ALERT_DIALOG":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);

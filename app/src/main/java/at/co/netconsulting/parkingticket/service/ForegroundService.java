@@ -26,6 +26,7 @@ import java.util.TimerTask;
 
 import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
+import at.co.netconsulting.parkingticket.broadcastreceiver.SmsBroadcastReceiver;
 import at.co.netconsulting.parkingticket.general.StaticFields;
 
 public class ForegroundService extends Service {
@@ -82,7 +83,9 @@ public class ForegroundService extends Service {
                 if(isSmsReceived[0] || counter[0]>waitForXMinutes) {
                     if(!isSmsReceived[0]) {
                         isSmsReceived[0] = false;
-                        Intent i = new Intent(String.valueOf(R.string.no_sms_received));
+                        Intent i = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
+                        i.putExtra(StaticFields.NO_PARKSCHEIN_RECEIVED, waitForXMinutes);
+                        i.setAction(String.valueOf(R.string.no_sms_received));
                         sendBroadcast(i);
                         stopSelfResult(NOTIFICATION_ID);
                     } else {
@@ -155,28 +158,10 @@ public class ForegroundService extends Service {
                 } catch (Exception e) {
                     Log.d("Exception caught", e.getMessage());
                 }
-            } else {
+            }// else {
                 //If no SMS was retrieved
-                voiceMessage();
-            }
-        }
-
-        private void voiceMessage() {
-            if(!isSmsReceived[0]) {
-                textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                    @Override
-                    public void onInit(int status) {
-                        if (status != TextToSpeech.ERROR) {
-                            //set the right locale for textToSpeech
-                            Locale current = getResources().getConfiguration().getLocales().get(0);
-                            textToSpeech.setLanguage(current);
-                            textToSpeech.speak(getString(R.string.text_to_speak, waitForXMinutes),
-                                    TextToSpeech.QUEUE_FLUSH, null, "0");
-                            MainActivity.getInstance().cancelAlarmManagerFromForegroundService();
-                        }
-                    }
-                });
-            }
+                //voiceMessage();
+            //}
         }
     };
 }

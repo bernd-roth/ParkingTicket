@@ -8,10 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.speech.tts.TextToSpeech;
 import android.telephony.SmsManager;
-
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeMap;
-
+import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.general.StaticFields;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
@@ -33,52 +33,58 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getExtras() != null && intent.getAction().equals("AlarmManager")) {
-            //Receive SharedPreferences for voice message
-            String sharedPref = "WAIT_MINUTES";
-            waitMinutes = loadSharedPreferences(context, sharedPref);
-            ParkscheinCollection stop = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.STOP_SMS);
+        if (intent.getExtras() != null) {
+            if(intent.getAction().equals(String.valueOf(R.string.no_sms_received))){
+                String sharedPref = "WAIT_MINUTES";
+                waitMinutes = loadSharedPreferences(context, sharedPref);
+                voiceMessage(context, waitMinutes);
+            } else if(intent.getAction().equals(String.valueOf(R.string.intentAction))){
+                //Receive SharedPreferences for voice message
+                String sharedPref = "WAIT_MINUTES";
+                waitMinutes = loadSharedPreferences(context, sharedPref);
+                ParkscheinCollection stop = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.STOP_SMS);
 
-            //Manually stop signal triggered via STOP button
-            if(stop!=null) {
-                city = stop.getCity();
-                licensePlate = stop.getLicensePlate();
-                telephoneNumber = stop.getTelephoneNumber();
+                //Manually stop signal triggered via STOP button
+                if (stop != null) {
+                    city = stop.getCity();
+                    licensePlate = stop.getLicensePlate();
+                    telephoneNumber = stop.getTelephoneNumber();
 
-                sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
-                parkscheinCollection = null;
-            } else {
-                //Automatic booking
-                parkscheinCollection = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
-                city = parkscheinCollection.getCity();
-                durationParkingticket = parkscheinCollection.getNextParkingTickets().firstEntry().getValue();
-                nextParkingTickets = parkscheinCollection.getNextParkingTickets();
-                licensePlate = parkscheinCollection.getLicensePlate();
-                telephoneNumber = parkscheinCollection.getTelephoneNumber();
+                    sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
+                    parkscheinCollection = null;
+                } else {
+                    //Automatic booking
+                    parkscheinCollection = (ParkscheinCollection) intent.getExtras().getSerializable(StaticFields.PARKSCHEIN_POJO);
+                    city = parkscheinCollection.getCity();
+                    durationParkingticket = parkscheinCollection.getNextParkingTickets().firstEntry().getValue();
+                    nextParkingTickets = parkscheinCollection.getNextParkingTickets();
+                    licensePlate = parkscheinCollection.getLicensePlate();
+                    telephoneNumber = parkscheinCollection.getTelephoneNumber();
 
-                if(parkscheinCollection.getNextParkingTickets().size() == 1) {
-                    //If city is not Vienna
-                    if(parkscheinCollection.isStop()) {
-                        sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
+                    if (parkscheinCollection.getNextParkingTickets().size() == 1) {
+                        //If city is not Vienna
+                        if (parkscheinCollection.isStop()) {
+                            sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
+                            ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
+                            updateIntent(intent, reducedParkscheinCollection);
+                            parkscheinCollection = null;
+                        } else {
+                            //If city is Vienna and one ticket will be booked
+                            ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
+                            updateIntent(intent, reducedParkscheinCollection);
+                            sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
+                            //start foregroundservice
+                            startForegroundService(context, intent);
+                        }
+                    } else if (parkscheinCollection.getNextParkingTickets().size() > 1) {
                         ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
                         updateIntent(intent, reducedParkscheinCollection);
-                        parkscheinCollection = null;
-                    } else {
-                        //If city is Vienna and one ticket will be booked
-                        ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
-                        updateIntent(intent, reducedParkscheinCollection);
+                        setNextAlarmManager(context, intent, reducedParkscheinCollection);
                         sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
                         //start foregroundservice
-                        startForegroundService(context, intent);
-                    }
-                } else if(parkscheinCollection.getNextParkingTickets().size() > 1) {
-                    ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
-                    updateIntent(intent, reducedParkscheinCollection);
-                    setNextAlarmManager(context, intent, reducedParkscheinCollection);
-                    sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
-                    //start foregroundservice
-                    if(waitMinutes>0) {
-                        startForegroundService(context, intent);
+                        if (waitMinutes > 0) {
+                            startForegroundService(context, intent);
+                        }
                     }
                 }
             }
@@ -163,5 +169,21 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     private void sendSMS(Context context, String city, int durationParkingticket, String licensePlate, String telephoneNumber) {
         SmsManager smsManager = context.getSystemService(SmsManager.class);
         smsManager.sendTextMessage(telephoneNumber, null, durationParkingticket + " " + city + "*" + licensePlate, null, null);
+    }
+
+    private void voiceMessage(Context context, int waitMinutes) {
+            textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+                @Override
+                public void onInit(int status) {
+                    if (status != TextToSpeech.ERROR) {
+                        //set the right locale for textToSpeech
+                        Locale current = context.getResources().getConfiguration().getLocales().get(0);
+                        textToSpeech.setLanguage(current);
+                        int seconds = Integer.valueOf(context.getResources().getString(R.string.no_sms_received));
+                        textToSpeech.speak(context.getResources().getString(R.string.no_sms_received, waitMinutes), TextToSpeech.QUEUE_FLUSH, null, "0");
+                        MainActivity.getInstance().cancelAlarmManagerFromForegroundService();
+                    }
+                }
+            });
     }
 }
