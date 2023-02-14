@@ -85,6 +85,11 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                         if (waitMinutes > 0) {
                             startForegroundService(context, intent);
                         }
+                        try {
+                            MainActivity.getInstance().updateTheTextView(reducedParkscheinCollection.getNextParkingTickets().firstEntry());
+                        } catch (Exception e) {
+
+                        }
                     }
                 }
             }

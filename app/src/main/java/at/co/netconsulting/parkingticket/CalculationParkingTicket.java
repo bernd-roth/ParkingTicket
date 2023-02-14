@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TreeMap;
 
 import at.co.netconsulting.parkingticket.general.StaticFields;
@@ -163,5 +164,13 @@ public class CalculationParkingTicket {
             e.printStackTrace();
         }
         return date.getTime();
+    }
+
+    public String calculateMillisecondsToHoursMinutes(long milliseconds) {
+        int seconds = (int) (milliseconds / 1000) % 60 ;
+        int minutes = (int) ((milliseconds / (1000*60)) % 60);
+        int hours   = (int) ((milliseconds / (1000*60*60)) % 24);
+
+        return String.format(Locale.GERMAN, "%02d:%02d", hours, minutes);
     }
 }

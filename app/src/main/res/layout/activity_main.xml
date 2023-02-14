@@ -42,38 +42,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="0dp"
-            android:layout_height="29dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="52dp"
-            android:text="City"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/numberpicker_main_picker" />
-
-        <Button
-            android:id="@+id/startButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1428dp"
-            android:layout_marginEnd="36dp"
-            android:onClick="startAlarm"
-            android:text="Start"
-            app:layout_constraintEnd_toStartOf="@+id/stopButton"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/stopButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="84dp"
-            android:layout_marginTop="920dp"
-            android:onClick="stopAlarm"
-            android:text="Stop"
-            app:layout_constraintStart_toStartOf="@+id/numberpicker_main_picker"
-            app:layout_constraintTop_toBottomOf="@+id/startTimePicker" />
-
         <NumberPicker
             android:id="@+id/numberpicker_main_picker"
             android:layout_width="123dp"
@@ -97,11 +65,64 @@
             android:id="@+id/city_spinner"
             android:layout_width="160dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="52dp"
+            android:layout_marginTop="108dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.514"
+            app:layout_constraintHorizontal_bias="0.515"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/numberpicker_main_picker" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="0dp"
+            android:layout_height="29dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="108dp"
+            android:text="City"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/numberpicker_main_picker" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="180dp"
+            android:text="Duration"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/numberpicker_main_picker" />
+
+        <Spinner
+            android:id="@+id/minutes_spinner"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:layout_marginTop="56dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.517"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/city_spinner" />
+
+        <Button
+            android:id="@+id/startButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1484dp"
+            android:layout_marginEnd="36dp"
+            android:onClick="startAlarm"
+            android:text="Start"
+            app:layout_constraintEnd_toStartOf="@+id/stopButton"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/stopButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="84dp"
+            android:layout_marginTop="976dp"
+            android:onClick="stopAlarm"
+            android:text="Stop"
+            app:layout_constraintStart_toStartOf="@+id/numberpicker_main_picker"
+            app:layout_constraintTop_toBottomOf="@+id/startTimePicker" />
 
         <TextView
             android:id="@+id/stopTimePickerTextView"
@@ -112,27 +133,6 @@
             android:text="Stop Timer"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/startTimePicker" />
-
-        <Spinner
-            android:id="@+id/minutes_spinner"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="1dp"
-            android:layout_marginTop="48dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.513"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/city_spinner" />
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="124dp"
-            android:text="Duration"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/numberpicker_main_picker" />
 
         <TimePicker
             android:id="@+id/startTimePicker"
@@ -152,6 +152,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/textViewAlarmManagerOverview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="148dp"
+            android:layout_marginTop="40dp"
+            android:lines="4"
+            android:maxLines="4"
+            android:text="Your next booked\nparking ticket\nwill be shown here"
+            app:layout_constraintStart_toStartOf="@id/toolbar"
+            app:layout_constraintTop_toBottomOf="@+id/numberpicker_main_picker" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

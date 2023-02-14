@@ -22,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -75,6 +76,8 @@ public class MainActivity extends BaseActivity {
     private TreeMap<Long, Integer> nextParkingTickets;
     private static MainActivity instance;
     private String showAlertDialog, alternateBooking;
+    private TextView textViewAlarmManagerOverview;
+    private TreeMap<Long, Integer> textViewTreeMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,6 +212,9 @@ public class MainActivity extends BaseActivity {
 
         ArrayAdapter<CharSequence> adapterTelephoneNumber = ArrayAdapter.createFromResource(this, R.array.telephoneNumber, android.R.layout.simple_spinner_item);
         adapterTelephoneNumber.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        //textViewAlarmManager
+        textViewAlarmManagerOverview = findViewById(R.id.textViewAlarmManagerOverview);
     }
 
     private void prepareAlarmManager(ParkscheinCollection parkscheinCollection) {
@@ -232,6 +238,8 @@ public class MainActivity extends BaseActivity {
             if (size > 0) {
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
+//                textViewTreeMap = parkscheinCollection.getNextParkingTickets();
+//                textViewAlarmManagerOverview.setText("First entry is: " + textViewTreeMap.firstEntry());
             } else {
                 AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
@@ -241,6 +249,8 @@ public class MainActivity extends BaseActivity {
             if (size > 0) {
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
+//                textViewTreeMap = parkscheinCollection.getNextParkingTickets();
+//                textViewAlarmManagerOverview.setText("First entry is: " + textViewTreeMap.firstEntry());
             } else {
                 AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
@@ -819,6 +829,20 @@ public class MainActivity extends BaseActivity {
                 alternateBooking = sh.getString(sharedPref, StaticFields.ALTERNATE_BOOKING);
                 break;
         }
+    }
+
+    public void updateTheTextView(final Map.Entry<Long, Integer> firstEntry) {
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+                long firstKey = firstEntry.getKey();
+
+                CalculationParkingTicket calc = new CalculationParkingTicket(getApplicationContext());
+                String hoursAndMinutes = calc.calculateMillisecondsToHoursMinutes(firstKey);
+
+                TextView textV1 = (TextView) findViewById(R.id.textViewAlarmManagerOverview);
+                textV1.setText("Next parking ticket: " + hoursAndMinutes);
+            }
+        });
     }
 
     //--------------------onclicked methods--------------------//
