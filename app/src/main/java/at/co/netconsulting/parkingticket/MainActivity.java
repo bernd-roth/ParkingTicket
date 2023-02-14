@@ -24,6 +24,8 @@ import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -75,9 +77,8 @@ public class MainActivity extends BaseActivity {
     private Toolbar toolbar;
     private TreeMap<Long, Integer> nextParkingTickets;
     private static MainActivity instance;
-    private String showAlertDialog, alternateBooking;
+    private String showAlertDialog, alternateBooking, nextParkingTicket;
     private TextView textViewAlarmManagerOverview;
-    private TreeMap<Long, Integer> textViewTreeMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,7 +204,6 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
 
@@ -213,7 +213,6 @@ public class MainActivity extends BaseActivity {
         ArrayAdapter<CharSequence> adapterTelephoneNumber = ArrayAdapter.createFromResource(this, R.array.telephoneNumber, android.R.layout.simple_spinner_item);
         adapterTelephoneNumber.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        //textViewAlarmManager
         textViewAlarmManagerOverview = findViewById(R.id.textViewAlarmManagerOverview);
     }
 
@@ -238,8 +237,7 @@ public class MainActivity extends BaseActivity {
             if (size > 0) {
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
-//                textViewTreeMap = parkscheinCollection.getNextParkingTickets();
-//                textViewAlarmManagerOverview.setText("First entry is: " + textViewTreeMap.firstEntry());
+                calcAndSaveNextParkingTicket();
             } else {
                 AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
@@ -249,14 +247,20 @@ public class MainActivity extends BaseActivity {
             if (size > 0) {
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
-//                textViewTreeMap = parkscheinCollection.getNextParkingTickets();
-//                textViewAlarmManagerOverview.setText("First entry is: " + textViewTreeMap.firstEntry());
+                calcAndSaveNextParkingTicket();
             } else {
                 AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
                 AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setAlarmClock(ac, pendingIntent);
             }
         }
+    }
+
+    private void calcAndSaveNextParkingTicket() {
+        TreeMap<Long, Integer> textViewTreeMap = parkscheinCollection.getNextParkingTickets();
+        CalculationParkingTicket calc = new CalculationParkingTicket(getApplicationContext());
+        String nextParkingTicket = calc.calculateMillisecondsToHoursMinutes(textViewTreeMap.firstKey());
+        saveSharedPreferencesAsString(nextParkingTicket, StaticFields.NEXT_PARKINGTICKET);
     }
 
     public boolean showAlertDialog() {
@@ -828,6 +832,10 @@ public class MainActivity extends BaseActivity {
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 alternateBooking = sh.getString(sharedPref, StaticFields.ALTERNATE_BOOKING);
                 break;
+            case "NEXT_PARKINGTICKET":
+                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
+                nextParkingTicket = sh.getString(sharedPref, "Your next booked\\nparking ticket\\nwill be shown here");
+                break;
         }
     }
 
@@ -839,7 +847,7 @@ public class MainActivity extends BaseActivity {
                 CalculationParkingTicket calc = new CalculationParkingTicket(getApplicationContext());
                 String hoursAndMinutes = calc.calculateMillisecondsToHoursMinutes(firstKey);
 
-                textViewAlarmManagerOverview.setText("Next parking ticket: " + hoursAndMinutes);
+                textViewAlarmManagerOverview.setText(getString(R.string.next_parking_ticket) + hoursAndMinutes);
             }
         });
     }
@@ -847,6 +855,11 @@ public class MainActivity extends BaseActivity {
     //--------------------onclicked methods--------------------//
     public void stopAlarm(View view) {
         triggerCancellationAlarmManager();
+        destroySharedPreference();
+    }
+
+    private void destroySharedPreference() {
+        getApplicationContext().getSharedPreferences(StaticFields.NEXT_PARKINGTICKET, 0).edit().clear().commit();
     }
 
     public void showMenu(MenuItem item) {
@@ -888,16 +901,40 @@ public class MainActivity extends BaseActivity {
         myEdit.commit();
     }
 
+    private void saveSharedPreferencesAsString(String value, String sharedPref) {
+        // Storing data into SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences(sharedPref,MODE_PRIVATE);
+
+        // Creating an Editor object to edit(write to the file)
+        SharedPreferences.Editor myEdit = sharedPreferences.edit();
+
+        // Storing the key and its value as the data fetched from edittext
+        myEdit.putString(sharedPref, value);
+
+        // Once the changes have been made,
+        // we need to commit to apply those changes made,
+        // otherwise, it will throw an error
+        myEdit.commit();
+    }
+
     //--------------------Activity overriden methods--------------------//
     @Override
     protected void onDestroy() {
         super.onDestroy();
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
+        destroySharedPreference();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onResume() {
+        loadSharedPreferences("NEXT_PARKINGTICKET");
+
+        if(nextParkingTicket.startsWith(getString(R.string.your))) {
+            textViewAlarmManagerOverview.setText(getString(R.string.booked_parking_ticket));
+        } else {
+            textViewAlarmManagerOverview.setText(getString(R.string.next_parking_ticket) + nextParkingTicket);
+        }
+        super.onResume();
     }
 }

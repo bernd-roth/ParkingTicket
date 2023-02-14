@@ -11,6 +11,8 @@ import android.telephony.SmsManager;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeMap;
+
+import at.co.netconsulting.parkingticket.CalculationParkingTicket;
 import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.general.StaticFields;
@@ -86,6 +88,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                             startForegroundService(context, intent);
                         }
                         try {
+                            saveSharedPreferences(context, StaticFields.NEXT_PARKINGTICKET, reducedParkscheinCollection);
                             MainActivity.getInstance().updateTheTextView(reducedParkscheinCollection.getNextParkingTickets().firstEntry());
                         } catch (Exception e) {
 
@@ -94,6 +97,26 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 }
             }
         }
+    }
+
+    private void saveSharedPreferences(Context context, String nextParkingticket, ParkscheinCollection reducedParkscheinCollection) {
+        // Storing data into SharedPreferences
+        SharedPreferences sharedPreferences = context.getSharedPreferences(StaticFields.NEXT_PARKINGTICKET,Context.MODE_PRIVATE);
+
+        // Creating an Editor object to edit(write to the file)
+        SharedPreferences.Editor myEdit = sharedPreferences.edit();
+
+        TreeMap<Long, Integer> textViewTreeMap = reducedParkscheinCollection.getNextParkingTickets();
+        CalculationParkingTicket calc = new CalculationParkingTicket(context);
+        String nextParkingTicket = calc.calculateMillisecondsToHoursMinutes(textViewTreeMap.firstKey());
+
+        // Storing the key and its value as the data fetched from edittext
+        myEdit.putString(StaticFields.NEXT_PARKINGTICKET, nextParkingTicket);
+
+        // Once the changes have been made,
+        // we need to commit to apply those changes made,
+        // otherwise, it will throw an error
+        myEdit.commit();
     }
 
     private void startForegroundService(Context context, Intent intent) {

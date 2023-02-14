@@ -39,4 +39,9 @@
     <!-- IntentAction -->
     <string name="intentAction">AlarmManager</string>
     <string name="no_sms_received">Es wurde kein Parkschein in den letzten %1$d Sekunden empfangen</string>
+
+    <!-- General string -->
+    <string name="booked_parking_ticket">Nächster zu buchender\nParkschein wird\nhier angezeigt</string>
+    <string name="next_parking_ticket">Nächster Parkschein: </string>
+    <string name="your">Your</string>
 </resources>

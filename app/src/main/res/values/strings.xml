@@ -39,4 +39,10 @@
     <!-- IntentAction -->
     <string name="intentAction">AlarmManager</string>
     <string name="no_sms_received">No parkingticket was received in the last %1$d seconds</string>
+
+    <!-- General string -->
+    <string name="booked_parking_ticket">Your next booked\nparking ticket\nwill be shown here</string>
+    <string name="next_parking_ticket">Next parkingticket: </string>
+    <string name="your">Your</string>
+
 </resources>
