@@ -21,7 +21,6 @@ Sending and therefore booking parking tickets in Austria.
 3. AI when parking ticket should be booked according to a parksheriff`s location
 4. Mobile phone must vibrate if SMS was received
 5. Automatic stopping of parking tickets; currently this functionality is only available for Vienna
-6. Overview of which parking tickets are still opened to book
 
 ### Steps to take of how to use the app for Vienna
 1.  Under menu/settings type the parkingticket`s telephone number (06646606000, ...)
@@ -86,7 +85,7 @@ the booking procedure will be stopped automatically.
         
 ### Pictures
 ![Screenshot_20220412-122236](https://user-images.githubusercontent.com/1835491/162941274-1c99cffc-852b-4b65-9f60-c0b56a415dc3.png)
-![Screenshot_20220412-122247](https://user-images.githubusercontent.com/1835491/162941359-db0ae893-da4b-4a80-98dd-ac70721aad9f.png)
+![Screenshot_20230214-185522](https://user-images.githubusercontent.com/1835491/218820045-04d7850d-1c7e-4564-a27f-565ec39efd27.png)
 ![Screenshot_20220412-122305](https://user-images.githubusercontent.com/1835491/162941363-b3f62eae-8951-4242-affa-d0594ca47fc0.png)
 ![Screenshot_20220412-122355](https://user-images.githubusercontent.com/1835491/162941364-07133d70-fd8f-433a-aa65-b607d3a4d300.png)
 ![Screenshot_20220412-122403](https://user-images.githubusercontent.com/1835491/162941366-9ac8f84d-0bf5-44d3-85bd-00973d1c8097.png)
