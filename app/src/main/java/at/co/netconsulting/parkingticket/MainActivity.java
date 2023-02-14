@@ -839,8 +839,7 @@ public class MainActivity extends BaseActivity {
                 CalculationParkingTicket calc = new CalculationParkingTicket(getApplicationContext());
                 String hoursAndMinutes = calc.calculateMillisecondsToHoursMinutes(firstKey);
 
-                TextView textV1 = (TextView) findViewById(R.id.textViewAlarmManagerOverview);
-                textV1.setText("Next parking ticket: " + hoursAndMinutes);
+                textViewAlarmManagerOverview.setText("Next parking ticket: " + hoursAndMinutes);
             }
         });
     }
