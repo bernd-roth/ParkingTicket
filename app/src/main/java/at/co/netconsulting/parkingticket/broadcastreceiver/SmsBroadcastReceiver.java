@@ -207,7 +207,6 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                         //set the right locale for textToSpeech
                         Locale current = context.getResources().getConfiguration().getLocales().get(0);
                         textToSpeech.setLanguage(current);
-                        int seconds = Integer.valueOf(context.getResources().getString(R.string.no_sms_received));
                         textToSpeech.speak(context.getResources().getString(R.string.no_sms_received, waitMinutes), TextToSpeech.QUEUE_FLUSH, null, "0");
                         MainActivity.getInstance().cancelAlarmManagerFromForegroundService();
                     }

@@ -41,6 +41,7 @@ public class ForegroundService extends Service {
     private TextToSpeech textToSpeech;
     private IntentFilter filter;
     private final boolean[] isSmsReceived = new boolean[1];
+    private Timer timer;
 
     @Override
     public void onCreate() {
@@ -50,6 +51,16 @@ public class ForegroundService extends Service {
         filter.addAction("NO_SMS_RECEIVED");
 
         registerReceiver(receiver, filter);
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nMgr = (NotificationManager) getSystemService(ns);
+        stopForeground(0);
+        timer.cancel();
+        nMgr.cancel(1);
     }
 
     @Override
@@ -63,7 +74,7 @@ public class ForegroundService extends Service {
         notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(getString(R.string.notificationBuilder_title, counter))
                 .setContentIntent(pendingIntent)
-                .setOngoing(true)
+                .setOngoing(false)
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(R.drawable.ic_launcher_background);
 
@@ -74,7 +85,7 @@ public class ForegroundService extends Service {
         final int[] counter = {0};
         waitForXMinutes*=60;
 
-        final Timer timer = new Timer();
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -95,14 +106,22 @@ public class ForegroundService extends Service {
                 }
             }
         }, 0,1000);
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
+        //return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d("ForegroundService: ", "Calling onDestroy method");
         unregisterReceiver(receiver);
         stopSelf();
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nMgr = (NotificationManager) getSystemService(ns);
+        nMgr.cancel(1);
+        stopForeground(0);
+        if(timer!=null)
+            timer.cancel();
     }
 
     @Nullable

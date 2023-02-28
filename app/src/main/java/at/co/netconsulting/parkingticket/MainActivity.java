@@ -1,6 +1,7 @@
 package at.co.netconsulting.parkingticket;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -24,6 +25,7 @@ import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -40,6 +42,7 @@ import at.co.netconsulting.parkingticket.broadcastreceiver.SmsBroadcastReceiver;
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.general.StaticFields;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
+import at.co.netconsulting.parkingticket.service.ForegroundService;
 
 public class MainActivity extends BaseActivity {
 
@@ -856,6 +859,20 @@ public class MainActivity extends BaseActivity {
     public void stopAlarm(View view) {
         triggerCancellationAlarmManager();
         destroySharedPreference();
+        cancelForegroundService();
+    }
+
+    private void cancelForegroundService() {
+        //Intent intent = new Intent(this, SmsBroadcastReceiver.class);
+        Intent intentForegroundService = new Intent(this, ForegroundService.class);
+        //intent.putExtra("stopForegroundService", "stopForegroundService");
+        //intent.setAction("stopForegroundService");
+        //PendingIntent pendingIntent = PendingIntent.getBroadcast(
+        //        this.getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+        //                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+        //AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        //alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, 0, pendingIntent);
+        getApplicationContext().stopService(intentForegroundService);
     }
 
     private void destroySharedPreference() {
