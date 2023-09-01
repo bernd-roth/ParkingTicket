@@ -20,9 +20,14 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import java.util.Locale;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
@@ -33,7 +38,7 @@ public class ForegroundService extends Service {
 
     private int counter = 0;
     private static final int NOTIFICATION_ID = 1;
-    private String NOTIFICATION_CHANNEL_ID = "com.netconsulting.parkingticket";
+    private String NOTIFICATION_CHANNEL_ID = "com.netconsulting.parkingticket", msgBody;
     private Notification notification;
     private NotificationCompat.Builder notificationBuilder;
     private NotificationManager manager;
@@ -100,7 +105,11 @@ public class ForegroundService extends Service {
                         sendBroadcast(i);
                         stopSelfResult(NOTIFICATION_ID);
                     } else {
-                        stopSelfResult(NOTIFICATION_ID);
+                        // sms was received, starting showing a new notification
+                        // with the appropriate message
+                        //stopSelfResult(NOTIFICATION_ID);
+                        timer.cancel();
+                        showNewNotification(intent);
                     }
                     timer.cancel();
                 }
@@ -108,6 +117,71 @@ public class ForegroundService extends Service {
         }, 0,1000);
         return START_STICKY;
         //return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void showNewNotification(Intent intent) {
+        Timer newTimer = new Timer();
+        final long[] counter = {0};
+        final boolean[] canceled = {false};
+
+        if(intent.getAction() != null) {
+            if(intent.getAction().equals(StaticFields.ACTION_START_FOREGROUND_SERVICE)) {
+                Bundle bundle = intent.getExtras();
+                if (bundle != null) {
+                    int timeValue = bundle.getInt("DurationParkingTicket");
+                    counter[0] = timeValue*60;
+                    String endTime = analyseParkingTicket();
+                    final long[] seconds = {calculateTimeDifference(endTime)};
+                    newTimer.scheduleAtFixedRate(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if(!canceled[0]) {
+                                manager.cancelAll();
+                                canceled[0] = true;
+                            } else {
+                                manager.notify(NOTIFICATION_ID /* ID of notification */,
+                                        notificationBuilder.setContentTitle("Parkticket ends in " + seconds[0]).build());
+                                seconds[0] -= 1;
+                                if(seconds[0]==0) {
+                                    newTimer.cancel();
+                                }
+                            }
+                        }
+                    }, 0, 1000);
+                }
+            }
+        }
+    }
+
+    private long calculateTimeDifference(String endTime) {
+        String[] splitTime = endTime.split(":");
+        int hour = Integer.valueOf(splitTime[0]);
+        int minute = Integer.valueOf(splitTime[1]);
+        LocalTime one = LocalTime.of(hour,minute);
+
+        String sdf = new SimpleDateFormat("HH:mm").format(new Date());
+        String[] start = sdf.split(":");
+        int startHour = Integer.parseInt(start[0]);
+        int startMinute = Integer.parseInt(start[1]);
+        LocalTime two = LocalTime.of(startHour,startMinute);
+
+        return ChronoUnit.SECONDS.between(two, one);
+    }
+
+    private String analyseParkingTicket() {
+        String pattern = "(\\d+):(\\d+)";
+        String endtime = null;
+
+        // Create a Pattern object
+        Pattern r = Pattern.compile(pattern);
+
+        // Now create matcher object.
+        Matcher m = r.matcher(msgBody);
+
+        if (m.find( )) {
+            endtime = m.group(0);
+        }
+        return endtime;
     }
 
     @Override
@@ -167,7 +241,7 @@ public class ForegroundService extends Service {
                     msgs = new SmsMessage[pdus.length];
                     for (int i = 0; i < msgs.length; i++) {
                         msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-                        String msgBody = msgs[i].getMessageBody();
+                        msgBody = msgs[i].getMessageBody();
                         if (!msgBody.contains("Zuletzt gebuchter Parkschein")) {
                             isSmsReceived[0]=false;
                         } else {

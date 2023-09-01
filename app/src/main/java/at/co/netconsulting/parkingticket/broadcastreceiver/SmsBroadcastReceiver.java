@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.telephony.SmsManager;
 import java.util.List;
@@ -122,7 +123,12 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     private void startForegroundService(Context context, Intent intent) {
         if(waitMinutes>0) {
             Intent intentForegroundService = new Intent(context, ForegroundService.class);
-            intent.setAction(StaticFields.ACTION_START_FOREGROUND_SERVICE);
+            intentForegroundService.setAction(StaticFields.ACTION_START_FOREGROUND_SERVICE);
+
+            Bundle bundle = new Bundle();
+            bundle.putInt("DurationParkingTicket", durationParkingticket);
+
+            intentForegroundService.putExtras(bundle);
             context.startForegroundService(intentForegroundService);
         }
     }
