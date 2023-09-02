@@ -96,16 +96,20 @@ public class ForegroundService extends Service {
             public void run() {
                 manager.notify(NOTIFICATION_ID /* ID of notification */,
                         notificationBuilder.setContentTitle(getString(R.string.title_content, counter[0]++)).build());
-                if(isSmsReceived[0] || counter[0]>waitForXMinutes) {
+                if(isSmsReceived[0] || counter[0]>=waitForXMinutes) {
                     if(!isSmsReceived[0]) {
+                        //reset or cancel everything
                         isSmsReceived[0] = false;
+                        counter[0]=0;
+                        timer.cancel();
+                        //send broadcast to notify no sms was received in due time
                         Intent i = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
                         i.putExtra(StaticFields.NO_PARKSCHEIN_RECEIVED, waitForXMinutes);
                         i.setAction(String.valueOf(R.string.no_sms_received));
                         sendBroadcast(i);
                         stopSelfResult(NOTIFICATION_ID);
                     } else {
-                        // sms was received, starting showing a new notification
+                        // sms was received, start showing a new notification
                         // with the appropriate message
                         //stopSelfResult(NOTIFICATION_ID);
                         timer.cancel();
@@ -122,7 +126,6 @@ public class ForegroundService extends Service {
     private void showNewNotification(Intent intent) {
         Timer newTimer = new Timer();
         final long[] counter = {0};
-        final boolean[] canceled = {false};
 
         if(intent.getAction() != null) {
             if(intent.getAction().equals(StaticFields.ACTION_START_FOREGROUND_SERVICE)) {
@@ -135,16 +138,12 @@ public class ForegroundService extends Service {
                     newTimer.scheduleAtFixedRate(new TimerTask() {
                         @Override
                         public void run() {
-                            if(!canceled[0]) {
+                            if(seconds[0]<=0) {
+                                newTimer.cancel();
                                 manager.cancelAll();
-                                canceled[0] = true;
                             } else {
                                 manager.notify(NOTIFICATION_ID /* ID of notification */,
                                         notificationBuilder.setContentTitle("Parkticket ends in " + seconds[0]).build());
-                                seconds[0] -= 1;
-                                if(seconds[0]==0) {
-                                    newTimer.cancel();
-                                }
                             }
                         }
                     }, 0, 1000);
