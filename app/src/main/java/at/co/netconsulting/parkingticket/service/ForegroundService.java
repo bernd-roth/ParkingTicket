@@ -47,6 +47,8 @@ public class ForegroundService extends Service {
     private IntentFilter filter;
     private final boolean[] isSmsReceived = new boolean[1];
     private Timer timer;
+    private boolean isVoiceMessageParkingTicketExpired;
+    private TextToSpeech ttobj;
 
     @Override
     public void onCreate() {
@@ -71,6 +73,7 @@ public class ForegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         waitForXMinutes = loadSharedPreferences(StaticFields.WAIT_MINUTES);
+        loadSharedPreferences(StaticFields.VOICE_MESSAGE_PARKING_TICKET_EXPIRED);
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -139,11 +142,21 @@ public class ForegroundService extends Service {
                         @Override
                         public void run() {
                             if(seconds[0]<=0) {
+                                manager.notify(NOTIFICATION_ID /* ID of notification */,
+                                        notificationBuilder.setContentTitle(getString(R.string.parkticket_expired)).build());
+                                if(isVoiceMessageParkingTicketExpired) {
+                                    ttobj=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                        @Override
+                                        public void onInit(int status) {
+                                            ttobj.speak("Parkingticket expired", TextToSpeech.QUEUE_FLUSH, null);
+                                        }
+                                    });
+                                }
                                 newTimer.cancel();
                                 manager.cancelAll();
                             } else {
                                 manager.notify(NOTIFICATION_ID /* ID of notification */,
-                                        notificationBuilder.setContentTitle("Parkticket ends in " + seconds[0]).build());
+                                        notificationBuilder.setContentTitle(getString(R.string.parkticket_expires, seconds[0]--)).build());
                             }
                         }
                     }, 0, 1000);
@@ -222,6 +235,10 @@ public class ForegroundService extends Service {
             case "WAIT_MINUTES":
                 sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
                 waitForXMinutes = sh.getInt(sharedPref, 0);
+                break;
+            case "VOICE_MESSAGE_PARKING_TICKET_EXPIRED":
+                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
+                isVoiceMessageParkingTicketExpired = sh.getBoolean(sharedPref, false);
                 break;
         }
         return waitForXMinutes;

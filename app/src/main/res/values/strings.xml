@@ -22,6 +22,8 @@
     <string name="settings_voice_message">Please, set waiting minutes between 0 and 5, both are inclusive</string>
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
+    <string name="settings_telephone_number_field_must_not_be_empty">Telephone number field must not be empty</string>
+    <string name="settings_license_plate_must_not_be_empty">License plate must not be empty</string>
 
     <string name="gps_location">Please, turn on location services so that your\ncurrent position can be shown!</string>
 
@@ -44,5 +46,7 @@
     <string name="booked_parking_ticket">Your next booked\nparking ticket\nwill be shown here</string>
     <string name="next_parking_ticket">Next parkingticket: </string>
     <string name="your">Your</string>
+    <string name="parkticket_expired">Parkticket expires now!</string>
+    <string name="parkticket_expires">Parkticket expires in %1$d seconds!</string>
 
 </resources>

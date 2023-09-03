@@ -8,9 +8,11 @@ import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -25,6 +27,7 @@ public class SettingsActivity extends BaseActivity {
     private RadioGroup radioGroupMinutes, radioGroupAlertDialog;
     private RadioButton radioButton1530, radioButton3015, radioButtonNoAlternateBooking,
                         radioButtonYes, radioButtonNo;
+    private Switch voice_message_parkingticket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +41,7 @@ public class SettingsActivity extends BaseActivity {
         loadSharedPreferences(StaticFields.WAIT_MINUTES);
         loadSharedPreferences(StaticFields.ALTERNATE_BOOKING);
         loadSharedPreferences(StaticFields.ALERT_DIALOG);
-
+        loadSharedPreferences(StaticFields.VOICE_MESSAGE_PARKING_TICKET_EXPIRED);
         waitMinutes.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -100,6 +103,11 @@ public class SettingsActivity extends BaseActivity {
                 else if(showAlertDialog.equals(StaticFields.DIALOG_NO))
                     radioButtonNo.setChecked(true);
                 break;
+            case "VOICE_MESSAGE_PARKING_TICKET_EXPIRED":
+                sh = getSharedPreferences(sharedPref, Context.MODE_PRIVATE);
+                boolean isChecked = sh.getBoolean(sharedPref, false);
+                voice_message_parkingticket.setChecked(isChecked);
+                break;
         }
     }
 
@@ -132,6 +140,9 @@ public class SettingsActivity extends BaseActivity {
                     case R.id.radioButtonNoAlternateBooking:
                         saveSharedPreferences(StaticFields.NO_ALTERNATE_BOOKING, "ALTERNATE_BOOKING");
                         break;
+                    case R.id.voice_message_parkingticket_expired:
+                        saveSharedPreferences(StaticFields.VOICE_MESSAGE_PARKING_TICKET_EXPIRED, "VOICE_MESSAGE_PARKING_TICKET_EXPIRED");
+                        break;
                 }
             }
         });
@@ -154,6 +165,13 @@ public class SettingsActivity extends BaseActivity {
                 }
             }
         });
+        voice_message_parkingticket = (Switch) findViewById(R.id.switch_voice_message_parking_ticket_expired);
+        voice_message_parkingticket.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                saveSharedPreferences(isChecked, "VOICE_MESSAGE_PARKING_TICKET_EXPIRED");
+            }
+        });
     }
 
     public void showMenu(MenuItem item) {
@@ -165,14 +183,14 @@ public class SettingsActivity extends BaseActivity {
         boolean bool_license_plate = isEmpty(licensePlateInput);
 
         if(bool_telephoneNumber && bool_license_plate) {
-            telephoneNumberInput.setError("Telephone number field must not be empty");
+            telephoneNumberInput.setError(getString(R.string.settings_telephone_number_field_must_not_be_empty));
             licensePlateInput.setError("License plate field must not be empty");
             telephoneNumberInput.requestFocus();
         } else if(bool_telephoneNumber){
-            telephoneNumberInput.setError("Telephone number field must not be empty");
+            telephoneNumberInput.setError(getString(R.string.settings_telephone_number_field_must_not_be_empty));
             telephoneNumberInput.requestFocus();
         } else if(bool_telephoneNumber){
-            licensePlateInput.setError("License plate must not be empty");
+            licensePlateInput.setError(getString(R.string.settings_license_plate_must_not_be_empty));
             licensePlateInput.requestFocus();
         } else {
             saveSharedPreferences(telephoneNumberInput.getText().toString(), StaticFields.TELEPHONE_NUMBER);
@@ -203,15 +221,31 @@ public class SettingsActivity extends BaseActivity {
         myEdit.commit();
     }
 
-    private void saveSharedPreferences(String input, String sharedPref) {
+    private void saveSharedPreferences(String value, String key) {
         // Storing data into SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences(sharedPref,MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(key,MODE_PRIVATE);
 
         // Creating an Editor object to edit(write to the file)
         SharedPreferences.Editor myEdit = sharedPreferences.edit();
 
         // Storing the key and its value as the data fetched from edittext
-        myEdit.putString(sharedPref, input);
+        myEdit.putString(key, value);
+
+        // Once the changes have been made,
+        // we need to commit to apply those changes made,
+        // otherwise, it will throw an error
+        myEdit.commit();
+    }
+
+    private void saveSharedPreferences(boolean value, String key) {
+        // Storing data into SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences(key,MODE_PRIVATE);
+
+        // Creating an Editor object to edit(write to the file)
+        SharedPreferences.Editor myEdit = sharedPreferences.edit();
+
+        // Storing the key and its value as the data fetched from edittext
+        myEdit.putBoolean(key, value);
 
         // Once the changes have been made,
         // we need to commit to apply those changes made,

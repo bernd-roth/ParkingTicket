@@ -10,6 +10,12 @@
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar" />
 
+    <TextView
+        android:id="@+id/textView_telephone_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Telephone number" />
+
     <EditText
         android:id="@+id/telephone_number"
         android:layout_width="match_parent"
@@ -19,11 +25,23 @@
         android:inputType="number"
         android:onClick="saveInput" />
 
+    <TextView
+        android:id="@+id/textView_license_plate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="License plate" />
+
     <EditText
         android:id="@+id/license_plate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="License plate" />
+
+    <TextView
+        android:id="@+id/waitMinutes_reminder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wait x minutes for voice message that no parkingticket was received" />
 
     <EditText
         android:id="@+id/waitMinutes"
@@ -31,6 +49,23 @@
         android:layout_height="wrap_content"
         android:hint="Wait x minutes for reminder:\n0 - no voice message\n5 - maximum waiting time"
         android:inputType="number" />
+
+    <TextView
+        android:id="@+id/voice_message_parkingticket_expired"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Voice message parking ticket expired" />
+
+    <Switch
+        android:id="@+id/switch_voice_message_parking_ticket_expired"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Voice message, if parking ticket expired" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#c0c0c0"/>
 
     <RadioGroup
         android:id="@+id/radioGroup"

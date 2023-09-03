@@ -21,6 +21,8 @@
     <string name="settings_voice_message">Bitte geben Sie zwischen 0 und 5 Minuten an</string>
     <string name="ok">Ok</string>
     <string name="cancel">Beenden</string>
+    <string name="settings_telephone_number_field_must_not_be_empty">Feld für die Telefonnummer darf nicht leer sein</string>
+    <string name="settings_license_plate_must_not_be_empty">Feld für das Kennzeichen darf nicht leer sein</string>
 
     <!-- gps -->
     <string name="gps_location">Bitte schalten Sie ihr GPS ein!</string>
@@ -44,4 +46,6 @@
     <string name="booked_parking_ticket">Nächster zu buchender\nParkschein wird\nhier angezeigt</string>
     <string name="next_parking_ticket">Nächster Parkschein: </string>
     <string name="your">Your</string>
+    <string name="parkticket_expired">Parkticket ist abgelaufen!</string>
+    <string name="parkticket_expires">Parkticket läuft in %1$d Sekunden ab!</string>
 </resources>
