@@ -35,7 +35,6 @@ import at.co.netconsulting.parkingticket.broadcastreceiver.SmsBroadcastReceiver;
 import at.co.netconsulting.parkingticket.general.StaticFields;
 
 public class ForegroundService extends Service {
-
     private int counter = 0;
     private static final int NOTIFICATION_ID = 1;
     private String NOTIFICATION_CHANNEL_ID = "com.netconsulting.parkingticket", msgBody;
@@ -43,12 +42,13 @@ public class ForegroundService extends Service {
     private NotificationCompat.Builder notificationBuilder;
     private NotificationManager manager;
     private int waitForXMinutes;
-    private TextToSpeech textToSpeech;
     private IntentFilter filter;
     private final boolean[] isSmsReceived = new boolean[1];
     private Timer timer;
     private boolean isVoiceMessageParkingTicketExpired;
     private TextToSpeech ttobj;
+    private Thread thread;
+    private boolean isThreadStopped = false;
 
     @Override
     public void onCreate() {
@@ -93,35 +93,49 @@ public class ForegroundService extends Service {
         final int[] counter = {0};
         waitForXMinutes*=60;
 
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        thread = new Thread() {
             @Override
             public void run() {
-                manager.notify(NOTIFICATION_ID /* ID of notification */,
-                        notificationBuilder.setContentTitle(getString(R.string.title_content, counter[0]++)).build());
-                if(isSmsReceived[0] || counter[0]>=waitForXMinutes) {
-                    if(!isSmsReceived[0]) {
-                        //reset or cancel everything
-                        isSmsReceived[0] = false;
-                        counter[0]=0;
-                        timer.cancel();
-                        //send broadcast to notify no sms was received in due time
-                        Intent i = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
-                        i.putExtra(StaticFields.NO_PARKSCHEIN_RECEIVED, waitForXMinutes);
-                        i.setAction(String.valueOf(R.string.no_sms_received));
-                        sendBroadcast(i);
-                        stopSelfResult(NOTIFICATION_ID);
-                    } else {
-                        // sms was received, start showing a new notification
-                        // with the appropriate message
-                        //stopSelfResult(NOTIFICATION_ID);
-                        timer.cancel();
-                        showNewNotification(intent);
-                    }
-                    timer.cancel();
+                try {
+                    timer = new Timer();
+                    timer.scheduleAtFixedRate(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if(!isThreadStopped) {
+                                manager.notify(NOTIFICATION_ID /* ID of notification */,
+                                        notificationBuilder.setContentTitle(getString(R.string.title_content, counter[0]++)).build());
+                                if (isSmsReceived[0] || counter[0] >= waitForXMinutes) {
+                                    if (!isSmsReceived[0]) {
+                                        //reset or cancel everything
+                                        isSmsReceived[0] = false;
+                                        counter[0] = 0;
+                                        timer.cancel();
+                                        //send broadcast to notify no sms was received in due time
+                                        Intent i = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
+                                        i.putExtra(StaticFields.NO_PARKSCHEIN_RECEIVED, waitForXMinutes);
+                                        i.setAction(String.valueOf(R.string.no_sms_received));
+                                        sendBroadcast(i);
+                                        stopSelfResult(NOTIFICATION_ID);
+                                    } else {
+                                        // sms was received, start showing a new notification
+                                        // with the appropriate message
+                                        //stopSelfResult(NOTIFICATION_ID);
+                                        timer.cancel();
+                                        showNewNotification(intent);
+                                    }
+                                    timer.cancel();
+                                }
+                            } else {
+                                timer.cancel();
+                            }
+                        }
+                    }, 0,1000);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }
-        }, 0,1000);
+        };
+        thread.start();
         return START_STICKY;
         //return super.onStartCommand(intent, flags, startId);
     }
@@ -141,22 +155,26 @@ public class ForegroundService extends Service {
                     newTimer.scheduleAtFixedRate(new TimerTask() {
                         @Override
                         public void run() {
-                            if(seconds[0]<=0) {
-                                manager.notify(NOTIFICATION_ID /* ID of notification */,
-                                        notificationBuilder.setContentTitle(getString(R.string.parkticket_expired)).build());
-                                if(isVoiceMessageParkingTicketExpired) {
-                                    ttobj=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                        @Override
-                                        public void onInit(int status) {
-                                            ttobj.speak("Parkingticket expired", TextToSpeech.QUEUE_FLUSH, null);
-                                        }
-                                    });
+                            if(!isThreadStopped) {
+                                if (seconds[0] <= 0) {
+                                    manager.notify(NOTIFICATION_ID /* ID of notification */,
+                                            notificationBuilder.setContentTitle(getString(R.string.parkticket_expired)).build());
+                                    if (isVoiceMessageParkingTicketExpired) {
+                                        ttobj = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                            @Override
+                                            public void onInit(int status) {
+                                                ttobj.speak("Parkingticket expired", TextToSpeech.QUEUE_FLUSH, null);
+                                            }
+                                        });
+                                    }
+                                    newTimer.cancel();
+                                    manager.cancelAll();
+                                } else {
+                                    manager.notify(NOTIFICATION_ID /* ID of notification */,
+                                            notificationBuilder.setContentTitle(getString(R.string.parkticket_expires, seconds[0]--)).build());
                                 }
-                                newTimer.cancel();
-                                manager.cancelAll();
                             } else {
-                                manager.notify(NOTIFICATION_ID /* ID of notification */,
-                                        notificationBuilder.setContentTitle(getString(R.string.parkticket_expires, seconds[0]--)).build());
+                                timer.cancel();
                             }
                         }
                     }, 0, 1000);
@@ -201,6 +219,7 @@ public class ForegroundService extends Service {
         super.onDestroy();
         Log.d("ForegroundService: ", "Calling onDestroy method");
         unregisterReceiver(receiver);
+        isThreadStopped=true;
         stopSelf();
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nMgr = (NotificationManager) getSystemService(ns);

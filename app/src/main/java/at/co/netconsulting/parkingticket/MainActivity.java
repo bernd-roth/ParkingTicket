@@ -1,6 +1,7 @@
 package at.co.netconsulting.parkingticket;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -45,7 +46,6 @@ import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
 import at.co.netconsulting.parkingticket.service.ForegroundService;
 
 public class MainActivity extends BaseActivity {
-
     private PendingIntent pendingIntent;
     private Intent intent;
     private TimePicker startTimePicker, stopTimePicker;
@@ -65,8 +65,6 @@ public class MainActivity extends BaseActivity {
             minuteEnd;
     private Spinner spinnerMinutes;
     private Spinner spinnerCity;
-    private Spinner spinnerLicensePlate;
-    private Spinner spinnerTelephoneNumber;
     private ParkscheinCollection parkscheinCollection;
     private String city;
     private String licensePlate;
@@ -76,7 +74,7 @@ public class MainActivity extends BaseActivity {
     private NumberPicker numberPicker;
     private Button stop;
     private CheckBox enableStopTimerCheckBox;
-    private boolean isStopTimePicker, isVoiceMessageActivated, isStopTimerCheckboxEnabled, resultValue;
+    private boolean isStopTimePicker, isVoiceMessageActivated, resultValue;
     private Toolbar toolbar;
     private TreeMap<Long, Integer> nextParkingTickets;
     private static MainActivity instance;
@@ -232,6 +230,7 @@ public class MainActivity extends BaseActivity {
         triggerAlarmManager(plannedTime, size, isVoiceMessageActivated);
     }
 
+    @SuppressLint("ScheduleExactAlarm")
     private void triggerAlarmManager(long plannedTime, int size, boolean isVoiceMessageActivated) {
         //show AlertDialog about bookings
         if(showAlertDialog.equals(StaticFields.DIALOG_YES))
@@ -334,6 +333,7 @@ public class MainActivity extends BaseActivity {
     }
 
     //When STOP is called manually
+    @SuppressLint("ScheduleExactAlarm")
     public void triggerCancellationAlarmManager() {
         if(isCityStop()) {
             Spinner spinnerCity = (Spinner) findViewById(R.id.city_spinner);
@@ -946,6 +946,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         loadSharedPreferences("NEXT_PARKINGTICKET");
+        loadSharedPreferences(StaticFields.TELEPHONE_NUMBER);
+        loadSharedPreferences(StaticFields.LICENSE_PLATE);
+        loadSharedPreferences(StaticFields.WAIT_MINUTES);
+        loadSharedPreferences(StaticFields.ALERT_DIALOG);
+        loadSharedPreferences(StaticFields.ALTERNATE_BOOKING);
 
         if(nextParkingTicket.startsWith(getString(R.string.your))) {
             textViewAlarmManagerOverview.setText(getString(R.string.booked_parking_ticket));

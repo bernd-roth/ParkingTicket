@@ -1,5 +1,6 @@
 package at.co.netconsulting.parkingticket.broadcastreceiver;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -21,16 +22,11 @@ import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
 import at.co.netconsulting.parkingticket.service.ForegroundService;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
-
-    private PendingIntent pendingIntent;
     private TextToSpeech textToSpeech;
-    private Long nextParkingTicket, nextVoiceMessageLong;
     private int durationParkingticket;
     private TreeMap<Long, Integer> nextParkingTickets;
-    private List<Long> nextVoiceMessage;
     private String licensePlate, telephoneNumber, city;
     private ParkscheinCollection parkscheinCollection;
-    private boolean isStopSignal = false;
     private SharedPreferences sh;
     private int waitMinutes;
 
@@ -156,6 +152,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
             return parkscheinCollection;
     }
 
+    @SuppressLint("ScheduleExactAlarm")
     private void setNextAlarmManager(Context context, Intent intent, ParkscheinCollection parkscheinCollection) {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
