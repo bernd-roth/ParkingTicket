@@ -98,7 +98,7 @@ public class ForegroundService extends Service {
             public void run() {
                 try {
                     timer = new Timer();
-                    timer.scheduleAtFixedRate(new TimerTask() {
+                    timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
                             if(!isThreadStopped) {

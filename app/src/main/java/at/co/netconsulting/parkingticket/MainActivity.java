@@ -55,7 +55,6 @@ public class MainActivity extends BaseActivity {
             permissionAccessNetworkState,
             permissionInternet,
             permissionSendSMS,
-            permissionBroadcastSMS,
             permissionReadSMS,
             permissionReceiveSMS,
             permissionAccessFineLocation,
@@ -110,7 +109,6 @@ public class MainActivity extends BaseActivity {
         permissionAccessNetworkState = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE);
         permissionInternet = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
         permissionSendSMS = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
-        permissionBroadcastSMS = ContextCompat.checkSelfPermission(this, Manifest.permission.BROADCAST_SMS);
         permissionReadSMS = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS);
         permissionReceiveSMS = ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS);
         permissionAccessFineLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -135,9 +133,6 @@ public class MainActivity extends BaseActivity {
         }
         if (permissionSendSMS != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.SEND_SMS);
-        }
-        if (permissionBroadcastSMS != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.BROADCAST_SMS);
         }
         if (permissionReadSMS != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.READ_SMS);
