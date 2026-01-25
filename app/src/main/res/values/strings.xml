@@ -48,5 +48,6 @@
     <string name="your">Your</string>
     <string name="parkticket_expired">Parkticket expires now!</string>
     <string name="parkticket_expires">Parkticket expires in %1$d seconds!</string>
+    <string name="exact_alarm_permission_required">Please grant permission to schedule exact alarms</string>
 
 </resources>

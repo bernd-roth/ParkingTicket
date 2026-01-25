@@ -11,7 +11,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -90,16 +93,13 @@ public class MainActivity extends BaseActivity {
         toolbar.inflateMenu(R.menu.menu_main);
         instance = this;
 
-        if (checkAndRequestPermissions()) {
-            initializeObjects();
-            loadSharedPreferences(StaticFields.TELEPHONE_NUMBER);
-            loadSharedPreferences(StaticFields.LICENSE_PLATE);
-            loadSharedPreferences(StaticFields.WAIT_MINUTES);
-            loadSharedPreferences(StaticFields.ALERT_DIALOG);
-            loadSharedPreferences(StaticFields.ALTERNATE_BOOKING);
-        } else {
-            //Show error message and close app
-        }
+        checkAndRequestPermissions();
+        initializeObjects();
+        loadSharedPreferences(StaticFields.TELEPHONE_NUMBER);
+        loadSharedPreferences(StaticFields.LICENSE_PLATE);
+        loadSharedPreferences(StaticFields.WAIT_MINUTES);
+        loadSharedPreferences(StaticFields.ALERT_DIALOG);
+        loadSharedPreferences(StaticFields.ALTERNATE_BOOKING);
     }
 
     private boolean checkAndRequestPermissions() {
@@ -148,6 +148,12 @@ public class MainActivity extends BaseActivity {
         }
         if (permissionAccessLocationExtraCommands != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            int permissionPostNotifications = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS);
+            if (permissionPostNotifications != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS);
+            }
         }
         if (!listPermissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), StaticFields.REQUEST_ID_MULTIPLE_PERMISSIONS);
@@ -227,27 +233,34 @@ public class MainActivity extends BaseActivity {
 
     @SuppressLint("ScheduleExactAlarm")
     private void triggerAlarmManager(long plannedTime, int size, boolean isVoiceMessageActivated) {
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+
+        // Check if exact alarm permission is granted (required for Android 12+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            Toast.makeText(this, R.string.exact_alarm_permission_required, Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+            intent.setData(Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+            return;
+        }
+
         //show AlertDialog about bookings
         if(showAlertDialog.equals(StaticFields.DIALOG_YES))
             showAlertDialog();
         if (isVoiceMessageActivated) {
             if (size > 0) {
-                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
                 calcAndSaveNextParkingTicket();
             } else {
                 AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
-                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setAlarmClock(ac, pendingIntent);
             }
         } else {
             if (size > 0) {
-                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
                 calcAndSaveNextParkingTicket();
             } else {
                 AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
-                AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.setAlarmClock(ac, pendingIntent);
             }
         }
@@ -940,6 +953,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
+        super.onResume();
         loadSharedPreferences("NEXT_PARKINGTICKET");
         loadSharedPreferences(StaticFields.TELEPHONE_NUMBER);
         loadSharedPreferences(StaticFields.LICENSE_PLATE);
@@ -947,11 +961,12 @@ public class MainActivity extends BaseActivity {
         loadSharedPreferences(StaticFields.ALERT_DIALOG);
         loadSharedPreferences(StaticFields.ALTERNATE_BOOKING);
 
-        if(nextParkingTicket.startsWith(getString(R.string.your))) {
-            textViewAlarmManagerOverview.setText(getString(R.string.booked_parking_ticket));
-        } else {
-            textViewAlarmManagerOverview.setText(getString(R.string.next_parking_ticket) + nextParkingTicket);
+        if (textViewAlarmManagerOverview != null && nextParkingTicket != null) {
+            if (nextParkingTicket.startsWith(getString(R.string.your))) {
+                textViewAlarmManagerOverview.setText(getString(R.string.booked_parking_ticket));
+            } else {
+                textViewAlarmManagerOverview.setText(getString(R.string.next_parking_ticket) + nextParkingTicket);
+            }
         }
-        super.onResume();
     }
 }

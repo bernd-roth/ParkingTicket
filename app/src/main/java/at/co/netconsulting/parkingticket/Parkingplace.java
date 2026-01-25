@@ -67,7 +67,6 @@ public class Parkingplace extends BaseActivity implements GeolocationPermissions
 
                 final WebSettings webSettings = browser.getSettings();
                 webSettings.setJavaScriptEnabled(true);
-                webSettings.setAppCacheEnabled(true);
                 webSettings.setDatabaseEnabled(true);
                 webSettings.setDomStorageEnabled(true);
                 webSettings.setJavaScriptCanOpenWindowsAutomatically(true);

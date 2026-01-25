@@ -57,7 +57,11 @@ public class ForegroundService extends Service {
         filter.addAction("android.provider.Telephony.SMS_RECEIVED");
         filter.addAction("NO_SMS_RECEIVED");
 
-        registerReceiver(receiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(receiver, filter);
+        }
     }
 
     @Override
