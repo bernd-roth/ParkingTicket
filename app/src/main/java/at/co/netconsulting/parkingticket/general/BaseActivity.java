@@ -1,17 +1,18 @@
 package at.co.netconsulting.parkingticket.general;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.Parkingplace;
 import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.SettingsActivity;
 
-public class BaseActivity extends Activity {
+public class BaseActivity extends AppCompatActivity {
 
     private Intent intent;
 

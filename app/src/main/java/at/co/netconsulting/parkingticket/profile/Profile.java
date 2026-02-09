@@ -1,28 +1,21 @@
 package at.co.netconsulting.parkingticket.profile;
 
 import android.os.Bundle;
-import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.compose.ui.platform.ComposeView;
 
 import at.co.netconsulting.parkingticket.R;
+import at.co.netconsulting.parkingticket.ui.ProfileScreenSetup;
 
 public class Profile extends AppCompatActivity {
-
-    EditText profileName, carModel, city, numberPlate, email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_profile);
 
-        createObjects();
-    }
-
-    private void createObjects() {
-        profileName = findViewById(R.id.profileName);
-        carModel = findViewById(R.id.carModel);
-        city = findViewById(R.id.city);
-        numberPlate = findViewById(R.id.numberPlate);
-        email = findViewById(R.id.email);
+        ComposeView composeView = findViewById(R.id.compose_view);
+        ProfileScreenSetup.init(composeView, this);
     }
 }
