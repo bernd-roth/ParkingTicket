@@ -1,251 +1,380 @@
+<!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="leaflet.css">
+    <script src="jquery.min.js"></script>
+    <script src="leaflet.js"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            width: 100%;
+        }
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-	<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
-	<script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
-	<script src="../layer/vector/OSM.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+        #map1 {
+            bottom: 0;
+            height: 100vh;
+            left: 0;
+            margin: 0;
+            min-height: 320px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 100%;
+        }
 
-	<script type='text/javascript'>
-	function init(choiceParking, mapZoom)
-	{
-		var map = new L.Map ("map1");
-		var attrib="";
-		var layerOSM = new L.TileLayer
-			("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-				{	attribution: attrib,
-					maxZoom: 500
-				} );
-		map.addLayer(layerOSM);
-		var auto = L.icon({
-			iconUrl: 'auto.png',
-			//shadowUrl: 'auto.png',
-			iconSize:     [50, 50], // size of the icon
-			//shadowSize:   [50, 64], // size of the shadow
-			iconAnchor:   [100, 70], // point of the icon which will correspond to marker's location
-			//shadowAnchor: [4, 62],  // the same for the shadow
-			popupAnchor:  [100, 70] // point from which the popup should open relative to the iconAnchor
-		});
+        body {
+            background: #e8ecef;
+        }
 
-		//map.on("click",onMapClick)
-		map.on('locationfound', onLocationFound);
-		map.on('locationerror', onLocationError);
-		map.locate({setView: true, maxZoom: mapZoom});
+        .parking-popup {
+            color: #102a43;
+            font-family: sans-serif;
+            min-width: 220px;
+        }
 
-		function onMapClick(e)
-		{
-			// "e.latlng" is an L.LatLng object representing the mouse click position
-			var clickedPosition = e.latlng;
-			alert("You clicked at: " + clickedPosition.lat + " " + clickedPosition.lng);
-		}
-		function onLocationFound(e) {
-			var radius = e.accuracy / 2;
-			//L.marker(e.latlng).addTo(map).bindPopup("You are within " + radius + " meters from this point").openPopup();
-			//L.circle(e.latlng, radius).addTo(map);
-			L.marker(e.latlng, {icon: auto}).addTo(map);
-		}
-		function onLocationError(e) {
-			alert(e.message);
-		}
+        .parking-popup-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
 
-		if(choiceParking==-1) {
-		} else if(choiceParking==1) {
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:KURZPARKZONEOGD&srsName=EPSG:4326&outputFormat=json",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" };
-							}
-					}).addTo(map);
-				}
-			});
-		} else if(choiceParking==2) {
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=json&typeName=ogdwien:PARKENANRAINEROGD",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "blue" };
-							}
-					}).addTo(map);
-				}
-			});
-		} else if(choiceParking==3) {
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:GARAGENOGD&srsName=EPSG:4326&outputFormat=json",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "green" };
-							}
-					}).addTo(map);
-				}
-			});
-			<!-- 1st and 2nd are chosen -->
-		} else if(choiceParking==12) {
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:KURZPARKZONEOGD&srsName=EPSG:4326&outputFormat=json",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" };
-							}
-					}).addTo(map);
-				}
-			});
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=json&typeName=ogdwien:PARKENANRAINEROGD",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "blue" };
-							}
-					}).addTo(map);
-				}
-			});
-		} else if(choiceParking==23) {
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=json&typeName=ogdwien:PARKENANRAINEROGD",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "blue" };
-							}
-					}).addTo(map);
-				}
-			});
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:GARAGENOGD&srsName=EPSG:4326&outputFormat=json",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "green" };
-							}
-					}).addTo(map);
-				}
-			});
-		} else if(choiceParking==13) {
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:KURZPARKZONEOGD&srsName=EPSG:4326&outputFormat=json",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" };
-							}
-					}).addTo(map);
-				}
-			});
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:GARAGENOGD&srsName=EPSG:4326&outputFormat=json",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "green" };
-							}
-					}).addTo(map);
-				}
-			});
-		} else if(choiceParking==123) {
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:KURZPARKZONEOGD&srsName=EPSG:4326&outputFormat=json",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "red" };
-							}
-					}).addTo(map);
-				}
-			});
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=json&typeName=ogdwien:PARKENANRAINEROGD",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "blue" };
-							}
-					}).addTo(map);
-				}
-			});
-			$.ajax({
-				type: "GET",
-				url: "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:GARAGENOGD&srsName=EPSG:4326&outputFormat=json",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				dataType: 'json',
-				success: function (response) {
-					geojsonLayer = L.geoJson(response, {
-						style: function (feature) {
-								return { opacity: 0.65, fillOpacity: 0.65, "weight": 5, "color": "green" };
-							}
-					}).addTo(map);
-				}
-			});
-		}
-		L.control.scale().addTo(map);
-	}
-	</script>
+        .parking-popup-row {
+            margin-top: 5px;
+        }
+
+        .parking-popup-label {
+            color: #52606d;
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .parking-popup-value {
+            display: block;
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .parking-popup a {
+            color: #005ea8;
+        }
+
+    </style>
+    <script type="text/javascript">
+        function init(choiceParking, mapZoom) {
+            var viennaCenter = [48.2082, 16.3738];
+            sizeMapElement();
+            var map = L.map("map1").setView(viennaCenter, mapZoom);
+            var selectedLayers = L.featureGroup().addTo(map);
+            var layersToLoad = [];
+
+            updateStatus("Map initialized");
+            console.log("Map size: " + document.getElementById("map1").clientWidth + "x" + document.getElementById("map1").clientHeight);
+            setTimeout(function () {
+                sizeMapElement();
+                map.invalidateSize(false);
+                console.log("Map size after invalidate: " + document.getElementById("map1").clientWidth + "x" + document.getElementById("map1").clientHeight);
+            }, 300);
+
+            window.addEventListener("resize", function () {
+                sizeMapElement();
+                map.invalidateSize(false);
+            });
+
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: "",
+                maxZoom: 19
+            }).addTo(map);
+
+            L.control.scale().addTo(map);
+
+            if (choiceParking === -1) {
+                locateUser(map, mapZoom, true);
+                return;
+            }
+
+            if (choiceParking === 1 || choiceParking === 12 || choiceParking === 13 || choiceParking === 123) {
+                layersToLoad.push({
+                    color: "red",
+                    layerType: "shortTerm",
+                    name: "short-term parking zones",
+                    pointLayer: false,
+                    url: "/layers/KURZPARKZONEOGD.json"
+                });
+            }
+
+            if (choiceParking === 2 || choiceParking === 12 || choiceParking === 23 || choiceParking === 123) {
+                layersToLoad.push({
+                    color: "blue",
+                    layerType: "resident",
+                    name: "resident parking zones",
+                    pointLayer: false,
+                    url: "/layers/PARKENANRAINEROGD.json"
+                });
+            }
+
+            if (choiceParking === 3 || choiceParking === 13 || choiceParking === 23 || choiceParking === 123) {
+                layersToLoad.push({
+                    color: "green",
+                    layerType: "garage",
+                    name: "garages",
+                    pointLayer: true,
+                    url: "/layers/GARAGENOGD.json"
+                });
+            }
+
+            locateUser(map, mapZoom, false);
+            layersToLoad.forEach(function (layerConfig) {
+                loadParkingLayer(map, selectedLayers, layerConfig);
+            });
+        }
+
+        function locateUser(map, mapZoom, setView) {
+            var auto = L.icon({
+                iconUrl: "auto.png",
+                iconSize: [50, 50],
+                iconAnchor: [25, 50],
+                popupAnchor: [0, -50]
+            });
+
+            map.on("locationfound", function (e) {
+                L.marker(e.latlng, { icon: auto }).addTo(map);
+            });
+
+            map.locate({ setView: setView, maxZoom: mapZoom });
+        }
+
+        function loadParkingLayer(map, selectedLayers, layerConfig) {
+            updateStatus("Loading " + layerConfig.name + "...");
+            $.ajax({
+                type: "GET",
+                url: layerConfig.url,
+                dataType: "json",
+                success: function (response) {
+                    var featureCount = response && response.features ? response.features.length : 0;
+                    console.log("Received " + featureCount + " features for " + layerConfig.name);
+
+                    var layerOptions = {
+                        style: function () {
+                            return {
+                                opacity: 0.65,
+                                fillOpacity: 0.65,
+                                weight: 5,
+                                color: layerConfig.color
+                            };
+                        },
+                        onEachFeature: function (feature, layer) {
+                            layer.bindPopup(buildPopupContent(feature, layerConfig), {
+                                maxWidth: 320
+                            });
+                        }
+                    };
+
+                    if (layerConfig.pointLayer) {
+                        layerOptions.pointToLayer = function (feature, latlng) {
+                            return L.circleMarker(latlng, {
+                                radius: 7,
+                                color: "#1f2933",
+                                weight: 1,
+                                opacity: 1,
+                                fillColor: layerConfig.color,
+                                fillOpacity: 0.85
+                            });
+                        };
+                    }
+
+                    var geojsonLayer = L.geoJson(response, layerOptions);
+                    console.log("Created Leaflet layer for " + layerConfig.name + " with " + geojsonLayer.getLayers().length + " rendered layers");
+
+                    selectedLayers.addLayer(geojsonLayer);
+                    map.invalidateSize(false);
+                    if (selectedLayers.getBounds().isValid()) {
+                        map.fitBounds(selectedLayers.getBounds(), { padding: [16, 16] });
+                        updateStatus("Loaded " + layerConfig.name + " (" + featureCount + " features)");
+                        console.log("Bounds after " + layerConfig.name + ": " + selectedLayers.getBounds().toBBoxString());
+                    } else {
+                        updateStatus("Loaded " + layerConfig.name + ", but bounds are invalid");
+                        console.error("Invalid bounds after loading " + layerConfig.name);
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    updateStatus("Failed to load " + layerConfig.name);
+                    console.error("Failed to load " + layerConfig.name + ": " + textStatus + " " + errorThrown);
+                }
+            });
+        }
+
+        function buildPopupContent(feature, layerConfig) {
+            var props = feature && feature.properties ? feature.properties : {};
+
+            if (layerConfig.layerType === "shortTerm") {
+                return popupHtml("Short-term parking zone", [
+                    ["Where", getDistrict(props)],
+                    ["When", getValue(props, ["ZEITRAUM", "ZEITRAUM_TXT"])],
+                    ["Maximum duration", getValue(props, ["DAUER"])],
+                    ["Valid from", formatDate(getValue(props, ["GUELTIG_VON"]))],
+                    ["More information", linkValue(getValue(props, ["WEBLINK2", "WEBLINK1"]))]
+                ]);
+            }
+
+            if (layerConfig.layerType === "resident") {
+                return popupHtml("Resident parking", [
+                    ["Where", getValue(props, ["ADRESSE"])],
+                    ["Regulation", getValue(props, ["AUSNAHME_TXT"])],
+                    ["Spaces", getValue(props, ["STELLPL_ANZ"])],
+                    ["More information", linkValue(getValue(props, ["WEITERE_INF"]))]
+                ]);
+            }
+
+            if (layerConfig.layerType === "garage") {
+                return popupHtml(getValue(props, ["BEZEICHNUNG"]) || "Garage / Park & Ride", [
+                    ["Where", getGarageAddress(props)],
+                    ["Operator", getValue(props, ["BETREIBER"])],
+                    ["Park & Ride", yesNo(getValue(props, ["PARK_AND_RIDE"]))],
+                    ["Accessible parking", yesNo(getValue(props, ["BEHINDERTENPARKPL"]))],
+                    ["More information", linkValue(getValue(props, ["WEBLINK_BETR_DE", "WEBLINK_WK_DE", "WEBLINK_BETR_EN", "WEBLINK_WK_EN"]))]
+                ]);
+            }
+
+            return popupHtml(layerConfig.name, Object.keys(props).map(function (key) {
+                return [key, props[key]];
+            }));
+        }
+
+        function popupHtml(title, rows) {
+            var html = '<div class="parking-popup"><div class="parking-popup-title">' + escapeHtml(title) + '</div>';
+            var visibleRows = 0;
+
+            rows.forEach(function (row) {
+                var label = row[0];
+                var value = row[1];
+                if (value === null || value === undefined || value === "") {
+                    return;
+                }
+
+                visibleRows++;
+                html += '<div class="parking-popup-row"><span class="parking-popup-label">' +
+                    escapeHtml(label) +
+                    '</span><span class="parking-popup-value">' +
+                    popupValueHtml(value) +
+                    '</span></div>';
+            });
+
+            if (visibleRows === 0) {
+                html += '<div class="parking-popup-row"><span class="parking-popup-value">No details available.</span></div>';
+            }
+
+            return html + "</div>";
+        }
+
+        function popupValueHtml(value) {
+            if (value && typeof value === "object" && value.html) {
+                return value.html;
+            }
+
+            return escapeHtml(value);
+        }
+
+        function getDistrict(props) {
+            var district = getValue(props, ["BEZIRK", "BEZIRK2"]);
+            if (!district) {
+                return "";
+            }
+
+            return "Vienna district " + district;
+        }
+
+        function getGarageAddress(props) {
+            var address = getValue(props, ["ADRESSE"]);
+            var postalCode = getValue(props, ["PLZ"]);
+            var city = getValue(props, ["ORT"]);
+            var place = [postalCode, city].filter(Boolean).join(" ");
+
+            return {
+                html: [address, place].filter(Boolean).map(escapeHtml).join("<br>")
+            };
+        }
+
+        function getValue(props, keys) {
+            for (var i = 0; i < keys.length; i++) {
+                var value = props[keys[i]];
+                if (value !== null && value !== undefined && value !== "") {
+                    return String(value);
+                }
+            }
+
+            return "";
+        }
+
+        function formatDate(value) {
+            if (!value) {
+                return "";
+            }
+
+            return value.replace("Z", "");
+        }
+
+        function linkValue(value) {
+            if (!value) {
+                return "";
+            }
+
+            var escaped = escapeHtml(value);
+            return {
+                html: '<a href="' + escaped + '" target="_blank" rel="noopener noreferrer">' + escaped + "</a>"
+            };
+        }
+
+        function yesNo(value) {
+            if (!value) {
+                return "";
+            }
+
+            if (value === "Y" || value === "J" || value === "1") {
+                return "Yes";
+            }
+
+            if (value === "N" || value === "0") {
+                return "No";
+            }
+
+            return value;
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function updateStatus(message) {
+            console.log(message);
+        }
+
+        function sizeMapElement() {
+            var mapElement = document.getElementById("map1");
+            if (!mapElement) {
+                return;
+            }
+
+            var viewportHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            if (viewportHeight > 0) {
+                mapElement.style.height = viewportHeight + "px";
+            }
+        }
+    </script>
 </head>
 <body>
-<div id="map1" style="width:100%; height:100%"> </div>
+<div id="map1"></div>
 </body>
 </html>
