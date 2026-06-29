@@ -49,4 +49,20 @@
     <string name="parkticket_expired">Parkticket ist abgelaufen!</string>
     <string name="parkticket_expires">Parkticket läuft in %1$d Sekunden ab!</string>
     <string name="exact_alarm_permission_required">Bitte erlauben Sie das Planen von exakten Alarmen</string>
+    <string name="parked_car_title">Mein geparktes Auto</string>
+    <string name="save_car_position">Autoposition speichern</string>
+    <string name="show_route_to_car">Weg zum Auto anzeigen</string>
+    <string name="car_position_saved">Autoposition gespeichert. Der Weg wird jetzt aufgezeichnet.</string>
+    <string name="no_parked_car">Es wurde noch keine Autoposition gespeichert.</string>
+    <string name="location_permission_required">Zum Speichern der Autoposition ist die Standortberechtigung erforderlich.</string>
+    <string name="location_unavailable">Der aktuelle Standort ist nicht verfügbar. Bitte Standortdienste prüfen.</string>
+    <string name="parking_tracking_channel">Aufzeichnung der Autoposition</string>
+    <string name="parking_tracking_title">Weg vom Auto wird aufgezeichnet</string>
+    <string name="parking_tracking_text">Tippen, um den Rückweg zum geparkten Auto anzuzeigen.</string>
+    <string name="car_saved_at">Geparkt: %1$s</string>
+    <string name="distance_to_car">Direkte Entfernung zum Auto: %1$d m</string>
+    <string name="waiting_for_location">Aktueller Standort wird ermittelt…</string>
+    <string name="clear_car_position">Löschen</string>
+    <string name="back">Zurück</string>
+    <string name="parked_car_map">Karte mit geparktem Auto und zurückgelegtem Weg</string>
 </resources>

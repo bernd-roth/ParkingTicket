@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='icon' href='data:,'>
+    <link rel='stylesheet' href='leaflet.css'>
+    <script src='leaflet.js'></script>
+    <style>
+        html, body { height: 100%; margin: 0; overflow: hidden; width: 100%; }
+        #map { bottom: 0; height: 100%; left: 0; min-height: 320px; position: absolute;
+            right: 0; top: 0; width: 100%; }
+        body { background: #e8ecef; }
+        .car-marker { background: #b42318; border: 3px solid white; border-radius: 50%; color: white;
+            font: bold 18px sans-serif; height: 34px; line-height: 34px; text-align: center; width: 34px; }
+        .legend { background: rgba(255,255,255,.94); border-radius: 4px; color: #172b4d;
+            font: 12px sans-serif; line-height: 18px; padding: 7px 9px; }
+        .legend i { display: inline-block; height: 4px; margin-right: 6px; vertical-align: middle; width: 22px; }
+    </style>
+</head>
+<body>
+<div id='map'></div>
+<script>
+function sizeMapElement() {
+    var mapElement = document.getElementById('map');
+    var height = window.innerHeight || document.documentElement.clientHeight;
+    if (mapElement && height > 0) mapElement.style.height = height + 'px';
+}
+sizeMapElement();
+var map = L.map('map', { zoomControl: true }).setView([48.2082, 16.3738], 17);
+var carMarker = null;
+var currentMarker = null;
+var trail = null;
+var directLine = null;
+var firstUpdate = true;
+
+var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href=https://www.openstreetmap.org/copyright>OpenStreetMap</a>', maxZoom: 19
+}).addTo(map);
+tiles.on('tileerror', function (event) { console.error('Tile failed: ' + event.url); });
+L.control.scale().addTo(map);
+
+var legend = L.control({ position: 'bottomright' });
+legend.onAdd = function () {
+    var div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = '<div><i style=background:#2167d5></i>Covered path</div>' +
+        '<div><i style=background:#6b778c></i>Direct line to car</div>';
+    return div;
+};
+legend.addTo(map);
+
+function updateParkingMap(data) {
+    if (!data || !data.car) return;
+    sizeMapElement();
+    map.invalidateSize(false);
+    var carIcon = L.divIcon({
+        className: '', html: '<div class=car-marker>P</div>',
+        iconSize: [40, 40], iconAnchor: [18, 20]
+    });
+
+    if (!carMarker) {
+        carMarker = L.marker(data.car, { icon: carIcon }).addTo(map).bindPopup('Your car');
+    } else {
+        carMarker.setLatLng(data.car);
+    }
+
+    if (currentMarker) map.removeLayer(currentMarker);
+    if (trail) map.removeLayer(trail);
+    if (directLine) map.removeLayer(directLine);
+
+    if (data.current) {
+        currentMarker = L.circleMarker(data.current, {
+            radius: 8, color: 'white', weight: 3, fillColor: '#0c66e4', fillOpacity: 1
+        }).addTo(map).bindPopup('Your current position');
+        directLine = L.polyline([data.current, data.car], {
+            color: '#6b778c', dashArray: '7 8', opacity: .8, weight: 3
+        }).addTo(map);
+    }
+
+    if (data.path && data.path.length > 1) {
+        trail = L.polyline(data.path, { color: '#2167d5', opacity: .92, weight: 6 }).addTo(map);
+    }
+
+    if (firstUpdate) {
+        var bounds = L.latLngBounds([data.car]);
+        if (data.current) bounds.extend(data.current);
+        if (data.path) data.path.forEach(function (point) { bounds.extend(point); });
+        if (bounds.isValid() && data.current &&
+            (data.current[0] !== data.car[0] || data.current[1] !== data.car[1])) {
+            map.fitBounds(bounds, { padding: [35, 35], maxZoom: 18 });
+        } else {
+            map.setView(data.car, 18);
+        }
+        firstUpdate = false;
+        setTimeout(function () { map.invalidateSize(false); }, 150);
+    } else if (data.current) {
+        map.panTo(data.current);
+    }
+}
+window.addEventListener('resize', function () {
+    sizeMapElement();
+    map.invalidateSize(false);
+});
+</script>
+</body>
+</html>

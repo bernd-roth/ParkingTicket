@@ -11,8 +11,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.provider.Settings;
 import android.os.Handler;
 import android.os.Looper;
@@ -33,7 +35,9 @@ import at.co.netconsulting.parkingticket.broadcastreceiver.SmsBroadcastReceiver;
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.general.StaticFields;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
+import at.co.netconsulting.parkingticket.parking.ParkingPositionStore;
 import at.co.netconsulting.parkingticket.service.ForegroundService;
+import at.co.netconsulting.parkingticket.service.ParkingLocationService;
 import at.co.netconsulting.parkingticket.ui.MainScreenSetup;
 import at.co.netconsulting.parkingticket.ui.MainScreenState;
 
@@ -81,6 +85,7 @@ public class MainActivity extends BaseActivity {
         intent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
 
         mainScreenState = new MainScreenState();
+        mainScreenState.updateCarPositionSaved(ParkingPositionStore.hasCar(this));
         ComposeView composeView = findViewById(R.id.compose_view);
         MainScreenSetup.init(composeView, this, mainScreenState);
     }
@@ -325,6 +330,52 @@ public class MainActivity extends BaseActivity {
         startActivity(new Intent(this, Parkingplace.class));
     }
 
+    @SuppressLint("MissingPermission")
+    public void saveCarPosition() {
+        boolean fineLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+        boolean coarseLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+        if (!fineLocation && !coarseLocation) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    StaticFields.REQUEST_ID_MULTIPLE_PERMISSIONS);
+            Toast.makeText(this, R.string.location_permission_required, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        String provider;
+        if (fineLocation && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            provider = LocationManager.GPS_PROVIDER;
+        } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            provider = LocationManager.NETWORK_PROVIDER;
+        } else {
+            Toast.makeText(this, R.string.location_unavailable, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        locationManager.getCurrentLocation(provider, new CancellationSignal(),
+                ContextCompat.getMainExecutor(this), location -> {
+                    if (location == null) {
+                        Toast.makeText(this, R.string.location_unavailable, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    ParkingPositionStore.saveCar(this, location);
+                    mainScreenState.updateCarPositionSaved(true);
+                    ContextCompat.startForegroundService(this, new Intent(this, ParkingLocationService.class));
+                    Toast.makeText(this, R.string.car_position_saved, Toast.LENGTH_LONG).show();
+                });
+    }
+
+    public void navigateToParkedCar() {
+        if (!ParkingPositionStore.hasCar(this)) {
+            Toast.makeText(this, R.string.no_parked_car, Toast.LENGTH_LONG).show();
+            return;
+        }
+        startActivity(new Intent(this, ParkedCarActivity.class));
+    }
+
     public void updateTheTextView(final Map.Entry<Long, Integer> firstEntry) {
         MainActivity.this.runOnUiThread(new Runnable() {
             public void run() {
@@ -429,6 +480,9 @@ public class MainActivity extends BaseActivity {
             } else {
                 mainScreenState.updateNextParkingTicket(getString(R.string.next_parking_ticket) + nextParkingTicket);
             }
+        }
+        if (mainScreenState != null) {
+            mainScreenState.updateCarPositionSaved(ParkingPositionStore.hasCar(this));
         }
     }
 }

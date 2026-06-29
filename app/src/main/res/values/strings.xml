@@ -49,5 +49,21 @@
     <string name="parkticket_expired">Parkticket expires now!</string>
     <string name="parkticket_expires">Parkticket expires in %1$d seconds!</string>
     <string name="exact_alarm_permission_required">Please grant permission to schedule exact alarms</string>
+    <string name="parked_car_title">My parked car</string>
+    <string name="save_car_position">Save car position</string>
+    <string name="show_route_to_car">Show path to car</string>
+    <string name="car_position_saved">Car position saved. Your path is now being recorded.</string>
+    <string name="no_parked_car">No car position has been saved yet.</string>
+    <string name="location_permission_required">Location permission is required to save your car position.</string>
+    <string name="location_unavailable">Current location is unavailable. Check location services and try again.</string>
+    <string name="parking_tracking_channel">Parked car tracking</string>
+    <string name="parking_tracking_title">Recording path from your car</string>
+    <string name="parking_tracking_text">Tap to view the path back to your parked car.</string>
+    <string name="car_saved_at">Parked: %1$s</string>
+    <string name="distance_to_car">Direct distance to car: %1$d m</string>
+    <string name="waiting_for_location">Waiting for a current location…</string>
+    <string name="clear_car_position">Clear</string>
+    <string name="back">Back</string>
+    <string name="parked_car_map">Map showing parked car and covered path</string>
 
 </resources>

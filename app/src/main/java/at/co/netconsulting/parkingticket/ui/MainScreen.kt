@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import at.co.netconsulting.parkingticket.MainActivity
 import at.co.netconsulting.parkingticket.R
@@ -23,9 +24,14 @@ import kotlin.math.roundToInt
 
 class MainScreenState {
     var nextParkingTicketText = mutableStateOf("")
+    var carPositionSaved = mutableStateOf(false)
 
     fun updateNextParkingTicket(text: String) {
         nextParkingTicketText.value = text
+    }
+
+    fun updateCarPositionSaved(saved: Boolean) {
+        carPositionSaved.value = saved
     }
 }
 
@@ -52,6 +58,8 @@ object MainScreenSetup {
                     },
                     onNavigateToSettings = { activity.navigateToSettings() },
                     onNavigateToParkingplaces = { activity.navigateToParkingplaces() },
+                    onSaveCarPosition = { activity.saveCarPosition() },
+                    onNavigateToParkedCar = { activity.navigateToParkedCar() },
                     getDurationsForCity = { city -> getDurationsForCity(context, city) }
                 )
             }
@@ -188,6 +196,8 @@ fun MainScreen(
     onStopAlarm: (String) -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToParkingplaces: () -> Unit,
+    onSaveCarPosition: () -> Unit,
+    onNavigateToParkedCar: () -> Unit,
     getDurationsForCity: (String) -> List<String>
 ) {
     val now = Calendar.getInstance()
@@ -212,6 +222,7 @@ fun MainScreen(
 
     var menuExpanded by remember { mutableStateOf(false) }
     val nextTicketInfo by state.nextParkingTicketText
+    val carPositionSaved by state.carPositionSaved
 
     Scaffold(
         topBar = {
@@ -237,6 +248,14 @@ fun MainScreen(
                             onClick = {
                                 menuExpanded = false
                                 onNavigateToParkingplaces()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.parked_car_title)) },
+                            enabled = carPositionSaved,
+                            onClick = {
+                                menuExpanded = false
+                                onNavigateToParkedCar()
                             }
                         )
                     }
@@ -341,6 +360,33 @@ fun MainScreen(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
+                }
+            }
+
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.parked_car_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Button(onClick = onSaveCarPosition, modifier = Modifier.weight(1f)) {
+                            Text(stringResource(R.string.save_car_position))
+                        }
+                        OutlinedButton(
+                            onClick = onNavigateToParkedCar,
+                            enabled = carPositionSaved,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(R.string.show_route_to_car))
+                        }
+                    }
                 }
             }
 
