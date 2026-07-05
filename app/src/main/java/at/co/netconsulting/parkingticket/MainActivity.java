@@ -40,6 +40,7 @@ import at.co.netconsulting.parkingticket.service.ForegroundService;
 import at.co.netconsulting.parkingticket.service.ParkingLocationService;
 import at.co.netconsulting.parkingticket.ui.MainScreenSetup;
 import at.co.netconsulting.parkingticket.ui.MainScreenState;
+import at.co.netconsulting.parkingticket.ui.ParkingBookingRequest;
 
 public class MainActivity extends BaseActivity {
     private PendingIntent pendingIntent;
@@ -154,17 +155,22 @@ public class MainActivity extends BaseActivity {
         long plannedTime = parkscheinCollection.getNextParkingTickets().firstKey();
         int size = parkscheinCollection.getNextParkingTickets().size();
 
-        intent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
-        intent.setAction(String.valueOf(R.string.intentAction));
+        Intent bookingIntent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
+        bookingIntent.putExtra(StaticFields.PARKSCHEIN_POJO, parkscheinCollection);
+        bookingIntent.setAction(String.valueOf(R.string.intentAction));
 
-        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+        PendingIntent bookingPendingIntent = PendingIntent.getBroadcast(
+                getApplicationContext(), parkscheinCollection.getAlarmRequestCode(),
+                bookingIntent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
-        triggerAlarmManager(plannedTime, size, isVoiceMessageActivated);
+        triggerAlarmManager(plannedTime, size, bookingPendingIntent, parkscheinCollection);
     }
 
     @SuppressLint("ScheduleExactAlarm")
-    private void triggerAlarmManager(long plannedTime, int size, boolean isVoiceMessageActivated) {
+    private void triggerAlarmManager(long plannedTime, int size,
+                                     PendingIntent bookingPendingIntent,
+                                     ParkscheinCollection collection) {
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
@@ -175,29 +181,19 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if(showAlertDialog.equals(StaticFields.DIALOG_YES))
-            showAlertDialog();
-        if (isVoiceMessageActivated) {
-            if (size > 0) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
-                calcAndSaveNextParkingTicket();
-            } else {
-                AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
-                alarmManager.setAlarmClock(ac, pendingIntent);
-            }
+        if (size > 0) {
+            alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP, plannedTime, bookingPendingIntent);
+            calcAndSaveNextParkingTicket(collection);
         } else {
-            if (size > 0) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, plannedTime, pendingIntent);
-                calcAndSaveNextParkingTicket();
-            } else {
-                AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
-                alarmManager.setAlarmClock(ac, pendingIntent);
-            }
+            AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(
+                    System.currentTimeMillis(), bookingPendingIntent);
+            alarmManager.setAlarmClock(ac, bookingPendingIntent);
         }
     }
 
-    private void calcAndSaveNextParkingTicket() {
-        TreeMap<Long, Integer> textViewTreeMap = parkscheinCollection.getNextParkingTickets();
+    private void calcAndSaveNextParkingTicket(ParkscheinCollection collection) {
+        TreeMap<Long, Integer> textViewTreeMap = collection.getNextParkingTickets();
         CalculationParkingTicket calc = new CalculationParkingTicket(getApplicationContext());
         String nextParkingTicket = calc.calculateMillisecondsToHoursMinutes(textViewTreeMap.firstKey());
         saveSharedPreferencesAsString(nextParkingTicket, StaticFields.NEXT_PARKINGTICKET);
@@ -310,6 +306,65 @@ public class MainActivity extends BaseActivity {
             parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
 
         prepareAlarmManager(parkscheinCollection);
+    }
+
+    public void startAlarmsFromCompose(List<ParkingBookingRequest> bookings) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                && !alarmManager.canScheduleExactAlarms()) {
+            Toast.makeText(this, R.string.exact_alarm_permission_required, Toast.LENGTH_LONG).show();
+            Intent permissionIntent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+            permissionIntent.setData(Uri.parse("package:" + getPackageName()));
+            startActivity(permissionIntent);
+            return;
+        }
+
+        long earliestBooking = Long.MAX_VALUE;
+        int scheduled = 0;
+        for (ParkingBookingRequest booking : bookings) {
+            this.city = booking.getCity();
+            CalculationParkingTicket calc =
+                    new CalculationParkingTicket(getApplicationContext());
+            TreeMap<Long, Integer> tickets = calc.calculateNextParkingTicket(
+                    booking.getStartHour(), booking.getStartMinute(),
+                    booking.getStopHour(), booking.getStopMinute(),
+                    booking.getIntervalMinutes(), booking.getStopEnabled(),
+                    Integer.parseInt(booking.getDuration()), booking.getCity());
+            if (tickets.isEmpty()) {
+                continue;
+            }
+
+            ParkscheinCollection collection = new ParkscheinCollection(
+                    booking.getCity(), tickets, booking.getLicensePlate(),
+                    telephoneNumber, isCityStop(), nextAlarmRequestCode());
+            prepareAlarmManager(collection);
+            earliestBooking = Math.min(earliestBooking, tickets.firstKey());
+            scheduled++;
+        }
+
+        if (earliestBooking != Long.MAX_VALUE) {
+            CalculationParkingTicket calc =
+                    new CalculationParkingTicket(getApplicationContext());
+            String next = calc.calculateMillisecondsToHoursMinutes(earliestBooking);
+            saveSharedPreferencesAsString(next, StaticFields.NEXT_PARKINGTICKET);
+            mainScreenState.updateNextParkingTicket(
+                    getString(R.string.next_parking_ticket) + next);
+        }
+        Toast.makeText(this, scheduled + " parking booking(s) scheduled",
+                Toast.LENGTH_LONG).show();
+    }
+
+    private int nextAlarmRequestCode() {
+        SharedPreferences preferences =
+                getSharedPreferences("ALARM_REQUEST_CODES", Context.MODE_PRIVATE);
+        int requestCode = preferences.getInt("NEXT", 1000);
+        int next = requestCode == Integer.MAX_VALUE ? 1000 : requestCode + 1;
+        preferences.edit().putInt("NEXT", next).apply();
+        return requestCode;
+    }
+
+    public String getDefaultLicensePlate() {
+        return licensePlate == null ? StaticFields.DEFAULT_NUMBER_PLATE : licensePlate;
     }
 
     // Called from Compose UI

@@ -50,7 +50,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                     licensePlate = stop.getLicensePlate();
                     telephoneNumber = stop.getTelephoneNumber();
 
-                    sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
+                    sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, stop);
                     parkscheinCollection = null;
                 } else {
                     //Automatic booking
@@ -162,7 +162,8 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
             return;
         }
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
+                parkscheinCollection.getAlarmRequestCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, parkscheinCollection.getNextParkingTickets().firstKey(), pendingIntent);
@@ -199,7 +200,10 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
         smsManager.sendTextMessage(telephoneNumber, null, StaticFields.STOP_SMS, null, null);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
+        int requestCode = parkscheinCollection == null
+                ? StaticFields.REQUEST_CODE
+                : parkscheinCollection.getAlarmRequestCode();
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT |
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
         alarmManager.cancel(pendingIntent);
     }

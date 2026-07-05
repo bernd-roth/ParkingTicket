@@ -18,6 +18,7 @@ public class ParkscheinCollection implements Serializable {
     private String licensePlate;
     private String telephoneNumber;
     private boolean isStop;
+    private int alarmRequestCode;
 
     /**
      * Constructor for sending STOP signal by user instantly
@@ -31,11 +32,18 @@ public class ParkscheinCollection implements Serializable {
      *        provide telephone number, will be taken from SharedPreferences, defined in Settings
      */
     public ParkscheinCollection(String city, TreeMap<Long, Integer> nextParkingTickets, String licensePlate, String telephoneNumber, boolean isStop) {
+        this(city, nextParkingTickets, licensePlate, telephoneNumber, isStop, 0);
+    }
+
+    public ParkscheinCollection(String city, TreeMap<Long, Integer> nextParkingTickets,
+                                String licensePlate, String telephoneNumber,
+                                boolean isStop, int alarmRequestCode) {
         this.city = city;
         this.nextParkingTickets = nextParkingTickets;
         this.licensePlate = licensePlate;
         this.telephoneNumber = telephoneNumber;
         this.isStop = isStop;
+        this.alarmRequestCode = alarmRequestCode;
     }
 
     //Getter
@@ -70,6 +78,10 @@ public class ParkscheinCollection implements Serializable {
 
     public boolean isStop() {
         return isStop;
+    }
+
+    public int getAlarmRequestCode() {
+        return alarmRequestCode;
     }
 
     public void setStop(boolean stop) {

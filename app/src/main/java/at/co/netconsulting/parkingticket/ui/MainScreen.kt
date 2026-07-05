@@ -47,11 +47,10 @@ object MainScreenSetup {
             ) {
                 MainScreen(
                     cities = cities,
+                    defaultLicensePlate = activity.defaultLicensePlate,
                     state = state,
-                    onStartAlarm = { startH, startM, stopH, stopM, interval, city, duration, stopEnabled ->
-                        activity.startAlarmFromCompose(
-                            startH, startM, stopH, stopM, interval, city, duration, stopEnabled
-                        )
+                    onStartAlarms = { bookings ->
+                        activity.startAlarmsFromCompose(bookings)
                     },
                     onStopAlarm = { city ->
                         activity.stopAlarmFromCompose(city)
@@ -189,7 +188,7 @@ fun getCrestForCity(city: String): Int {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
+fun LegacyMainScreen(
     cities: List<String>,
     state: MainScreenState,
     onStartAlarm: (Int, Int, Int, Int, Int, String, String, Boolean) -> Unit,
