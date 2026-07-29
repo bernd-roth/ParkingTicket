@@ -25,6 +25,7 @@ import kotlin.math.roundToInt
 class MainScreenState {
     var nextParkingTicketText = mutableStateOf("")
     var carPositionSaved = mutableStateOf(false)
+    var activeBookings = mutableStateOf<List<ActiveParkingBooking>>(emptyList())
 
     fun updateNextParkingTicket(text: String) {
         nextParkingTicketText.value = text
@@ -32,6 +33,10 @@ class MainScreenState {
 
     fun updateCarPositionSaved(saved: Boolean) {
         carPositionSaved.value = saved
+    }
+
+    fun updateActiveBookings(bookings: List<ActiveParkingBooking>) {
+        activeBookings.value = bookings
     }
 }
 
@@ -52,8 +57,8 @@ object MainScreenSetup {
                     onStartAlarms = { bookings ->
                         activity.startAlarmsFromCompose(bookings)
                     },
-                    onStopAlarm = { city ->
-                        activity.stopAlarmFromCompose(city)
+                    onStopBooking = { booking ->
+                        activity.stopBookingFromCompose(booking.alarmRequestCode)
                     },
                     onNavigateToSettings = { activity.navigateToSettings() },
                     onNavigateToParkingplaces = { activity.navigateToParkingplaces() },

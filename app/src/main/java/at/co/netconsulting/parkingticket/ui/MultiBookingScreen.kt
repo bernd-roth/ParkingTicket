@@ -14,7 +14,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import at.co.netconsulting.parkingticket.R
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+
+data class ActiveParkingBooking(
+    val alarmRequestCode: Int,
+    val licensePlate: String,
+    val city: String,
+    val nextTicketTimeMillis: Long,
+    val remainingTickets: Int
+)
 
 data class ParkingBookingRequest(
     val licensePlate: String,
@@ -48,7 +59,7 @@ fun MainScreen(
     defaultLicensePlate: String,
     state: MainScreenState,
     onStartAlarms: (List<ParkingBookingRequest>) -> Unit,
-    onStopAlarm: (String) -> Unit,
+    onStopBooking: (ActiveParkingBooking) -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToParkingplaces: () -> Unit,
     onSaveCarPosition: () -> Unit,
@@ -72,10 +83,14 @@ fun MainScreen(
     var bookingsToConfirm by remember {
         mutableStateOf<List<ParkingBookingRequest>>(emptyList())
     }
+    var bookingsToStop by remember {
+        mutableStateOf<List<ActiveParkingBooking>>(emptyList())
+    }
     var validationMessage by remember { mutableStateOf<String?>(null) }
     var menuExpanded by remember { mutableStateOf(false) }
     val nextTicketInfo by state.nextParkingTicketText
     val carPositionSaved by state.carPositionSaved
+    val activeBookings by state.activeBookings
 
     Scaffold(
         topBar = {
@@ -204,7 +219,14 @@ fun MainScreen(
                     Text("Review & start")
                 }
                 OutlinedButton(
-                    onClick = { onStopAlarm(bookings.first().city) },
+                    onClick = {
+                        if (activeBookings.isEmpty()) {
+                            validationMessage = "There are no active bookings to stop."
+                        } else {
+                            validationMessage = null
+                            bookingsToStop = activeBookings
+                        }
+                    },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("Stop")
@@ -225,12 +247,72 @@ fun MainScreen(
             }
         )
     }
+
+    if (bookingsToStop.isNotEmpty()) {
+        StopBookingSelectionDialog(
+            bookings = bookingsToStop,
+            onDismiss = { bookingsToStop = emptyList() },
+            onStop = { booking ->
+                bookingsToStop = emptyList()
+                onStopBooking(booking)
+            }
+        )
+    }
 }
 
 private fun ParkingBookingDraft.toRequest() = ParkingBookingRequest(
     licensePlate.trim(), startHour, startMinute, stopHour, stopMinute,
     intervalText.toInt(), city, duration, stopEnabled && city == "Wien"
 )
+
+@Composable
+private fun StopBookingSelectionDialog(
+    bookings: List<ActiveParkingBooking>,
+    onDismiss: () -> Unit,
+    onStop: (ActiveParkingBooking) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Stop parking booking") },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 480.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("Choose the booking that should be stopped.")
+                bookings.forEachIndexed { index, booking ->
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                "${index + 1}. ${booking.licensePlate}",
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                            Text(booking.city)
+                            Text("Next ticket ${booking.nextTicketTimeMillis.formatDateTime()}")
+                            Text("Remaining tickets ${booking.remainingTickets}")
+                            Button(
+                                onClick = { onStop(booking) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Stop this booking")
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Back") }
+        }
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -460,3 +542,6 @@ private fun BookingConfirmationDialog(
 }
 
 private fun Int.twoDigits(): String = toString().padStart(2, '0')
+
+private fun Long.formatDateTime(): String =
+    SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date(this))

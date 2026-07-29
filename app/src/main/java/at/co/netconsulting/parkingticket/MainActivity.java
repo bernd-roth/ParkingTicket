@@ -35,8 +35,10 @@ import at.co.netconsulting.parkingticket.broadcastreceiver.SmsBroadcastReceiver;
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.general.StaticFields;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
+import at.co.netconsulting.parkingticket.parking.ActiveParkingBookingsStore;
 import at.co.netconsulting.parkingticket.parking.ParkingPositionStore;
 import at.co.netconsulting.parkingticket.service.ForegroundService;
+import at.co.netconsulting.parkingticket.ui.ActiveParkingBooking;
 import at.co.netconsulting.parkingticket.service.ParkingLocationService;
 import at.co.netconsulting.parkingticket.ui.MainScreenSetup;
 import at.co.netconsulting.parkingticket.ui.MainScreenState;
@@ -89,6 +91,7 @@ public class MainActivity extends BaseActivity {
         mainScreenState.updateCarPositionSaved(ParkingPositionStore.hasCar(this));
         ComposeView composeView = findViewById(R.id.compose_view);
         MainScreenSetup.init(composeView, this, mainScreenState);
+        refreshActiveBookingsState();
     }
 
     private boolean checkAndRequestPermissions() {
@@ -265,26 +268,33 @@ public class MainActivity extends BaseActivity {
 
     @SuppressLint("ScheduleExactAlarm")
     public void triggerCancellationAlarmManager() {
-        if(isCityStop()) {
-            parkscheinCollection = new ParkscheinCollection(city, nextParkingTickets, licensePlate, telephoneNumber, true);
-
-            intent.setAction(String.valueOf("AlarmManager"));
-            intent.putExtra(StaticFields.STOP_SMS, parkscheinCollection);
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
-                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
-
-            AlarmManager.AlarmClockInfo ac = new AlarmManager.AlarmClockInfo(System.currentTimeMillis(), pendingIntent);
-            AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-            alarmManager.setAlarmClock(ac, pendingIntent);
-        } else {
-            AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-
-            intent.setAction(String.valueOf(R.string.intentAction));
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), StaticFields.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT |
-                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
-            alarmManager.cancel(pendingIntent);
+        if (parkscheinCollection != null) {
+            triggerCancellationAlarmManager(parkscheinCollection);
+        } else if (city != null && nextParkingTickets != null) {
+            ParkscheinCollection collection = new ParkscheinCollection(
+                    city, nextParkingTickets, licensePlate, telephoneNumber,
+                    isCityStop(), StaticFields.REQUEST_CODE);
+            triggerCancellationAlarmManager(collection);
         }
         parkscheinCollection = null;
+    }
+
+    private void triggerCancellationAlarmManager(ParkscheinCollection collection) {
+        Intent cancellationIntent = new Intent(getApplicationContext(), SmsBroadcastReceiver.class);
+        cancellationIntent.setAction(String.valueOf(R.string.intentAction));
+
+        if (collection.isStop()) {
+            cancellationIntent.putExtra(StaticFields.STOP_SMS, collection);
+            sendBroadcast(cancellationIntent);
+            return;
+        }
+
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent cancellationPendingIntent = PendingIntent.getBroadcast(
+                getApplicationContext(), collection.getAlarmRequestCode(), cancellationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT |
+                        PendingIntent.FLAG_IMMUTABLE);
+        alarmManager.cancel(cancellationPendingIntent);
     }
 
     // Called from Compose UI
@@ -338,6 +348,7 @@ public class MainActivity extends BaseActivity {
                     booking.getCity(), tickets, booking.getLicensePlate(),
                     telephoneNumber, isCityStop(), nextAlarmRequestCode());
             prepareAlarmManager(collection);
+            ActiveParkingBookingsStore.addOrReplace(this, collection);
             earliestBooking = Math.min(earliestBooking, tickets.firstKey());
             scheduled++;
         }
@@ -350,6 +361,7 @@ public class MainActivity extends BaseActivity {
             mainScreenState.updateNextParkingTicket(
                     getString(R.string.next_parking_ticket) + next);
         }
+        refreshActiveBookingsState();
         Toast.makeText(this, scheduled + " parking booking(s) scheduled",
                 Toast.LENGTH_LONG).show();
     }
@@ -367,12 +379,36 @@ public class MainActivity extends BaseActivity {
         return licensePlate == null ? StaticFields.DEFAULT_NUMBER_PLATE : licensePlate;
     }
 
+    public void stopBookingFromCompose(int alarmRequestCode) {
+        ParkscheinCollection collection =
+                ActiveParkingBookingsStore.findByRequestCode(this, alarmRequestCode);
+        if (collection == null) {
+            refreshActiveBookingsState();
+            Toast.makeText(this, "Parking booking is already stopped or completed",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        triggerCancellationAlarmManager(collection);
+        ActiveParkingBookingsStore.removeByRequestCode(this, alarmRequestCode);
+        refreshActiveBookingsState();
+
+        if (ActiveParkingBookingsStore.load(this).isEmpty()) {
+            cancelForegroundService();
+        }
+        Toast.makeText(this,
+                "Parking booking stopped: " + collection.getLicensePlate(),
+                Toast.LENGTH_LONG).show();
+    }
+
     // Called from Compose UI
     public void stopAlarmFromCompose(String currentCity) {
         this.city = currentCity;
         triggerCancellationAlarmManager();
-        destroySharedPreference();
-        cancelForegroundService();
+        refreshActiveBookingsState();
+        if (ActiveParkingBookingsStore.load(this).isEmpty()) {
+            cancelForegroundService();
+        }
     }
 
     // Called from Compose UI
@@ -429,6 +465,60 @@ public class MainActivity extends BaseActivity {
             return;
         }
         startActivity(new Intent(this, ParkedCarActivity.class));
+    }
+
+    public void refreshActiveBookingsState() {
+        List<ParkscheinCollection> activeCollections =
+                ActiveParkingBookingsStore.load(this);
+        final List<ActiveParkingBooking> summaries =
+                toActiveBookingSummaries(activeCollections);
+        long earliestBooking =
+                ActiveParkingBookingsStore.earliestNextTicketTime(activeCollections);
+        final String nextParkingTicketText;
+
+        if (earliestBooking == Long.MAX_VALUE) {
+            destroySharedPreference();
+            nextParkingTicketText = getString(R.string.booked_parking_ticket);
+        } else {
+            CalculationParkingTicket calc =
+                    new CalculationParkingTicket(getApplicationContext());
+            String next = calc.calculateMillisecondsToHoursMinutes(earliestBooking);
+            saveSharedPreferencesAsString(next, StaticFields.NEXT_PARKINGTICKET);
+            nextParkingTicketText = getString(R.string.next_parking_ticket) + next;
+        }
+
+        if (mainScreenState == null) {
+            return;
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainScreenState.updateActiveBookings(summaries);
+                mainScreenState.updateNextParkingTicket(nextParkingTicketText);
+            }
+        });
+    }
+
+    private List<ActiveParkingBooking> toActiveBookingSummaries(
+            List<ParkscheinCollection> collections
+    ) {
+        ArrayList<ActiveParkingBooking> summaries = new ArrayList<>();
+        for (ParkscheinCollection collection : collections) {
+            if (collection.getNextParkingTickets() != null
+                    && !collection.getNextParkingTickets().isEmpty()) {
+                summaries.add(new ActiveParkingBooking(
+                        collection.getAlarmRequestCode(),
+                        collection.getLicensePlate(),
+                        collection.getCity(),
+                        collection.getNextParkingTickets().firstKey(),
+                        collection.getNextParkingTickets().size()
+                ));
+            }
+        }
+        summaries.sort((left, right) -> Long.compare(
+                left.getNextTicketTimeMillis(), right.getNextTicketTimeMillis()
+        ));
+        return summaries;
     }
 
     public void updateTheTextView(final Map.Entry<Long, Integer> firstEntry) {
@@ -539,5 +629,6 @@ public class MainActivity extends BaseActivity {
         if (mainScreenState != null) {
             mainScreenState.updateCarPositionSaved(ParkingPositionStore.hasCar(this));
         }
+        refreshActiveBookingsState();
     }
 }

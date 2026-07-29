@@ -19,6 +19,7 @@ import at.co.netconsulting.parkingticket.CalculationParkingTicket;
 import at.co.netconsulting.parkingticket.MainActivity;
 import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.general.StaticFields;
+import at.co.netconsulting.parkingticket.parking.ActiveParkingBookingsStore;
 import at.co.netconsulting.parkingticket.pojo.ParkscheinCollection;
 import at.co.netconsulting.parkingticket.service.ForegroundService;
 
@@ -51,6 +52,9 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                     telephoneNumber = stop.getTelephoneNumber();
 
                     sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, stop);
+                    ActiveParkingBookingsStore.removeByRequestCode(
+                            context, stop.getAlarmRequestCode());
+                    refreshMainActivity();
                     parkscheinCollection = null;
                 } else {
                     //Automatic booking
@@ -67,6 +71,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                             sendSMSToCancel(context, city, licensePlate, telephoneNumber, intent, parkscheinCollection);
                             ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
                             updateIntent(intent, reducedParkscheinCollection);
+                            updateActiveBooking(context, reducedParkscheinCollection);
                             parkscheinCollection = null;
                         } else {
                             //If city is Vienna and one ticket will be booked
@@ -75,25 +80,42 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                             sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
                             //start foregroundservice
                             startForegroundService(context, intent);
+                            updateActiveBooking(context, reducedParkscheinCollection);
                         }
                     } else if (parkscheinCollection.getNextParkingTickets().size() > 1) {
                         ParkscheinCollection reducedParkscheinCollection = removeNextParkingTicketFromCollection(parkscheinCollection);
                         updateIntent(intent, reducedParkscheinCollection);
                         setNextAlarmManager(context, intent, reducedParkscheinCollection);
                         sendSMS(context, city, durationParkingticket, licensePlate, telephoneNumber);
+                        updateActiveBooking(context, reducedParkscheinCollection);
                         //start foregroundservice
                         if (waitMinutes > 0) {
                             startForegroundService(context, intent);
                         }
                         try {
                             saveSharedPreferences(context, StaticFields.NEXT_PARKINGTICKET, reducedParkscheinCollection);
-                            MainActivity.getInstance().updateTheTextView(reducedParkscheinCollection.getNextParkingTickets().firstEntry());
+                            refreshMainActivity();
                         } catch (Exception e) {
 
                         }
                     }
                 }
             }
+        }
+    }
+
+    private void updateActiveBooking(
+            Context context,
+            ParkscheinCollection collection
+    ) {
+        ActiveParkingBookingsStore.updateOrRemove(context, collection);
+        refreshMainActivity();
+    }
+
+    private void refreshMainActivity() {
+        MainActivity activity = MainActivity.getInstance();
+        if (activity != null) {
+            activity.refreshActiveBookingsState();
         }
     }
 
