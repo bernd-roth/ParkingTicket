@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.compose.ui.platform.ComposeView;
+import androidx.core.content.ContextCompat;
 
 import at.co.netconsulting.parkingticket.general.BaseActivity;
 import at.co.netconsulting.parkingticket.parking.ParkingPositionStore;
@@ -23,6 +24,18 @@ public class ParkedCarActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ComposeView composeView = findViewById(R.id.compose_view);
         ParkedCarScreenSetup.init(composeView, this);
+    }
+
+    public void startTracking() {
+        ParkingPositionStore.startTracking(this);
+        ContextCompat.startForegroundService(this, new Intent(this, ParkingLocationService.class));
+        Toast.makeText(this, R.string.tracking_started, Toast.LENGTH_SHORT).show();
+    }
+
+    public void stopTracking() {
+        ParkingPositionStore.stopTracking(this);
+        stopService(new Intent(this, ParkingLocationService.class));
+        Toast.makeText(this, R.string.tracking_stopped, Toast.LENGTH_SHORT).show();
     }
 
     public void clearParkedCar() {

@@ -30,8 +30,7 @@ sizeMapElement();
 var map = L.map('map', { zoomControl: true }).setView([48.2082, 16.3738], 17);
 var carMarker = null;
 var currentMarker = null;
-var trail = null;
-var directLine = null;
+var trails = [];
 var firstUpdate = true;
 
 var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -43,8 +42,7 @@ L.control.scale().addTo(map);
 var legend = L.control({ position: 'bottomright' });
 legend.onAdd = function () {
     var div = L.DomUtil.create('div', 'legend');
-    div.innerHTML = '<div><i style=background:#2167d5></i>Covered path</div>' +
-        '<div><i style=background:#6b778c></i>Direct line to car</div>';
+    div.innerHTML = '<div><i style=background:#2167d5></i>Recorded path</div>';
     return div;
 };
 legend.addTo(map);
@@ -65,28 +63,31 @@ function updateParkingMap(data) {
     }
 
     if (currentMarker) map.removeLayer(currentMarker);
-    if (trail) map.removeLayer(trail);
-    if (directLine) map.removeLayer(directLine);
+    trails.forEach(function (layer) { map.removeLayer(layer); });
+    trails = [];
 
     if (data.current) {
         currentMarker = L.circleMarker(data.current, {
             radius: 8, color: 'white', weight: 3, fillColor: '#0c66e4', fillOpacity: 1
         }).addTo(map).bindPopup('Your current position');
-        directLine = L.polyline([data.current, data.car], {
-            color: '#6b778c', dashArray: '7 8', opacity: .8, weight: 3
-        }).addTo(map);
     }
 
-    if (data.path && data.path.length > 1) {
-        trail = L.polyline(data.path, { color: '#2167d5', opacity: .92, weight: 6 }).addTo(map);
-    }
+    // Each Start/End tracking session is drawn separately so pauses are not bridged by a line.
+    (data.segments || []).forEach(function (segment) {
+        if (segment.length < 2) return;
+        trails.push(L.polyline(segment, {
+            color: '#2167d5', opacity: .92, weight: 6
+        }).addTo(map));
+    });
 
     if (firstUpdate) {
         var bounds = L.latLngBounds([data.car]);
         if (data.current) bounds.extend(data.current);
-        if (data.path) data.path.forEach(function (point) { bounds.extend(point); });
-        if (bounds.isValid() && data.current &&
-            (data.current[0] !== data.car[0] || data.current[1] !== data.car[1])) {
+        (data.segments || []).forEach(function (segment) {
+            segment.forEach(function (point) { bounds.extend(point); });
+        });
+        if (bounds.isValid() &&
+            bounds.getNorthEast().distanceTo(bounds.getSouthWest()) > 1) {
             map.fitBounds(bounds, { padding: [35, 35], maxZoom: 18 });
         } else {
             map.setView(data.car, 18);

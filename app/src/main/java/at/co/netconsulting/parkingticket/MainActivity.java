@@ -454,8 +454,9 @@ public class MainActivity extends BaseActivity {
                     }
                     ParkingPositionStore.saveCar(this, location);
                     mainScreenState.updateCarPositionSaved(true);
-                    ContextCompat.startForegroundService(this, new Intent(this, ParkingLocationService.class));
+                    stopService(new Intent(this, ParkingLocationService.class));
                     Toast.makeText(this, R.string.car_position_saved, Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(this, ParkedCarActivity.class));
                 });
     }
 

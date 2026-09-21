@@ -22,6 +22,7 @@ import at.co.netconsulting.parkingticket.R;
 import at.co.netconsulting.parkingticket.parking.ParkingPositionStore;
 
 public class ParkingLocationService extends Service implements LocationListener {
+    public static final String ACTION_STOP_TRACKING = "at.co.netconsulting.parkingticket.action.STOP_TRACKING";
     private static final String CHANNEL_ID = "parking_position_tracking";
     private static final int NOTIFICATION_ID = 2104;
     private LocationManager locationManager;
@@ -36,7 +37,10 @@ public class ParkingLocationService extends Service implements LocationListener 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!ParkingPositionStore.hasCar(this)) {
+        if (intent != null && ACTION_STOP_TRACKING.equals(intent.getAction())) {
+            ParkingPositionStore.stopTracking(this);
+        }
+        if (!ParkingPositionStore.isTracking(this)) {
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -88,11 +92,15 @@ public class ParkingLocationService extends Service implements LocationListener 
         Intent mapIntent = new Intent(this, ParkedCarActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, mapIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        Intent stopIntent = new Intent(this, ParkingLocationService.class).setAction(ACTION_STOP_TRACKING);
+        PendingIntent stopPendingIntent = PendingIntent.getService(this, 1, stopIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.parking_tracking_title))
                 .setContentText(getString(R.string.parking_tracking_text))
                 .setContentIntent(pendingIntent)
+                .addAction(0, getString(R.string.stop_tracking), stopPendingIntent)
                 .setOngoing(true)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .build();

@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -55,6 +56,8 @@ object ParkedCarScreenSetup {
                 ParkedCarScreen(
                     context = activity,
                     onBack = { activity.finish() },
+                    onStartTracking = { activity.startTracking() },
+                    onStopTracking = { activity.stopTracking() },
                     onClear = { activity.clearParkedCar() }
                 )
             }
@@ -66,34 +69,51 @@ private data class ParkingMapSnapshot(
     val carLatitude: Double,
     val carLongitude: Double,
     val savedAt: Long,
-    val path: List<ParkingPathCodec.Point>
+    val tracking: Boolean,
+    val segments: List<List<ParkingPathCodec.Point>>
 ) {
+    // The last recorded point is only a meaningful "current position" while tracking is running.
+    private val current: ParkingPathCodec.Point?
+        get() = if (tracking) segments.lastOrNull()?.lastOrNull() else null
+
     fun toJson(): String {
-        val pathJson = path.joinToString(prefix = "[", postfix = "]") {
-            "[${it.latitude},${it.longitude}]"
+        val segmentsJson = segments.joinToString(prefix = "[", postfix = "]") { segment ->
+            segment.joinToString(prefix = "[", postfix = "]") { "[${it.latitude},${it.longitude}]" }
         }
-        val current = path.lastOrNull()
-        val currentJson = if (current == null) "null" else "[${current.latitude},${current.longitude}]"
-        return """{"car":[$carLatitude,$carLongitude],"current":$currentJson,"path":$pathJson}"""
+        val position = current
+        val currentJson = if (position == null) "null" else "[${position.latitude},${position.longitude}]"
+        return """{"car":[$carLatitude,$carLongitude],"current":$currentJson,"segments":$segmentsJson}"""
     }
 
     fun distanceToCar(): Int? {
-        val current = path.lastOrNull() ?: return null
+        val position = current ?: return null
         val result = FloatArray(1)
-        Location.distanceBetween(current.latitude, current.longitude, carLatitude, carLongitude, result)
+        Location.distanceBetween(position.latitude, position.longitude, carLatitude, carLongitude, result)
         return result[0].roundToInt()
     }
 }
 
 private fun loadSnapshot(context: Context): ParkingMapSnapshot? {
     val car = ParkingPositionStore.getCar(context) ?: return null
-    return ParkingMapSnapshot(car.latitude, car.longitude, car.savedAt, ParkingPositionStore.getPath(context))
+    return ParkingMapSnapshot(
+        car.latitude,
+        car.longitude,
+        car.savedAt,
+        ParkingPositionStore.isTracking(context),
+        ParkingPositionStore.getPathSegments(context)
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-private fun ParkedCarScreen(context: Context, onBack: () -> Unit, onClear: () -> Unit) {
+private fun ParkedCarScreen(
+    context: Context,
+    onBack: () -> Unit,
+    onStartTracking: () -> Unit,
+    onStopTracking: () -> Unit,
+    onClear: () -> Unit
+) {
     var snapshot by remember { mutableStateOf(loadSnapshot(context)) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -127,13 +147,38 @@ private fun ParkedCarScreen(context: Context, onBack: () -> Unit, onClear: () ->
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            current.distanceToCar()?.let { context.getString(R.string.distance_to_car, it) }
-                                ?: context.getString(R.string.waiting_for_location),
+                            if (current.tracking) {
+                                current.distanceToCar()?.let { context.getString(R.string.distance_to_car, it) }
+                                    ?: context.getString(R.string.waiting_for_location)
+                            } else {
+                                context.getString(R.string.tracking_inactive)
+                            },
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
                     Spacer(Modifier.weight(1f))
-                    Button(onClick = onClear) { Text(context.getString(R.string.clear_car_position)) }
+                    OutlinedButton(onClick = onClear) { Text(context.getString(R.string.clear_car_position)) }
+                }
+                Row(
+                    Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            onStartTracking()
+                            snapshot = loadSnapshot(context)
+                        },
+                        enabled = !current.tracking,
+                        modifier = Modifier.weight(1f)
+                    ) { Text(context.getString(R.string.start_tracking)) }
+                    Button(
+                        onClick = {
+                            onStopTracking()
+                            snapshot = loadSnapshot(context)
+                        },
+                        enabled = current.tracking,
+                        modifier = Modifier.weight(1f)
+                    ) { Text(context.getString(R.string.stop_tracking)) }
                 }
             }
 

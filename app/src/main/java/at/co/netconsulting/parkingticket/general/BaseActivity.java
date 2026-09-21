@@ -25,21 +25,17 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_main:
-                intent = new Intent(this, MainActivity.class);
-                this.startActivity(intent);
-                return true;
-            case R.id.action_settings:
-                intent = new Intent(this, SettingsActivity.class);
-                this.startActivity(intent);
-                return true;
-            case R.id.action_parkingplaces_overview:
-                intent = new Intent(this, Parkingplace.class);
-                this.startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_main) {
+            intent = new Intent(this, MainActivity.class);
+        } else if (itemId == R.id.action_settings) {
+            intent = new Intent(this, SettingsActivity.class);
+        } else if (itemId == R.id.action_parkingplaces_overview) {
+            intent = new Intent(this, Parkingplace.class);
+        } else {
+            return super.onOptionsItemSelected(item);
         }
+        this.startActivity(intent);
+        return true;
     }
 }
