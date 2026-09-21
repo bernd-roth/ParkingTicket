@@ -3,7 +3,26 @@
     "allow": [
       "Bash(gradlew.bat assembleDebug:*)",
       "Bash(./gradlew assembleDebug:*)",
-      "Bash(./gradlew clean:*)"
+      "Bash(./gradlew clean:*)",
+      "Bash(find:*)",
+      "Bash(dir /b /s C:projects*.py)",
+      "Bash(findstr:*)",
+      "Bash(xargs:*)",
+      "Bash(curl:*)",
+      "Bash(/tmp/download_crests.py:*)",
+      "Bash(python3:*)",
+      "Bash(where:*)",
+      "Bash(python:*)",
+      "Bash(/c/Users/bernd/AppData/Local/Microsoft/WindowsApps/python.exe:*)",
+      "Bash(/c/Users/bernd/AppData/Local/Programs/Python/Python312/python.exe:*)",
+      "Bash(/tmp/download_crests2.py:*)",
+      "Bash(py:*)",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "WebSearch",
+      "Bash(ls:*)",
+      "PowerShell($env:JAVA_HOME='C:\\\\Program Files\\\\Java\\\\jdk-22'; .\\\\gradlew.bat --version; .\\\\gradlew.bat assembleDebug -q --console=plain 2>&1 | Select-Object -Last 15)",
+      "PowerShell($x=[xml]\\(Invoke-WebRequest https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml -UseBasicParsing\\).Content; $x.metadata.versioning.versions.version | Where-Object {$_ -notmatch '-'} | Select-Object -Last 5; $k=[xml]\\(Invoke-WebRequest https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml -UseBasicParsing\\).Content; $k.metadata.versioning.versions.version | Where-Object {$_ -match '^\\\\d+\\\\.\\\\d+\\\\.\\\\d+$'} | Select-Object -Last 3; $l=[xml]\\(Invoke-WebRequest https://repo1.maven.org/maven2/org/projectlombok/lombok/maven-metadata.xml -UseBasicParsing\\).Content; $l.metadata.versioning.release)",
+      "PowerShell(Set-Content *)"
     ]
   }
 }
